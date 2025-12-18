@@ -40,16 +40,10 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         this.strictInsertFill(metaObject, "createTime", LocalDateTime::now, LocalDateTime.class);
         this.strictUpdateFill(metaObject, "updateTime", LocalDateTime::now, LocalDateTime.class);
 
-        // 如果启用了多租户，自动填充租户ID
-        if (tenantProperties != null && Boolean.TRUE.equals(tenantProperties.getEnabled())) {
+        // 强制多租户：仅当上下文存在 tenantId 时自动填充
+        if (tenantProperties != null) {
             Long tenantId = TenantContextHolder.getTenantId();
-            if (tenantId == null) {
-                // 如果上下文中没有租户ID，使用默认租户ID
-                tenantId = tenantProperties.getDefaultTenantId();
-            }
             if (tenantId != null) {
-                // 使用 strictInsertFill 自动填充租户ID
-                // 注意：由于 TenantDynamicFieldConfig 已将 exist 设置为 true，这里可以正常填充
                 Long finalTenantId = tenantId;
                 this.strictInsertFill(metaObject, "tenantId", () -> finalTenantId, Long.class);
             }

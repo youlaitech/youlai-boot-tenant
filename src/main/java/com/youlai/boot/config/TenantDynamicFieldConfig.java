@@ -7,7 +7,6 @@ import com.youlai.boot.config.property.TenantProperties;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
@@ -28,7 +27,6 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty(prefix = "youlai.tenant", name = "enabled", havingValue = "true")
 public class TenantDynamicFieldConfig implements InitializingBean {
 
     private final TenantProperties tenantProperties;

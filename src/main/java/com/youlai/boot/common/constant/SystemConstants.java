@@ -13,6 +13,16 @@ public interface SystemConstants {
      */
     Long ROOT_NODE_ID = 0L;
 
+    Long DEFAULT_TENANT_ID = 1L;
+
+    Long PLATFORM_MENU_ID = 1L;
+
+    String PLATFORM_ADMIN_USERNAME = "admin";
+
+    String PLATFORM_ROOT_USERNAME = "root";
+
+    String PLATFORM_ADMIN_ROLE_CODE = "ADMIN";
+
     /**
      * 系统默认密码
      */

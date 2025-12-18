@@ -49,8 +49,8 @@ public class MybatisConfig {
     public MybatisPlusInterceptor mybatisPlusInterceptor() {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
 
-        // 多租户插件（如果启用，必须在最前面）
-        if (tenantProperties != null && Boolean.TRUE.equals(tenantProperties.getEnabled()) && myTenantLineHandler != null) {
+        // 多租户插件（强制启用，必须在最前面）
+        if (myTenantLineHandler != null) {
             interceptor.addInnerInterceptor(new TenantLineInnerInterceptor(myTenantLineHandler));
         }
 

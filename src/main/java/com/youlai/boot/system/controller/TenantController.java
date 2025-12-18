@@ -1,17 +1,24 @@
 package com.youlai.boot.system.controller;
 
 import com.youlai.boot.common.tenant.TenantContextHolder;
+import com.youlai.boot.core.web.PageResult;
 import com.youlai.boot.core.web.Result;
 import com.youlai.boot.security.util.SecurityUtils;
-import com.youlai.boot.system.model.vo.TenantVO;
+import com.youlai.boot.system.model.form.TenantCreateForm;
+import com.youlai.boot.system.model.form.TenantForm;
+import com.youlai.boot.system.model.query.TenantPageQuery;
+import com.youlai.boot.system.model.vo.TenantCreateResultVo;
+import com.youlai.boot.system.model.vo.TenantPageVo;
+import com.youlai.boot.system.model.vo.TenantVo;
 import com.youlai.boot.system.service.TenantService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,7 +37,6 @@ import java.util.List;
 @RequestMapping("/api/v1/tenants")
 @RequiredArgsConstructor
 @Slf4j
-@ConditionalOnProperty(prefix = "youlai.tenant", name = "enabled", havingValue = "true", matchIfMissing = false)
 public class TenantController {
 
     private final TenantService tenantService;
@@ -45,9 +51,9 @@ public class TenantController {
      */
     @Operation(summary = "获取当前用户可访问的租户列表")
     @GetMapping
-    public Result<List<TenantVO>> getAccessibleTenants() {
+    public Result<List<TenantVo>> getAccessibleTenants() {
         Long userId = SecurityUtils.getUserId();
-        List<TenantVO> tenantList = tenantService.getAccessibleTenants(userId);
+        List<TenantVo> tenantList = tenantService.getAccessibleTenants(userId);
         log.debug("用户 {} 可访问 {} 个租户", userId, tenantList.size());
         return Result.success(tenantList);
     }
@@ -59,13 +65,71 @@ public class TenantController {
      */
     @Operation(summary = "获取当前租户信息")
     @GetMapping("/current")
-    public Result<TenantVO> getCurrentTenant() {
+    public Result<TenantVo> getCurrentTenant() {
         Long tenantId = TenantContextHolder.getTenantId();
         if (tenantId == null) {
             return Result.success(null);
         }
-        TenantVO tenant = tenantService.getTenantById(tenantId);
+
+        TenantVo tenant = tenantService.getTenantById(tenantId);
         return Result.success(tenant);
+    }
+
+    @Operation(summary = "租户分页列表")
+    @GetMapping("/page")
+    @PreAuthorize("@ss.hasPerm('sys:tenant:list')")
+    public PageResult<TenantPageVo> getTenantPage(TenantPageQuery queryParams) {
+        return PageResult.success(tenantService.getTenantPage(queryParams));
+    }
+
+    @Operation(summary = "获取租户表单数据")
+    @GetMapping("/{tenantId}/form")
+    @PreAuthorize("@ss.hasPerm('sys:tenant:update')")
+    public Result<TenantForm> getTenantForm(
+            @Parameter(description = "租户ID") @PathVariable Long tenantId
+    ) {
+        TenantForm formData = tenantService.getTenantForm(tenantId);
+        return Result.success(formData);
+    }
+
+    @Operation(summary = "新增租户并初始化默认数据")
+    @PostMapping
+    @PreAuthorize("@ss.hasPerm('sys:tenant:create')")
+    public Result<TenantCreateResultVo> createTenant(@RequestBody @Valid TenantCreateForm form) {
+        TenantCreateResultVo result = tenantService.createTenantWithInit(form);
+        return Result.success(result);
+    }
+
+    @Operation(summary = "修改租户")
+    @PutMapping("/{tenantId}")
+    @PreAuthorize("@ss.hasPerm('sys:tenant:update')")
+    public Result<?> updateTenant(
+            @Parameter(description = "租户ID") @PathVariable Long tenantId,
+            @RequestBody @Valid TenantForm formData
+    ) {
+        boolean result = tenantService.updateTenant(tenantId, formData);
+        return Result.judge(result);
+    }
+
+    @Operation(summary = "删除租户")
+    @DeleteMapping("/{ids}")
+    @PreAuthorize("@ss.hasPerm('sys:tenant:delete')")
+    public Result<Void> deleteTenants(
+            @Parameter(description = "租户ID，多个以英文逗号(,)分割") @PathVariable String ids
+    ) {
+        tenantService.deleteTenants(ids);
+        return Result.success();
+    }
+
+    @Operation(summary = "修改租户状态")
+    @PutMapping("/{tenantId}/status")
+    @PreAuthorize("@ss.hasPerm('sys:tenant:change-status')")
+    public Result<?> updateTenantStatus(
+            @Parameter(description = "租户ID") @PathVariable Long tenantId,
+            @Parameter(description = "状态(1:启用;0:禁用)") @RequestParam Integer status
+    ) {
+        boolean result = tenantService.updateTenantStatus(tenantId, status);
+        return Result.judge(result);
     }
 
     /**
@@ -79,7 +143,7 @@ public class TenantController {
      */
     @Operation(summary = "切换租户")
     @PostMapping("/{tenantId}/switch")
-    public Result<TenantVO> switchTenant(
+    public Result<TenantVo> switchTenant(
             @Parameter(description = "租户ID") @PathVariable Long tenantId,
             HttpServletRequest request
     ) {
@@ -95,7 +159,7 @@ public class TenantController {
         }
 
         // 验证租户是否存在且正常
-        TenantVO tenant = tenantService.getTenantById(tenantId);
+        TenantVo tenant = tenantService.getTenantById(tenantId);
         if (tenant == null) {
             log.warn("用户 {} 尝试切换到不存在的租户 {}", userId, tenantId);
             return Result.failed("租户不存在");

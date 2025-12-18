@@ -13,10 +13,10 @@ import java.util.List;
  * @author Ray.Hao
  * @since 2.3.0
  */
-@Schema(description = "访问趋势VO")
+@Schema(description = "访问趋势Vo")
 @Getter
 @Setter
-public class VisitTrendVO {
+public class VisitTrendVo {
 
     @Schema(description = "日期列表")
     private List<String> dates;

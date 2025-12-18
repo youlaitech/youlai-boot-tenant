@@ -2,16 +2,15 @@ package com.youlai.boot.core.filter;
 
 import com.youlai.boot.common.constant.SecurityConstants;
 import com.youlai.boot.common.tenant.TenantContextHolder;
-import com.youlai.boot.config.property.TenantProperties;
 import com.youlai.boot.security.model.SysUserDetails;
 import com.youlai.boot.security.token.TokenManager;
+import com.youlai.boot.system.service.TenantService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -35,33 +34,36 @@ import java.io.IOException;
 @Component
 @Order(1) // 确保在其他过滤器之前执行
 @RequiredArgsConstructor
-@ConditionalOnProperty(prefix = "youlai.tenant", name = "enabled", havingValue = "true", matchIfMissing = false)
 public class TenantContextFilter extends OncePerRequestFilter {
 
-    private final TenantProperties tenantProperties;
     private final TokenManager tokenManager;
+
+    private final TenantService tenantService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
         try {
-            Long tenantId = null;
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-            // 1) 优先从已认证用户中获取租户ID
-            tenantId = resolveTenantFromAuthentication(SecurityContextHolder.getContext().getAuthentication());
+            // 1) 从已认证用户中获取租户ID（已登录态：只信 token/auth）
+            Long tenantIdFromAuth = resolveTenantFromAuthentication(authentication);
 
-            // 2) 如果尚未获取到，尝试从 Token 中解析
-            if (tenantId == null) {
-                tenantId = resolveTenantFromToken(request);
+            // 2) 如果尚未获取到认证信息，尝试从 Token 中解析（不写入 SecurityContext，仅用于解析 tenantId/username）
+            Authentication authenticationFromToken = null;
+            if (tenantIdFromAuth == null) {
+                authenticationFromToken = resolveAuthenticationFromToken(request);
+                tenantIdFromAuth = resolveTenantFromAuthentication(authenticationFromToken);
             }
 
-            // 3) 仍为空则使用默认租户
+            Long tenantId = tenantIdFromAuth;
+
+            // 3) 未认证且无 token：从域名解析租户ID（子域名/域名映射场景）
             if (tenantId == null) {
-                Long defaultTenantId = tenantProperties.getDefaultTenantId();
-                if (defaultTenantId != null) {
-                    tenantId = defaultTenantId;
-                    log.debug("使用默认租户ID: {}", tenantId);
+                String domain = request != null ? request.getServerName() : null;
+                if (StringUtils.hasText(domain)) {
+                    tenantId = tenantService.getTenantIdByDomain(domain);
                 }
             }
 
@@ -87,14 +89,17 @@ public class TenantContextFilter extends OncePerRequestFilter {
         return null;
     }
 
-    private Long resolveTenantFromToken(HttpServletRequest request) {
+    private Authentication resolveAuthenticationFromToken(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         if (!StringUtils.hasText(authHeader) || !authHeader.startsWith(SecurityConstants.BEARER_TOKEN_PREFIX)) {
             return null;
         }
         String token = authHeader.substring(SecurityConstants.BEARER_TOKEN_PREFIX.length());
-        Authentication authentication = tokenManager.parseToken(token);
-        return resolveTenantFromAuthentication(authentication);
+        try {
+            return tokenManager.parseToken(token);
+        } catch (Exception e) {
+            log.warn("TenantContextFilter parseToken failed: {}", e.getMessage());
+            return null;
+        }
     }
 }
-

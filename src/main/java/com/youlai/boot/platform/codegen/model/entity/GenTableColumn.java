@@ -1,14 +1,18 @@
 package com.youlai.boot.platform.codegen.model.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.youlai.boot.common.base.BaseEntity;
 import com.youlai.boot.platform.codegen.enums.FormTypeEnum;
 import com.youlai.boot.platform.codegen.enums.QueryTypeEnum;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 /**
  * 代码生成表字段配置实体
@@ -19,7 +23,16 @@ import lombok.Setter;
 @TableName(value = "gen_table_column")
 @Getter
 @Setter
-public class GenTableColumn extends BaseEntity {
+public class GenTableColumn {
+
+    @TableId(type = IdType.AUTO)
+    private Long id;
+
+    @TableField(fill = FieldFill.INSERT)
+    private LocalDateTime createTime;
+
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updateTime;
 
 
     /**

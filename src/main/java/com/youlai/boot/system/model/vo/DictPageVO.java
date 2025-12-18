@@ -17,7 +17,7 @@ import java.util.List;
 @Schema(description = "字典分页对象")
 @Getter
 @Setter
-public class DictPageVO {
+public class DictPageVo {
 
     @Schema(description = "字典ID")
     private Long id;

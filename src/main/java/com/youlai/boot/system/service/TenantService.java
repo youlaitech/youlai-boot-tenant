@@ -1,8 +1,14 @@
 package com.youlai.boot.system.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.youlai.boot.system.model.entity.Tenant;
-import com.youlai.boot.system.model.vo.TenantVO;
+import com.youlai.boot.system.model.form.TenantCreateForm;
+import com.youlai.boot.system.model.form.TenantForm;
+import com.youlai.boot.system.model.query.TenantPageQuery;
+import com.youlai.boot.system.model.vo.TenantCreateResultVo;
+import com.youlai.boot.system.model.vo.TenantPageVo;
+import com.youlai.boot.system.model.vo.TenantVo;
 
 import java.util.List;
 
@@ -14,6 +20,8 @@ import java.util.List;
  */
 public interface TenantService extends IService<Tenant> {
 
+    boolean isPlatformTenantOperator();
+
     /**
      * 获取用户可访问的租户列表
      * <p>
@@ -23,7 +31,7 @@ public interface TenantService extends IService<Tenant> {
      * @param userId 用户ID
      * @return 可访问的租户列表
      */
-    List<TenantVO> getAccessibleTenants(Long userId);
+    List<TenantVo> getAccessibleTenants(Long userId);
 
     /**
      * 根据租户ID查询租户信息
@@ -31,7 +39,7 @@ public interface TenantService extends IService<Tenant> {
      * @param tenantId 租户ID
      * @return 租户信息
      */
-    TenantVO getTenantById(Long tenantId);
+    TenantVo getTenantById(Long tenantId);
 
     /**
      * 根据域名查询租户ID
@@ -40,6 +48,55 @@ public interface TenantService extends IService<Tenant> {
      * @return 租户ID
      */
     Long getTenantIdByDomain(String domain);
+
+    /**
+     * 新增租户并初始化默认数据
+     *
+     * @param form 新增租户表单
+     * @return 初始化结果
+     */
+    TenantCreateResultVo createTenantWithInit(TenantCreateForm form);
+
+    /**
+     * 获取租户分页列表
+     *
+     * @param queryParams 分页查询参数
+     * @return 租户分页列表
+     */
+    Page<TenantPageVo> getTenantPage(TenantPageQuery queryParams);
+
+    /**
+     * 获取租户表单数据
+     *
+     * @param tenantId 租户ID
+     * @return 租户表单数据
+     */
+    TenantForm getTenantForm(Long tenantId);
+
+    /**
+     * 更新租户信息
+     *
+     * @param tenantId 租户ID
+     * @param formData 租户表单数据
+     * @return 更新结果
+     */
+    boolean updateTenant(Long tenantId, TenantForm formData);
+
+    /**
+     * 删除租户
+     *
+     * @param ids 租户ID列表
+     */
+    void deleteTenants(String ids);
+
+    /**
+     * 更新租户状态
+     *
+     * @param tenantId 租户ID
+     * @param status   租户状态
+     * @return 更新结果
+     */
+    boolean updateTenantStatus(Long tenantId, Integer status);
 
     /**
      * 检查用户是否可以访问指定租户

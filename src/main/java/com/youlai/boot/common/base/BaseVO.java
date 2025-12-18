@@ -14,7 +14,7 @@ import java.io.Serializable;
  */
 @Data
 @ToString
-public class BaseVO implements Serializable {
+public class BaseVo implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;

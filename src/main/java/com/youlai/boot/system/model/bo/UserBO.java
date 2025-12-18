@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  * @since 2022/6/10
  */
 @Data
-public class UserBO {
+public class UserBo {
 
     /**
      * 用户ID

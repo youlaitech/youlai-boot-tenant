@@ -1,10 +1,10 @@
 package com.youlai.boot.platform.codegen.model.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
-
-import com.youlai.boot.common.base.BaseEntity;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 /**
  * 代码生成表配置
@@ -15,7 +15,16 @@ import lombok.Setter;
 @TableName(value = "gen_table")
 @Getter
 @Setter
-public class GenTable extends BaseEntity {
+public class GenTable {
+
+    @TableId(type = IdType.AUTO)
+    private Long id;
+
+    @TableField(fill = FieldFill.INSERT)
+    private LocalDateTime createTime;
+
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updateTime;
 
     /**
      * 表名

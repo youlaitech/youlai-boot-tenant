@@ -76,9 +76,6 @@ public class PermissionService {
      * @return 缓存key
      */
     private String buildRolePermsCacheKey(Long tenantId) {
-        if (!tenantProperties.getEnabled() || tenantId == null) {
-            return RedisConstants.System.ROLE_PERMS;
-        }
         return RedisConstants.System.ROLE_PERMS + ":" + tenantId;
     }
 
@@ -95,6 +92,10 @@ public class PermissionService {
 
         // 获取当前租户ID并构建缓存Key
         Long tenantId = TenantContextHolder.getTenantId();
+        if (tenantId == null) {
+            log.warn("TenantId is null when reading role perms from cache. Return empty perms.");
+            return Collections.emptySet();
+        }
         String cacheKey = buildRolePermsCacheKey(tenantId);
 
         Set<String> perms = new HashSet<>();
@@ -102,11 +103,21 @@ public class PermissionService {
         List<Object> rolePermsList = redisTemplate.opsForHash().multiGet(cacheKey, roleCodesAsObjects);
 
         for (Object rolePermsObj : rolePermsList) {
-            if (rolePermsObj instanceof Set) {
-                @SuppressWarnings("unchecked")
-                Set<String> rolePerms = (Set<String>) rolePermsObj;
-                perms.addAll(rolePerms);
+            if (rolePermsObj == null) {
+                continue;
             }
+
+            // Redis JSON 序列化后，Set 往往会以 List 的形式反序列化出来
+            if (rolePermsObj instanceof Collection<?> rolePermsCollection) {
+                rolePermsCollection.stream()
+                        .filter(Objects::nonNull)
+                        .map(Object::toString)
+                        .forEach(perms::add);
+                continue;
+            }
+
+            // 兼容极端情况：单个权限字符串
+            perms.add(rolePermsObj.toString());
         }
 
         return perms;

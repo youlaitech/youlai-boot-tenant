@@ -1,16 +1,21 @@
 package com.youlai.boot.security.model;
 
 import lombok.Data;
+
 import java.util.Set;
 
 /**
- * 用户认证凭证信息
+ * 用户认证信息
+ * <p>
+ * 用于登录认证过程中的用户信息承载，包含用户名、密码、状态、角色等与认证/授权相关的数据。
+ * 多租户模式下额外包含租户ID。
+ * </p>
  *
  * @author Ray.Hao
- * @since 2022/10/22
+ * @since 2025/12/16
  */
 @Data
-public class UserAuthCredentials {
+public class UserAuthInfo {
 
     /**
      * 用户ID
@@ -33,30 +38,27 @@ public class UserAuthCredentials {
     private Long deptId;
 
     /**
-     * 用户密码
+     * 密码（加密后）
      */
     private String password;
 
     /**
-     * 状态（1:启用；0:禁用）
+     * 状态（1:启用 其它:禁用）
      */
     private Integer status;
 
     /**
-     * 用户所属的角色集合
+     * 角色集合
      */
     private Set<String> roles;
 
     /**
-     * 数据权限范围，用于控制用户可以访问的数据级别
-     *
-     * @see com.youlai.boot.common.enums.DataScopeEnum
+     * 数据权限范围
      */
     private Integer dataScope;
 
     /**
-     * 租户ID（从登录上下文中获取）
+     * 租户ID
      */
     private Long tenantId;
-
 }

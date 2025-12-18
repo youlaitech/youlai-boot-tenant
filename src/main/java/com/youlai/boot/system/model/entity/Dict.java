@@ -1,9 +1,13 @@
 package com.youlai.boot.system.model.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.youlai.boot.common.base.BaseEntity;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+
+import java.time.LocalDateTime;
 
 /**
  * 字典实体
@@ -11,10 +15,18 @@ import lombok.EqualsAndHashCode;
  * @author Ray.Hao
  * @since 2022/12/17
  */
-@EqualsAndHashCode(callSuper = false)
 @TableName("sys_dict")
 @Data
-public class Dict extends BaseEntity {
+public class Dict {
+
+    @TableId(type = IdType.AUTO)
+    private Long id;
+
+    @TableField(fill = FieldFill.INSERT)
+    private LocalDateTime createTime;
+
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updateTime;
 
     /**
      * 字典编码

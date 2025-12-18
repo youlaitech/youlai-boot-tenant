@@ -4,12 +4,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.youlai.boot.system.mapper.LogMapper;
 import com.youlai.boot.system.model.bo.VisitCount;
-import com.youlai.boot.system.model.bo.VisitStatsBO;
+import com.youlai.boot.system.model.bo.VisitStatsBo;
 import com.youlai.boot.system.model.entity.Log;
 import com.youlai.boot.system.model.query.LogPageQuery;
-import com.youlai.boot.system.model.vo.LogPageVO;
-import com.youlai.boot.system.model.vo.VisitStatsVO;
-import com.youlai.boot.system.model.vo.VisitTrendVO;
+import com.youlai.boot.system.model.vo.LogPageVo;
+import com.youlai.boot.system.model.vo.VisitStatsVo;
+import com.youlai.boot.system.model.vo.VisitTrendVo;
 import com.youlai.boot.system.service.LogService;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +37,7 @@ public class LogServiceImpl extends ServiceImpl<LogMapper, Log>
      * @return 日志分页列表
      */
     @Override
-    public Page<LogPageVO> getLogPage(LogPageQuery queryParams) {
+    public Page<LogPageVo> getLogPage(LogPageQuery queryParams) {
         return this.baseMapper.getLogPage(new Page<>(queryParams.getPageNum(), queryParams.getPageSize()),
                 queryParams);
     }
@@ -50,8 +50,8 @@ public class LogServiceImpl extends ServiceImpl<LogMapper, Log>
      * @return
      */
     @Override
-    public VisitTrendVO getVisitTrend(LocalDate startDate, LocalDate endDate) {
-        VisitTrendVO visitTrend = new VisitTrendVO();
+    public VisitTrendVo getVisitTrend(LocalDate startDate, LocalDate endDate) {
+        VisitTrendVo visitTrend = new VisitTrendVo();
         List<String> dates = new ArrayList<>();
 
         // 获取日期范围内的日期
@@ -88,11 +88,11 @@ public class LogServiceImpl extends ServiceImpl<LogMapper, Log>
      * 访问量统计
      */
     @Override
-    public VisitStatsVO getVisitStats() {
-        VisitStatsVO result = new VisitStatsVO();
+    public VisitStatsVo getVisitStats() {
+        VisitStatsVo result = new VisitStatsVo();
 
         // 访客数统计(UV)
-        VisitStatsBO uvStats = this.baseMapper.getUvStats();
+        VisitStatsBo uvStats = this.baseMapper.getUvStats();
         if(uvStats!=null){
             result.setTodayUvCount(uvStats.getTodayCount());
             result.setTotalUvCount(uvStats.getTotalCount());
@@ -100,7 +100,7 @@ public class LogServiceImpl extends ServiceImpl<LogMapper, Log>
         }
 
         // 浏览量统计(PV)
-        VisitStatsBO pvStats = this.baseMapper.getPvStats();
+        VisitStatsBo pvStats = this.baseMapper.getPvStats();
         if(pvStats!=null){
             result.setTodayPvCount(pvStats.getTodayCount());
             result.setTotalPvCount(pvStats.getTotalCount());

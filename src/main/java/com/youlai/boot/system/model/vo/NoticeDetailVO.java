@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
  * @since 2024-9-8 01:25:06
  */
 @Data
-public class NoticeDetailVO {
+public class NoticeDetailVo {
 
     @Schema(description = "通知ID")
     private Long id;

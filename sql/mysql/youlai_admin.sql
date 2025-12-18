@@ -39,7 +39,7 @@ CREATE TABLE `sys_dept`  (
                              `update_time` datetime NULL COMMENT '更新时间',
                              `is_deleted` tinyint DEFAULT 0 COMMENT '逻辑删除标识(1-已删除 0-未删除)',
                              PRIMARY KEY (`id`) USING BTREE,
-                             UNIQUE INDEX `uk_code`(`code` ASC) USING BTREE COMMENT '部门编号唯一索引',
+                             UNIQUE INDEX `uk_tenant_code`(`tenant_id` ASC, `code` ASC, `is_deleted` ASC) USING BTREE COMMENT '租户内部门编号唯一索引',
                              KEY `idx_tenant_id` (`tenant_id`)
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COMMENT = '部门管理表';
 
@@ -148,10 +148,10 @@ CREATE TABLE `sys_menu`  (
 -- Records of sys_menu
 -- ----------------------------
 -- 顶级目录（1-10）：平台/系统/代码生成/AI助手/文档/接口文档/组件/演示/多级/路由
-INSERT INTO `sys_menu` VALUES (1, 0, '0', '平台管理', 'C', '', '/platform', 'Layout', NULL, NULL, NULL, 1, 1, 'platform', '/platform/tenant', now(), now(), NULL);
+INSERT INTO `sys_menu` VALUES (1, 0, '0', '平台管理', 'C', '', '/platform', 'Layout', NULL, NULL, NULL, 1, 1, 'el-icon-Platform', '/platform/tenant', now(), now(), NULL);
 INSERT INTO `sys_menu` VALUES (2, 0, '0', '系统管理', 'C', '', '/system', 'Layout', NULL, NULL, NULL, 1, 2, 'system', '/system/user', now(), now(), NULL);
-INSERT INTO `sys_menu` VALUES (3, 0, '0', '代码生成', 'C', '', '/gen', 'Layout', NULL, NULL, NULL, 1, 3, 'code', '/gen/index', now(), now(), NULL);
-INSERT INTO `sys_menu` VALUES (4, 0, '0', 'AI助手', 'C', '', '/ai', 'Layout', NULL, NULL, NULL, 1, 4, 'platform', '/ai/command-record', now(), now(), NULL);
+INSERT INTO `sys_menu` VALUES (3, 0, '0', '代码生成', 'C', '', '/codegen', 'Layout', NULL, NULL, NULL, 1, 3, 'code', '/codegen/index', now(), now(), NULL);
+INSERT INTO `sys_menu` VALUES (4, 0, '0', 'AI助手', 'C', '', '/ai', 'Layout', NULL, NULL, NULL, 1, 4, 'ai', '/ai/command-record', now(), now(), NULL);
 INSERT INTO `sys_menu` VALUES (5, 0, '0', '平台文档', 'C', '', '/doc', 'Layout', NULL, NULL, NULL, 1, 5, 'document', '', now(), now(), NULL);
 INSERT INTO `sys_menu` VALUES (6, 0, '0', '接口文档', 'C', '', '/api', 'Layout', NULL, NULL, NULL, 1, 6, 'api', '', now(), now(), NULL);
 INSERT INTO `sys_menu` VALUES (7, 0, '0', '组件封装', 'C', '', '/component', 'Layout', NULL, NULL, NULL, 1, 7, 'menu', '', now(), now(), NULL);
@@ -225,7 +225,7 @@ INSERT INTO `sys_menu` VALUES (2805, 280, '0,2,280', '通知发布', 'B', NULL, 
 INSERT INTO `sys_menu` VALUES (2806, 280, '0,2,280', '通知撤回', 'B', NULL, '', NULL, 'sys:notice:revoke', 0, 1, 1, 6, '', NULL, now(), now(), NULL);
 
 -- 代码生成
-INSERT INTO `sys_menu` VALUES (310, 3, '0,3', '代码生成', 'M', 'Gen', 'gen', 'gen/index', NULL, NULL, 1, 1, 1, 'code', NULL, now(), now(), NULL);
+INSERT INTO `sys_menu` VALUES (310, 3, '0,3', '代码生成', 'M', 'Codegen', 'codegen', 'codegen/index', NULL, NULL, 1, 1, 1, 'code', NULL, now(), now(), NULL);
 
 -- AI 助手
 INSERT INTO `sys_menu` VALUES (401, 4, '0,4', 'AI命令记录', 'M', 'AiCommandRecord', 'command-record', 'ai/command-record/index', NULL, NULL, 1, 1, 1, 'document', NULL, now(), now(), NULL);
@@ -285,8 +285,8 @@ CREATE TABLE `sys_role`  (
                              `update_time` datetime NULL COMMENT '更新时间',
                              `is_deleted` tinyint(1) DEFAULT 0 COMMENT '逻辑删除标识(0-未删除 1-已删除)',
                              PRIMARY KEY (`id`) USING BTREE,
-                             UNIQUE INDEX `uk_name`(`name` ASC) USING BTREE COMMENT '角色名称唯一索引',
-                             UNIQUE INDEX `uk_code`(`code` ASC) USING BTREE COMMENT '角色编码唯一索引',
+                             UNIQUE INDEX `uk_tenant_name`(`tenant_id` ASC, `name` ASC, `is_deleted` ASC) USING BTREE COMMENT '租户内角色名称唯一索引',
+                             UNIQUE INDEX `uk_tenant_code`(`tenant_id` ASC, `code` ASC, `is_deleted` ASC) USING BTREE COMMENT '租户内角色编码唯一索引',
                              KEY `idx_tenant_id` (`tenant_id`)
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COMMENT = '系统角色表';
 
@@ -440,7 +440,7 @@ CREATE TABLE `sys_user`  (
                              `is_deleted` tinyint(1) DEFAULT 0 COMMENT '逻辑删除标识(0-未删除 1-已删除)',
                              `openid` char(28) COMMENT '微信 openid',
                              PRIMARY KEY (`id`) USING BTREE,
-                             UNIQUE KEY `uk_username_tenant` (`username`, `tenant_id`),
+                             UNIQUE KEY `uk_username_tenant` (`username`, `tenant_id`, `is_deleted`),
                              KEY `idx_tenant_id` (`tenant_id`)
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COMMENT = '系统用户表';
 
@@ -647,8 +647,8 @@ INSERT INTO `sys_user_notice` VALUES (10, 10, 2, 1, 1, NULL, now(), now(), 0);
 -- ----------------------------
 -- AI 命令记录表
 -- ----------------------------
-DROP TABLE IF EXISTS `ai_command_record`;
-CREATE TABLE `ai_command_record` (
+DROP TABLE IF EXISTS `ai_assistant_record`;
+CREATE TABLE `ai_assistant_record` (
                                   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
                                   `tenant_id` bigint DEFAULT 1 COMMENT '租户ID',
                                   `user_id` bigint DEFAULT NULL COMMENT '用户ID',
@@ -676,10 +676,10 @@ CREATE TABLE `ai_command_record` (
                                   KEY `idx_create_time` (`create_time`),
                                   KEY `idx_provider` (`ai_provider`),
                                   KEY `idx_model` (`ai_model`),
-                                  KEY `idx_parse_success` (`parse_status`),
+                                  KEY `idx_parse_status` (`parse_status`),
                                   KEY `idx_execute_status` (`execute_status`),
                                   KEY `idx_tenant_id` (`tenant_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='AI 命令记录表';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='AI 助手行为记录表（解析、执行、审计）';
 
 -- ----------------------------
 -- 租户表（多租户模式）
@@ -711,28 +711,13 @@ CREATE TABLE `sys_tenant` (
 INSERT INTO `sys_tenant` VALUES (1, '默认租户', 'DEFAULT', '系统管理员', '18812345678', 'admin@youlai.tech', NULL, NULL, 1, '系统默认租户', NULL, now(), now());
 INSERT INTO `sys_tenant` VALUES (2, '演示租户', 'DEMO', '演示用户', '18812345679', 'demo@youlai.tech', 'demo.youlai.tech', NULL, 1, '演示租户', NULL, now(), now());
 
--- ============================================
--- 调整角色权限：移除普通租户角色的平台菜单权限
--- ============================================
--- 说明：确保普通租户角色不拥有平台菜单权限，仅ROOT角色拥有
--- 平台管理目录ID = 1
-
--- 查询所有平台菜单ID（parent_id = 1，即平台管理目录）
-DROP TEMPORARY TABLE IF EXISTS temp_platform_menu_ids;
-CREATE TEMPORARY TABLE temp_platform_menu_ids AS
-SELECT id FROM sys_menu 
-WHERE parent_id = 1
-   OR tree_path LIKE '0,1,%'
-   OR tree_path = '0,1';
-
--- 移除普通租户角色的平台菜单权限（保留ROOT角色）
-DELETE rm FROM sys_role_menu rm
-INNER JOIN temp_platform_menu_ids tpm ON rm.menu_id = tpm.id
-INNER JOIN sys_role r ON rm.role_id = r.id
-WHERE r.code != 'ROOT'
-  AND rm.tenant_id = 1;
-
--- 清理临时表
-DROP TEMPORARY TABLE IF EXISTS temp_platform_menu_ids;
-
 SET FOREIGN_KEY_CHECKS = 1;
+
+GRANT SELECT ON `youlai_admin_tenant`.* TO 'youlai'@'%', 'youlai'@'localhost', 'youlai'@'127.0.0.1';
+
+GRANT SELECT, INSERT, UPDATE, DELETE ON `youlai_admin_tenant`.`sys_log` TO 'youlai'@'%', 'youlai'@'localhost', 'youlai'@'127.0.0.1';
+GRANT SELECT, INSERT, UPDATE, DELETE ON `youlai_admin_tenant`.`ai_assistant_record` TO 'youlai'@'%', 'youlai'@'localhost', 'youlai'@'127.0.0.1';
+GRANT SELECT, INSERT, UPDATE, DELETE ON `youlai_admin_tenant`.`gen_table` TO 'youlai'@'%', 'youlai'@'localhost', 'youlai'@'127.0.0.1';
+GRANT SELECT, INSERT, UPDATE, DELETE ON `youlai_admin_tenant`.`gen_table_column` TO 'youlai'@'%', 'youlai'@'localhost', 'youlai'@'127.0.0.1';
+
+FLUSH PRIVILEGES;

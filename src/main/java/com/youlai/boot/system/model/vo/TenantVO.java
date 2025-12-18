@@ -13,7 +13,7 @@ import java.io.Serializable;
  */
 @Data
 @Schema(description = "租户信息")
-public class TenantVO implements Serializable {
+public class TenantVo implements Serializable {
 
     @Schema(description = "租户ID")
     private Long id;

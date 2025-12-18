@@ -1,9 +1,9 @@
 package com.youlai.boot.system.model.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.youlai.boot.common.base.BaseEntity;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
 import java.time.LocalDateTime;
 
@@ -14,9 +14,10 @@ import java.time.LocalDateTime;
  * @since 3.0.0
  */
 @Data
-@EqualsAndHashCode(callSuper = true)
-@TableName("sys_tenant")
-public class Tenant extends BaseEntity {
+@TableName(value = "sys_tenant")
+public class Tenant {
+
+    private Long id;
 
     /**
      * 租户名称
@@ -67,5 +68,11 @@ public class Tenant extends BaseEntity {
      * 过期时间（NULL表示永不过期）
      */
     private LocalDateTime expireTime;
+
+    @TableField(fill = FieldFill.INSERT)
+    private LocalDateTime createTime;
+
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updateTime;
 }
 

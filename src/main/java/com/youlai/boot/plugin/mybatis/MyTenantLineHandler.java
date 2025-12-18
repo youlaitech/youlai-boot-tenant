@@ -7,17 +7,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.LongValue;
-import net.sf.jsqlparser.expression.NullValue;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * MyBatis-Plus 多租户处理器
  * <p>
  * 实现 TenantLineHandler 接口，自动为 SQL 添加租户过滤条件
- * 仅在启用多租户时注册（通过 @ConditionalOnProperty 控制）
  * </p>
  *
  * @author Ray.Hao
@@ -26,7 +24,6 @@ import java.util.List;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@ConditionalOnProperty(prefix = "youlai.tenant", name = "enabled", havingValue = "true", matchIfMissing = false)
 public class MyTenantLineHandler implements TenantLineHandler {
 
     private final TenantProperties tenantProperties;
@@ -35,7 +32,7 @@ public class MyTenantLineHandler implements TenantLineHandler {
      * 获取租户ID表达式
      * <p>
      * 从 TenantContextHolder 获取当前租户ID
-     * 如果未设置或忽略租户，返回 NULL（不添加租户条件）
+     * 如果未设置或忽略租户，抛出异常
      * </p>
      *
      * @return 租户ID表达式
@@ -43,21 +40,13 @@ public class MyTenantLineHandler implements TenantLineHandler {
     @Override
     public Expression getTenantId() {
         log.debug("getTenantId() 被调用");
-        
-        // 如果设置了忽略租户标志，返回 NULL（不添加租户条件）
-        if (TenantContextHolder.isIgnoreTenant()) {
-            log.debug("忽略租户标志已设置，返回 NullValue");
-            return new NullValue();
-        }
 
         // 获取当前租户ID
         Long tenantId = TenantContextHolder.getTenantId();
         log.debug("从 TenantContextHolder 获取租户ID: {}", tenantId);
 
-        // 如果未设置租户ID，使用默认租户ID
         if (tenantId == null) {
-            tenantId = tenantProperties.getDefaultTenantId();
-            log.debug("租户ID为空，使用默认租户ID: {}", tenantId);
+            throw new IllegalStateException("TenantId is required but was null. Ensure TenantContextHolder is set (e.g., via token) before DB access.");
         }
 
         return new LongValue(tenantId);
@@ -84,13 +73,37 @@ public class MyTenantLineHandler implements TenantLineHandler {
      */
     @Override
     public boolean ignoreTable(String tableName) {
+        if (tableName == null) {
+            return false;
+        }
+
+        Set<String> systemTables = Set.of(
+                "tables",
+                "columns",
+                "all_tables",
+                "all_tab_comments",
+                "all_objects",
+                "all_tab_columns",
+                "all_col_comments",
+                "all_cons_columns",
+                "all_constraints"
+        );
+        if (systemTables.contains(tableName.toLowerCase())) {
+            return true;
+        }
+
+        // 如果设置了忽略租户标志，则本次查询全部表都跳过租户过滤
+        if (TenantContextHolder.isIgnoreTenant()) {
+            return true;
+        }
+
         List<String> ignoreTables = tenantProperties.getIgnoreTables();
         if (ignoreTables == null || ignoreTables.isEmpty()) {
             return false;
         }
 
         // 忽略表名匹配（不区分大小写）
-        boolean ignored = ignoreTables.stream()
+        return ignoreTables.stream()
                 .anyMatch(ignoreTable -> ignoreTable.equalsIgnoreCase(tableName));
     }
 }

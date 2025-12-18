@@ -15,8 +15,8 @@ import java.time.LocalDateTime;
  * @since 2.10.0
  */
 @Data
-@Schema(description = "系统日志分页VO")
-public class LogPageVO implements Serializable {
+@Schema(description = "系统日志分页Vo")
+public class LogPageVo implements Serializable {
 
     @Schema(description = "主键")
     private Long id;
