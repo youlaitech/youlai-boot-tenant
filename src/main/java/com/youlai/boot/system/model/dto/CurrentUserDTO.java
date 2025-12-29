@@ -8,7 +8,7 @@ import java.util.Set;
 /**
  * 当前登录用户对象
  *
- * @author haoxr
+ * @author Ray.Hao
  * @since 2022/1/14
  */
 @Schema(description ="当前登录用户对象")
