@@ -1,20 +1,19 @@
 package com.youlai.boot.system.model.bo;
 
 import lombok.Data;
-
 import java.util.Set;
 
 /**
- * 角色权限业务对象
+ * 角色权限集合
  *
- * @author haoxr
- * @since 2023/11/29
+ * @author Ray
+ * @since 3.0.0
  */
 @Data
 public class RolePermsBo {
 
     /**
-     * 租户ID
+     * 租户ID（多租户场景）
      */
     private Long tenantId;
 
@@ -24,8 +23,9 @@ public class RolePermsBo {
     private String roleCode;
 
     /**
-     * 权限标识集合
+     * 权限集合
      */
     private Set<String> perms;
-
 }
+
+

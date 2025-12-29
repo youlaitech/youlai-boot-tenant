@@ -7,7 +7,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * 用户公告VO
+ * 用户公告Vo
  *
  * @author Theo
  * @since 2024-08-28 16:56
@@ -37,5 +37,6 @@ public class UserNoticePageVo {
 
     @Schema(description = "是否已读")
     private Integer isRead;
-
 }
+
+

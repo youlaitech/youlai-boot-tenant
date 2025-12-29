@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 系统日志分页VO
+ * 系统日志分页Vo
  *
  * @author Ray
  * @since 2.10.0
@@ -57,3 +57,5 @@ public class LogPageVo implements Serializable {
     @Schema(description = "操作人")
     private String operator;
 }
+
+

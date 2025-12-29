@@ -6,7 +6,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 租户VO
+ * 租户Vo
  *
  * @author Ray.Hao
  * @since 3.0.0
@@ -45,4 +45,5 @@ public class TenantVo implements Serializable {
     @Schema(description = "是否默认租户")
     private Boolean isDefault;
 }
+
 

@@ -23,5 +23,6 @@ public class DictItemOptionVo {
 
     @Schema(description = "标签类型")
     private String tagType;
-
 }
+
+

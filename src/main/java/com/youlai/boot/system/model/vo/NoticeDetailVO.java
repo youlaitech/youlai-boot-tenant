@@ -7,7 +7,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * 阅读通知公告VO
+ * 阅读通知公告Vo
  *
  * @author Theo
  * @since 2024-9-8 01:25:06
@@ -40,3 +40,5 @@ public class NoticeDetailVo {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime publishTime;
 }
+
+

@@ -27,3 +27,5 @@ public class TenantCreateResultVo implements Serializable {
     @Schema(description = "租户管理员角色编码")
     private String adminRoleCode;
 }
+
+

@@ -28,5 +28,6 @@ public class NoticeDto {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime publishTime;
 
-
 }
+
+

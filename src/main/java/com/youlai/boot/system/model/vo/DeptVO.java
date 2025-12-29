@@ -38,5 +38,6 @@ public class DeptVo {
     @Schema(description = "修改时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime updateTime;
-
 }
+
+

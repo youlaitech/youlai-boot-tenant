@@ -1,12 +1,11 @@
 package com.youlai.boot.system.model.vo;
 
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 字典项分页对象
+ * 字典项分页Vo
  *
  * @author Ray.Hao
  * @since 0.0.1
@@ -33,5 +32,6 @@ public class DictItemPageVo {
 
     @Schema(description = "状态（1:启用，0:禁用）")
     private Integer status;
-
 }
+
+

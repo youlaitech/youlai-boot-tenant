@@ -1,15 +1,11 @@
 package com.youlai.boot.system.model.vo;
 
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
-
 /**
- * 字典分页VO
+ * 字典分页Vo
  *
  * @author Ray
  * @since 0.0.1
@@ -30,5 +26,6 @@ public class DictPageVo {
 
     @Schema(description = "字典状态（1-启用，0-禁用）")
     private Integer status;
-
 }
+
+

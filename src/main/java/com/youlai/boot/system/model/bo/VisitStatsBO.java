@@ -1,28 +1,30 @@
 package com.youlai.boot.system.model.bo;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Getter;
-import lombok.Setter;
-
-import java.math.BigDecimal;
+import lombok.Data;
 
 /**
- * 访问量统计业务对象
+ * 访问统计（PV/UV）摘要
  *
- * @author Ray.Hao
- * @since 2024/7/2
+ * @author Ray
+ * @since 3.0.0
  */
-@Getter
-@Setter
+@Data
 public class VisitStatsBo {
 
-    @Schema(description = "今日访问量 (PV)")
+    /**
+     * 今日统计
+     */
     private Integer todayCount;
 
-    @Schema(description = "累计访问量 ")
+    /**
+     * 累计统计
+     */
     private Integer totalCount;
 
-    @Schema(description = "页面访问量增长率")
-    private BigDecimal growthRate;
-
+    /**
+     * 增长率（百分比或小数）
+     */
+    private Double growthRate;
 }
+
+
