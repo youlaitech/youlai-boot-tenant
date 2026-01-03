@@ -17,9 +17,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * AI 助手控制器
@@ -79,31 +77,5 @@ public class AiAssistantController {
   public PageResult<AiAssistantRecordVo> getRecordPage(AiAssistantPageQuery queryParams) {
     IPage<AiAssistantRecordVo> page = aiAssistantRecordService.getRecordPage(queryParams);
     return PageResult.success(page);
-  }
-
-  @Operation(summary = "删除 AI 命令记录")
-  @DeleteMapping("/records/{ids}")
-  public Result<Void> deleteRecords(
-    @Parameter(description = "记录ID，多个以英文逗号(,)分割")
-    @PathVariable String ids
-  ) {
-    List<Long> idList = Arrays.stream(ids.split(","))
-      .filter(s -> s != null && !s.isBlank())
-      .map(String::trim)
-      .map(Long::valueOf)
-      .collect(Collectors.toList());
-
-    boolean removed = aiAssistantRecordService.deleteRecords(idList);
-    return Result.judge(removed);
-  }
-
-  @Operation(summary = "撤销命令执行")
-  @PostMapping("/records/{recordId}/rollback")
-  public Result<Void> rollbackCommand(
-    @Parameter(description = "记录ID")
-    @PathVariable String recordId
-  ) {
-    aiAssistantRecordService.rollbackCommand(recordId);
-    return Result.success();
   }
 }
