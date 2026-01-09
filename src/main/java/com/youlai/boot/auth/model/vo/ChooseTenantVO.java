@@ -1,6 +1,6 @@
 package com.youlai.boot.auth.model.vo;
 
-import com.youlai.boot.system.model.vo.TenantVo;
+import com.youlai.boot.system.model.vo.TenantVO;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -23,5 +23,5 @@ import java.util.List;
 public class ChooseTenantVo implements Serializable {
 
     @Schema(description = "租户列表")
-    private List<TenantVo> tenants;
+    private List<TenantVO> tenants;
 }

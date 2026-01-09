@@ -6,7 +6,7 @@ import com.youlai.boot.common.constant.RedisConstants;
 import com.youlai.boot.common.tenant.TenantContextHolder;
 import com.youlai.boot.system.mapper.TenantMapper;
 import com.youlai.boot.system.mapper.RoleMenuMapper;
-import com.youlai.boot.system.model.bo.RolePermsBo;
+import com.youlai.boot.system.model.bo.RolePermsBO;
 import com.youlai.boot.system.model.entity.Tenant;
 import com.youlai.boot.system.model.entity.RoleMenu;
 import com.youlai.boot.system.service.RoleMenuService;
@@ -69,7 +69,7 @@ public class RoleMenuServiceImpl extends ServiceImpl<RoleMenuMapper, RoleMenu> i
             String cacheKey = buildRolePermsCacheKey(tenantId);
             redisTemplate.delete(cacheKey);
 
-            List<RolePermsBo> list = this.baseMapper.getRolePermsList(null);
+            List<RolePermsBO> list = this.baseMapper.getRolePermsList(null);
             if (CollectionUtil.isEmpty(list)) {
                 continue;
             }
@@ -100,7 +100,7 @@ public class RoleMenuServiceImpl extends ServiceImpl<RoleMenuMapper, RoleMenu> i
 
         redisTemplate.delete(cacheKey);
 
-        List<RolePermsBo> list = this.baseMapper.getRolePermsList(null);
+        List<RolePermsBO> list = this.baseMapper.getRolePermsList(null);
         if (CollectionUtil.isNotEmpty(list)) {
             list.forEach(item -> {
                 String roleCode = item.getRoleCode();
@@ -128,9 +128,9 @@ public class RoleMenuServiceImpl extends ServiceImpl<RoleMenuMapper, RoleMenu> i
 
         redisTemplate.opsForHash().delete(cacheKey, roleCode);
 
-        List<RolePermsBo> list = this.baseMapper.getRolePermsList(roleCode);
+        List<RolePermsBO> list = this.baseMapper.getRolePermsList(roleCode);
         if (CollectionUtil.isNotEmpty(list)) {
-            RolePermsBo rolePerms = list.get(0);
+            RolePermsBO rolePerms = list.get(0);
             if (rolePerms != null) {
                 Set<String> perms = rolePerms.getPerms();
                 if (CollectionUtil.isNotEmpty(perms)) {
@@ -158,9 +158,9 @@ public class RoleMenuServiceImpl extends ServiceImpl<RoleMenuMapper, RoleMenu> i
         redisTemplate.opsForHash().delete(cacheKey, oldRoleCode);
         
         // 添加新角色权限缓存
-        List<RolePermsBo> list = this.baseMapper.getRolePermsList(newRoleCode);
+        List<RolePermsBO> list = this.baseMapper.getRolePermsList(newRoleCode);
         if (CollectionUtil.isNotEmpty(list)) {
-            RolePermsBo rolePerms = list.get(0);
+            RolePermsBO rolePerms = list.get(0);
             if (rolePerms != null) {
                 Set<String> perms = rolePerms.getPerms();
                 if (CollectionUtil.isNotEmpty(perms)) {

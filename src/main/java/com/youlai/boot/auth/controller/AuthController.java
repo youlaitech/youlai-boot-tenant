@@ -14,7 +14,7 @@ import com.youlai.boot.security.model.AuthenticationToken;
 import com.youlai.boot.security.token.TokenManager;
 import com.youlai.boot.security.util.SecurityUtils;
 import com.youlai.boot.system.model.entity.User;
-import com.youlai.boot.system.model.vo.TenantVo;
+import com.youlai.boot.system.model.vo.TenantVO;
 import com.youlai.boot.system.service.TenantService;
 import com.youlai.boot.system.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -120,12 +120,12 @@ public class AuthController {
         }
 
         // 如果多个租户，返回 choose_tenant 响应（含 tenants 列表）
-        Map<Long, TenantVo> tenantMap = passwordMatchedUsers.stream()
+        Map<Long, TenantVO> tenantMap = passwordMatchedUsers.stream()
                 .map(user -> tenantService.getTenantById(user.getTenantId()))
                 .filter(tenant -> tenant != null && tenant.getId() != null)
                 .filter(tenant -> tenant.getStatus() == null || tenant.getStatus() == 1)
-                .collect(Collectors.toMap(TenantVo::getId, t -> t, (a, b) -> a, LinkedHashMap::new));
-        List<TenantVo> tenants = tenantMap.values().stream().toList();
+                .collect(Collectors.toMap(TenantVO::getId, t -> t, (a, b) -> a, LinkedHashMap::new));
+        List<TenantVO> tenants = tenantMap.values().stream().toList();
 
         if (tenants.isEmpty()) {
             return Result.failed("账号或密码错误");

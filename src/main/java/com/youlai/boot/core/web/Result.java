@@ -1,6 +1,7 @@
 package com.youlai.boot.core.web;
 
 import cn.hutool.core.util.StrUtil;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -20,6 +21,9 @@ public class Result<T> implements Serializable {
 
     private String msg;
 
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    private Object page;
+
     public static <T> Result<T> success() {
         return success(null);
     }
@@ -29,6 +33,7 @@ public class Result<T> implements Serializable {
         result.setCode(ResultCode.SUCCESS.getCode());
         result.setMsg(ResultCode.SUCCESS.getMsg());
         result.setData(data);
+        result.setPage(null);
         return result;
     }
 
@@ -73,6 +78,7 @@ public class Result<T> implements Serializable {
         result.setCode(code);
         result.setData(data);
         result.setMsg(msg);
+        result.setPage(null);
         return result;
     }
 

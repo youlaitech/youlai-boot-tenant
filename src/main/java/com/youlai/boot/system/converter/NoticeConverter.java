@@ -1,11 +1,11 @@
 package com.youlai.boot.system.converter;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.youlai.boot.system.model.bo.NoticeBo;
+import com.youlai.boot.system.model.bo.NoticeBO;
 import com.youlai.boot.system.model.entity.Notice;
 import com.youlai.boot.system.model.form.NoticeForm;
-import com.youlai.boot.system.model.vo.NoticeDetailVo;
-import com.youlai.boot.system.model.vo.NoticePageVo;
+import com.youlai.boot.system.model.vo.NoticeDetailVO;
+import com.youlai.boot.system.model.vo.NoticePageVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
@@ -19,7 +19,6 @@ import org.mapstruct.Mappings;
 @Mapper(componentModel = "spring")
 public interface NoticeConverter{
 
-
     @Mappings({
             @Mapping(target = "targetUserIds", expression = "java(cn.hutool.core.util.StrUtil.split(entity.getTargetUserIds(),\",\"))")
     })
@@ -30,9 +29,9 @@ public interface NoticeConverter{
     })
     Notice toEntity(NoticeForm formData);
 
-    NoticePageVo toPageVo(NoticeBo Bo);
+    NoticePageVO toPageVo(NoticeBO bo);
 
-    Page<NoticePageVo> toPageVo(Page<NoticeBo> noticePage);
+    Page<NoticePageVO> toPageVo(Page<NoticeBO> noticePage);
 
-    NoticeDetailVo toDetailVO(NoticeBo noticeBO);
+    NoticeDetailVO toDetailVo(NoticeBO noticeBo);
 }

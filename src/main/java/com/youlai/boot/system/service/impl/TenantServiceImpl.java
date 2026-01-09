@@ -21,10 +21,10 @@ import com.youlai.boot.system.model.form.RoleForm;
 import com.youlai.boot.system.model.form.TenantCreateForm;
 import com.youlai.boot.system.model.form.TenantForm;
 import com.youlai.boot.system.model.form.UserForm;
-import com.youlai.boot.system.model.query.TenantPageQuery;
-import com.youlai.boot.system.model.vo.TenantCreateResultVo;
-import com.youlai.boot.system.model.vo.TenantPageVo;
-import com.youlai.boot.system.model.vo.TenantVo;
+import com.youlai.boot.system.model.query.TenantQuery;
+import com.youlai.boot.system.model.vo.TenantCreateResultVO;
+import com.youlai.boot.system.model.vo.TenantPageVO;
+import com.youlai.boot.system.model.vo.TenantVO;
 import com.youlai.boot.system.service.DeptService;
 import com.youlai.boot.system.service.MenuService;
 import com.youlai.boot.system.service.RoleService;
@@ -175,7 +175,7 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
     }
 
     @Override
-    public List<TenantVo> getAccessibleTenants(Long userId) {
+    public List<TenantVO> getAccessibleTenants(Long userId) {
         if (userId == null) {
             return List.of();
         }
@@ -187,7 +187,7 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
 
         // 非平台用户：仅允许访问当前租户
         if (!isPlatformTenantOperator()) {
-            TenantVo tenant = getTenantById(currentTenantId);
+            TenantVO tenant = getTenantById(currentTenantId);
             if (tenant == null || tenant.getStatus() == null || tenant.getStatus() != 1) {
                 return List.of();
             }
@@ -206,7 +206,7 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
 
             return tenants.stream()
                     .map(tenant -> {
-                        TenantVo vo = new TenantVo();
+                        TenantVO vo = new TenantVO();
                         BeanUtils.copyProperties(tenant, vo);
                         vo.setIsDefault(SystemConstants.DEFAULT_TENANT_ID.equals(tenant.getId()));
                         return vo;
@@ -223,12 +223,12 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
      * @return 租户信息
      */
     @Override
-    public TenantVo getTenantById(Long tenantId) {
+    public TenantVO getTenantById(Long tenantId) {
         Tenant tenant = this.getById(tenantId);
         if (tenant == null) {
             return null;
         }
-        TenantVo vo = new TenantVo();
+        TenantVO vo = new TenantVO();
         BeanUtils.copyProperties(tenant, vo);
         return vo;
     }
@@ -251,7 +251,7 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public TenantCreateResultVo createTenantWithInit(TenantCreateForm form) {
+    public TenantCreateResultVO createTenantWithInit(TenantCreateForm form) {
         Assert.notNull(form, "请求参数不能为空");
         Assert.isTrue(isPlatformTenantOperator(), "仅平台管理员允许新增租户");
 
@@ -345,7 +345,7 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
             List<Long> menuIds = resolveNewTenantAdminMenuIds();
             roleService.assignMenusToRole(role.getId(), menuIds);
 
-            TenantCreateResultVo resultVo = new TenantCreateResultVo();
+            TenantCreateResultVO resultVo = new TenantCreateResultVO();
             resultVo.setTenantId(newTenantId);
             resultVo.setTenantCode(tenantCode);
             resultVo.setTenantName(tenantName);
@@ -388,7 +388,7 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
     }
 
     @Override
-    public Page<TenantPageVo> getTenantPage(TenantPageQuery queryParams) {
+    public Page<TenantPageVO> getTenantPage(TenantQuery queryParams) {
         Assert.notNull(queryParams, "请求参数不能为空");
         Assert.isTrue(isPlatformTenantOperator(), "仅平台管理员允许查询租户列表");
 

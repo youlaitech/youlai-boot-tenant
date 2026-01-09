@@ -6,10 +6,10 @@ import com.youlai.boot.core.web.Result;
 import com.youlai.boot.security.util.SecurityUtils;
 import com.youlai.boot.system.model.form.TenantCreateForm;
 import com.youlai.boot.system.model.form.TenantForm;
-import com.youlai.boot.system.model.query.TenantPageQuery;
-import com.youlai.boot.system.model.vo.TenantCreateResultVo;
-import com.youlai.boot.system.model.vo.TenantPageVo;
-import com.youlai.boot.system.model.vo.TenantVo;
+import com.youlai.boot.system.model.query.TenantQuery;
+import com.youlai.boot.system.model.vo.TenantCreateResultVO;
+import com.youlai.boot.system.model.vo.TenantPageVO;
+import com.youlai.boot.system.model.vo.TenantVO;
 import com.youlai.boot.system.service.TenantService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -50,10 +50,10 @@ public class TenantController {
      * @return 租户列表
      */
     @Operation(summary = "获取当前用户可访问的租户列表")
-    @GetMapping
-    public Result<List<TenantVo>> getAccessibleTenants() {
+    @GetMapping("/options")
+    public Result<List<TenantVO>> getAccessibleTenants() {
         Long userId = SecurityUtils.getUserId();
-        List<TenantVo> tenantList = tenantService.getAccessibleTenants(userId);
+        List<TenantVO> tenantList = tenantService.getAccessibleTenants(userId);
         log.debug("用户 {} 可访问 {} 个租户", userId, tenantList.size());
         return Result.success(tenantList);
     }
@@ -65,20 +65,20 @@ public class TenantController {
      */
     @Operation(summary = "获取当前租户信息")
     @GetMapping("/current")
-    public Result<TenantVo> getCurrentTenant() {
+    public Result<TenantVO> getCurrentTenant() {
         Long tenantId = TenantContextHolder.getTenantId();
         if (tenantId == null) {
             return Result.success(null);
         }
 
-        TenantVo tenant = tenantService.getTenantById(tenantId);
+        TenantVO tenant = tenantService.getTenantById(tenantId);
         return Result.success(tenant);
     }
 
     @Operation(summary = "租户分页列表")
-    @GetMapping("/page")
+    @GetMapping
     @PreAuthorize("@ss.hasPerm('sys:tenant:list')")
-    public PageResult<TenantPageVo> getTenantPage(TenantPageQuery queryParams) {
+    public PageResult<TenantPageVO> getTenantPage(TenantQuery queryParams) {
         return PageResult.success(tenantService.getTenantPage(queryParams));
     }
 
@@ -95,8 +95,8 @@ public class TenantController {
     @Operation(summary = "新增租户并初始化默认数据")
     @PostMapping
     @PreAuthorize("@ss.hasPerm('sys:tenant:create')")
-    public Result<TenantCreateResultVo> createTenant(@RequestBody @Valid TenantCreateForm form) {
-        TenantCreateResultVo result = tenantService.createTenantWithInit(form);
+    public Result<TenantCreateResultVO> createTenant(@RequestBody @Valid TenantCreateForm form) {
+        TenantCreateResultVO result = tenantService.createTenantWithInit(form);
         return Result.success(result);
     }
 
@@ -143,7 +143,7 @@ public class TenantController {
      */
     @Operation(summary = "切换租户")
     @PostMapping("/{tenantId}/switch")
-    public Result<TenantVo> switchTenant(
+    public Result<TenantVO> switchTenant(
             @Parameter(description = "租户ID") @PathVariable Long tenantId,
             HttpServletRequest request
     ) {
@@ -159,7 +159,7 @@ public class TenantController {
         }
 
         // 验证租户是否存在且正常
-        TenantVo tenant = tenantService.getTenantById(tenantId);
+        TenantVO tenant = tenantService.getTenantById(tenantId);
         if (tenant == null) {
             log.warn("用户 {} 尝试切换到不存在的租户 {}", userId, tenantId);
             return Result.failed("租户不存在");

@@ -1,6 +1,6 @@
 package com.youlai.boot.platform.ai.model.query;
 
-import com.youlai.boot.common.base.BasePageQuery;
+import com.youlai.boot.common.base.BaseQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,7 +16,7 @@ import java.util.List;
 @Schema(description = "AI 助手行为记录分页查询对象")
 @Getter
 @Setter
-public class AiAssistantPageQuery extends BasePageQuery {
+public class AiAssistantQuery extends BaseQuery {
 
   @Schema(description = "关键字(原始命令/函数名称/用户名)")
   private String keywords;

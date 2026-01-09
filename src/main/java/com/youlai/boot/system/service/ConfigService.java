@@ -4,8 +4,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.youlai.boot.system.model.entity.Config;
 import com.youlai.boot.system.model.form.ConfigForm;
-import com.youlai.boot.system.model.query.ConfigPageQuery;
-import com.youlai.boot.system.model.vo.ConfigVo;
+import com.youlai.boot.system.model.query.ConfigQuery;
+import com.youlai.boot.system.model.vo.ConfigVO;
 
 /**
  * 系统配置Service接口
@@ -17,10 +17,10 @@ public interface ConfigService extends IService<Config> {
 
     /**
      * 分页查询系统配置
-     * @param sysConfigPageQuery 查询参数
+     * @param queryParams 查询参数
      * @return 系统配置分页列表
      */
-    IPage<ConfigVo> page(ConfigPageQuery sysConfigPageQuery);
+    IPage<ConfigVO> page(ConfigQuery queryParams);
 
     /**
      * 保存系统配置

@@ -1,7 +1,7 @@
 package com.youlai.boot.platform.codegen.model.query;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.youlai.boot.common.base.BasePageQuery;
+import com.youlai.boot.common.base.BaseQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
@@ -17,7 +17,7 @@ import java.util.List;
 @Schema(description = "数据表分页查询对象")
 @Getter
 @Setter
-public class TablePageQuery extends BasePageQuery {
+public class TableQuery extends BaseQuery {
 
     @Schema(description="关键字(表名)")
     private String keywords;

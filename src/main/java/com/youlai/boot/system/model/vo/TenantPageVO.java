@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Schema(description = "租户分页对象")
 @Data
-public class TenantPageVo implements Serializable {
+public class TenantPageVO implements Serializable {
 
     @Schema(description = "租户ID")
     private Long id;

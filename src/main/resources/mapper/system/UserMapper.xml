@@ -6,7 +6,7 @@
 <mapper namespace="com.youlai.boot.system.mapper.UserMapper">
 
     <!-- 用户分页列表 mysql版本-->
-    <select id="getUserPage" resultType="com.youlai.boot.system.model.bo.UserBo" databaseId="mysql">
+    <select id="getUserPage" resultType="com.youlai.boot.system.model.bo.UserBO" databaseId="mysql">
         SELECT
             u.id,
             u.username,
@@ -72,8 +72,8 @@
             u.id
         <choose>
             <!-- 如果排序参数都传入 -->
-            <when test="queryParams.field != null and queryParams.field != '' and queryParams.direction != null">
-                ORDER BY u.${queryParams.field} ${queryParams.direction}
+            <when test="queryParams.sortBy != null and queryParams.sortBy != '' and queryParams.order != null">
+                ORDER BY u.${queryParams.sortBy} ${queryParams.order}
             </when>
             <!-- 默认排序 -->
             <otherwise>
@@ -82,7 +82,7 @@
         </choose>
     </select>
     <!-- 用户分页列表 dm版本-->
-    <select id="getUserPage" resultType="com.youlai.boot.system.model.bo.UserBo" databaseId="dm">
+    <select id="getUserPage" resultType="com.youlai.boot.system.model.bo.UserBO" databaseId="dm">
         SELECT
         u.id,
         u.username,
@@ -148,8 +148,8 @@
         u.id
         <choose>
             <!-- 如果排序参数都传入 -->
-            <when test="queryParams.field != null and queryParams.field != '' and queryParams.direction != null">
-                ORDER BY u.${queryParams.field} ${queryParams.direction}
+            <when test="queryParams.sortBy != null and queryParams.sortBy != '' and queryParams.order != null">
+                ORDER BY u.${queryParams.sortBy} ${queryParams.order}
             </when>
             <!-- 默认排序 -->
             <otherwise>
@@ -265,7 +265,7 @@
     </select>
 
     <!-- 获取用户导出列表 -->
-    <select id="listExportUsers" resultType="com.youlai.boot.system.model.dto.UserExportDto">
+    <select id="listExportUsers" resultType="com.youlai.boot.system.model.dto.UserExportDTO">
         SELECT
             u.username,
             u.nickname,
@@ -306,7 +306,7 @@
     </select>
 
     <!-- 根据用户ID获取用户详情 mysql版本-->
-    <select id="getUserProfile" resultType="com.youlai.boot.system.model.bo.UserBo" databaseId="mysql">
+    <select id="getUserProfile" resultType="com.youlai.boot.system.model.bo.UserBO" databaseId="mysql">
         SELECT
             u.id,
             u.username,
@@ -328,7 +328,7 @@
             u.id = #{userId} AND u.is_deleted = 0
     </select>
     <!-- 根据用户ID获取用户详情 dm版本-->
-    <select id="getUserProfile" resultType="com.youlai.boot.system.model.bo.UserBo" databaseId="dm">
+    <select id="getUserProfile" resultType="com.youlai.boot.system.model.bo.UserBO" databaseId="dm">
         SELECT
             u.id,
             u.username,

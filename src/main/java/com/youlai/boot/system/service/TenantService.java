@@ -5,10 +5,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.youlai.boot.system.model.entity.Tenant;
 import com.youlai.boot.system.model.form.TenantCreateForm;
 import com.youlai.boot.system.model.form.TenantForm;
-import com.youlai.boot.system.model.query.TenantPageQuery;
-import com.youlai.boot.system.model.vo.TenantCreateResultVo;
-import com.youlai.boot.system.model.vo.TenantPageVo;
-import com.youlai.boot.system.model.vo.TenantVo;
+import com.youlai.boot.system.model.query.TenantQuery;
+import com.youlai.boot.system.model.vo.TenantCreateResultVO;
+import com.youlai.boot.system.model.vo.TenantPageVO;
+import com.youlai.boot.system.model.vo.TenantVO;
 
 import java.util.List;
 
@@ -31,7 +31,7 @@ public interface TenantService extends IService<Tenant> {
      * @param userId 用户ID
      * @return 可访问的租户列表
      */
-    List<TenantVo> getAccessibleTenants(Long userId);
+    List<TenantVO> getAccessibleTenants(Long userId);
 
     /**
      * 根据租户ID查询租户信息
@@ -39,7 +39,7 @@ public interface TenantService extends IService<Tenant> {
      * @param tenantId 租户ID
      * @return 租户信息
      */
-    TenantVo getTenantById(Long tenantId);
+    TenantVO getTenantById(Long tenantId);
 
     /**
      * 根据域名查询租户ID
@@ -55,7 +55,7 @@ public interface TenantService extends IService<Tenant> {
      * @param form 新增租户表单
      * @return 初始化结果
      */
-    TenantCreateResultVo createTenantWithInit(TenantCreateForm form);
+    TenantCreateResultVO createTenantWithInit(TenantCreateForm form);
 
     /**
      * 获取租户分页列表
@@ -63,7 +63,7 @@ public interface TenantService extends IService<Tenant> {
      * @param queryParams 分页查询参数
      * @return 租户分页列表
      */
-    Page<TenantPageVo> getTenantPage(TenantPageQuery queryParams);
+    Page<TenantPageVO> getTenantPage(TenantQuery queryParams);
 
     /**
      * 获取租户表单数据
