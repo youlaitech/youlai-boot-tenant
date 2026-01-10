@@ -182,6 +182,7 @@ INSERT INTO `sys_menu` VALUES (2201, 220, '0,2,220', '角色查询', 'B', NULL, 
 INSERT INTO `sys_menu` VALUES (2202, 220, '0,2,220', '角色新增', 'B', NULL, '', NULL, 'sys:role:create', NULL, NULL, 1, 2, '', NULL, now(), now(), NULL);
 INSERT INTO `sys_menu` VALUES (2203, 220, '0,2,220', '角色编辑', 'B', NULL, '', NULL, 'sys:role:update', NULL, NULL, 1, 3, '', NULL, now(), now(), NULL);
 INSERT INTO `sys_menu` VALUES (2204, 220, '0,2,220', '角色删除', 'B', NULL, '', NULL, 'sys:role:delete', NULL, NULL, 1, 4, '', NULL, now(), now(), NULL);
+INSERT INTO `sys_menu` VALUES (2205, 220, '0,2,220', '角色分配权限', 'B', NULL, '', NULL, 'sys:role:assign', NULL, NULL, 1, 5, '', NULL, now(), now(), NULL);
 
 INSERT INTO `sys_menu` VALUES (230, 1, '0,1', '菜单管理', 'M', 'SysMenu', 'menu', 'system/menu/index', NULL, NULL, 1, 1, 2, 'menu', NULL, now(), now(), NULL);
 INSERT INTO `sys_menu` VALUES (2301, 230, '0,1,230', '菜单查询', 'B', NULL, '', NULL, 'sys:menu:list', NULL, NULL, 1, 1, '', NULL, now(), now(), NULL);
@@ -323,6 +324,9 @@ CREATE TABLE `sys_role_menu`  (
                                   KEY `idx_role_menu_tenant_id` (`tenant_id`)
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COMMENT = '角色菜单关联表';
 
+-- ----------------------------
+-- Records of sys_role_menu
+-- ----------------------------
 -- ============================================
 -- ROOT 角色菜单权限（role_id=1）- 拥有所有权限
 -- 顶级目录
@@ -333,7 +337,7 @@ INSERT INTO `sys_role_menu` VALUES (1, 230, 1), (1, 2301, 1), (1, 2302, 1), (1, 
 INSERT INTO `sys_role_menu` VALUES (1, 270, 1), (1, 2701, 1), (1, 2702, 1), (1, 2703, 1), (1, 2704, 1), (1, 2705, 1);
 -- 系统管理
 INSERT INTO `sys_role_menu` VALUES (1, 210, 1), (1, 2101, 1), (1, 2102, 1), (1, 2103, 1), (1, 2104, 1), (1, 2105, 1), (1, 2106, 1), (1, 2107, 1);
-INSERT INTO `sys_role_menu` VALUES (1, 220, 1), (1, 2201, 1), (1, 2202, 1), (1, 2203, 1), (1, 2204, 1);
+INSERT INTO `sys_role_menu` VALUES (1, 220, 1), (1, 2201, 1), (1, 2202, 1), (1, 2203, 1), (1, 2204, 1), (1, 2205, 1);
 INSERT INTO `sys_role_menu` VALUES (1, 240, 1), (1, 2401, 1), (1, 2402, 1), (1, 2403, 1), (1, 2404, 1);
 INSERT INTO `sys_role_menu` VALUES (1, 250, 1), (1, 2501, 1), (1, 2502, 1), (1, 2503, 1), (1, 2504, 1);
 INSERT INTO `sys_role_menu` VALUES (1, 251, 1), (1, 2511, 1), (1, 2512, 1), (1, 2513, 1), (1, 2514, 1);
@@ -358,14 +362,14 @@ INSERT INTO `sys_role_menu` VALUES (1, 1001, 1), (1, 1002, 1);
 -- 系统管理员角色菜单权限（role_id=2）
 -- 顶级目录
 INSERT INTO `sys_role_menu` VALUES (2, 1, 1), (2, 2, 1), (2, 3, 1), (2, 4, 1), (2, 5, 1), (2, 6, 1), (2, 7, 1), (2, 8, 1), (2, 9, 1), (2, 10, 1);
--- 平台管理
-INSERT INTO `sys_role_menu` VALUES (2, 110, 1), (2, 1101, 1), (2, 1102, 1), (2, 1103, 1), (2, 1104, 1), (2, 1105, 1);
--- 系统管理
-INSERT INTO `sys_role_menu` VALUES (2, 210, 1), (2, 2101, 1), (2, 2102, 1), (2, 2103, 1), (2, 2104, 1), (2, 2105, 1), (2, 2106, 1), (2, 2107, 1);
-INSERT INTO `sys_role_menu` VALUES (2, 220, 1), (2, 2201, 1), (2, 2202, 1), (2, 2203, 1), (2, 2204, 1);
-INSERT INTO `sys_role_menu` VALUES (2, 230, 1), (2, 2301, 1), (2, 2302, 1), (2, 2303, 1), (2, 2304, 1);
-INSERT INTO `sys_role_menu` VALUES (2, 240, 1), (2, 2401, 1), (2, 2402, 1), (2, 2403, 1), (2, 2404, 1);
-INSERT INTO `sys_role_menu` VALUES (2, 250, 1), (2, 2501, 1), (2, 2502, 1), (2, 2503, 1), (2, 2504, 1);
+ -- 平台管理
+ INSERT INTO `sys_role_menu` VALUES (2, 110, 1), (2, 1101, 1), (2, 1102, 1), (2, 1103, 1), (2, 1104, 1), (2, 1105, 1);
+ -- 系统管理
+ INSERT INTO `sys_role_menu` VALUES (2, 210, 1), (2, 2101, 1), (2, 2102, 1), (2, 2103, 1), (2, 2104, 1), (2, 2105, 1), (2, 2106, 1), (2, 2107, 1);
+ INSERT INTO `sys_role_menu` VALUES (2, 220, 1), (2, 2201, 1), (2, 2202, 1), (2, 2203, 1), (2, 2204, 1), (2, 2205, 1);
+ INSERT INTO `sys_role_menu` VALUES (2, 230, 1), (2, 2301, 1), (2, 2302, 1), (2, 2303, 1), (2, 2304, 1);
+ INSERT INTO `sys_role_menu` VALUES (2, 240, 1), (2, 2401, 1), (2, 2402, 1), (2, 2403, 1), (2, 2404, 1);
+ INSERT INTO `sys_role_menu` VALUES (2, 250, 1), (2, 2501, 1), (2, 2502, 1), (2, 2503, 1), (2, 2504, 1);
 INSERT INTO `sys_role_menu` VALUES (2, 251, 1), (2, 2511, 1), (2, 2512, 1), (2, 2513, 1), (2, 2514, 1);
 INSERT INTO `sys_role_menu` VALUES (2, 260, 1);
 INSERT INTO `sys_role_menu` VALUES (2, 270, 1), (2, 2701, 1), (2, 2702, 1), (2, 2703, 1), (2, 2704, 1), (2, 2705, 1);
@@ -393,7 +397,7 @@ INSERT INTO `sys_role_menu` VALUES (2, 1001, 1), (2, 1002, 1);
 INSERT INTO `sys_role_menu` VALUES (13, 2, 2), (13, 3, 2), (13, 4, 2), (13, 5, 2), (13, 6, 2), (13, 7, 2), (13, 8, 2), (13, 9, 2), (13, 10, 2);
 -- 系统管理（租户侧）
 INSERT INTO `sys_role_menu` VALUES (13, 210, 2), (13, 2101, 2), (13, 2102, 2), (13, 2103, 2), (13, 2104, 2), (13, 2105, 2), (13, 2106, 2), (13, 2107, 2);
-INSERT INTO `sys_role_menu` VALUES (13, 220, 2), (13, 2201, 2), (13, 2202, 2), (13, 2203, 2), (13, 2204, 2);
+INSERT INTO `sys_role_menu` VALUES (13, 220, 2), (13, 2201, 2), (13, 2202, 2), (13, 2203, 2), (13, 2204, 2), (13, 2205, 2);
 INSERT INTO `sys_role_menu` VALUES (13, 240, 2), (13, 2401, 2), (13, 2402, 2), (13, 2403, 2), (13, 2404, 2);
 INSERT INTO `sys_role_menu` VALUES (13, 250, 2), (13, 2501, 2), (13, 2502, 2), (13, 2503, 2), (13, 2504, 2);
 INSERT INTO `sys_role_menu` VALUES (13, 251, 2), (13, 2511, 2), (13, 2512, 2), (13, 2513, 2), (13, 2514, 2);

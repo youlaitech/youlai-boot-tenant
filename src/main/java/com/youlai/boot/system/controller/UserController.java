@@ -3,7 +3,6 @@ package com.youlai.boot.system.controller;
 import cn.idev.excel.EasyExcel;
 import cn.idev.excel.ExcelWriter;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.youlai.boot.common.annotation.Log;
 import com.youlai.boot.common.annotation.RepeatSubmit;
 import com.youlai.boot.common.enums.LogModuleEnum;
@@ -56,14 +55,13 @@ public class UserController {
 
     private final UserService userService;
 
-    @Operation(summary = "用户分页列表")
+    @Operation(summary = "用户列表")
     @GetMapping
-    @Log(value = "用户分页列表", module = LogModuleEnum.USER)
-    public PageResult<UserPageVO> getUserPage(
+    @Log(value = "用户列表", module = LogModuleEnum.USER)
+    public PageResult<UserPageVO> getUserList(
             @Valid UserQuery queryParams
     ) {
-        IPage<UserPageVO> result = userService.getUserPage(queryParams);
-        return PageResult.success(result);
+        return PageResult.success(userService.getUserPage(queryParams));
     }
 
     @Operation(summary = "新增用户")

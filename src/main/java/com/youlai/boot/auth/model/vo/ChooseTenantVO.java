@@ -20,7 +20,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Schema(description = "选择租户响应")
-public class ChooseTenantVo implements Serializable {
+public class ChooseTenantVO implements Serializable {
 
     @Schema(description = "租户列表")
     private List<TenantVO> tenants;

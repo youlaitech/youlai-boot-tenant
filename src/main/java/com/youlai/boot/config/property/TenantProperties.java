@@ -15,7 +15,7 @@ import java.util.List;
  */
 @Data
 @Component
-@ConfigurationProperties(prefix = "youlai.tenant")
+@ConfigurationProperties(prefix = "tenant")
 public class TenantProperties {
 
     /**

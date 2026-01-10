@@ -3,7 +3,7 @@ server:
 
 # 数据库类型：用于 MyBatis-Plus 分页方言等（仅方言，不负责连接信息）
 app:
-  db-type: mysql # 可选：mysql | postgres | dm
+  db-type: mysql # 可选：mysql | postgres
 
 spring:
   datasource:
@@ -20,11 +20,6 @@ spring:
     # username: postgres
     # password: 123456
 
-    # === 达梦 DM 数据源示例（按需启用，注意按实际驱动与 URL 调整） ===
-    # driver-class-name: dm.jdbc.driver.DmDriver
-    # url: jdbc:dm://127.0.0.1:5236?schema=youlai_admin_tenant
-    # username: SYSDBA
-    # password: 123456
   data:
     redis:
       database: 0
@@ -264,18 +259,17 @@ wx:
     app-secret: xxxxxx
 
 # 多租户配置
-youlai:
-  tenant:
-    # 租户字段名（默认：tenant_id）
-    column: tenant_id
-    # 忽略多租户过滤的表名列表（系统表、租户表等不需要租户隔离的表）
-    ignore-tables:
-      - sys_tenant # 租户表本身
-      - sys_log # 系统日志表（允许无租户上下文写入）
-      - sys_menu # 菜单表（功能入口定义，所有租户共享）
-      - sys_dict # 字典表（通常共享）
-      - sys_dict_item # 字典项表（通常共享）
-      - sys_config # 系统配置表（通常共享）
-      - gen_table # 代码生成表（平台共用）
-      - gen_table_column # 代码生成字段表（平台共用）
+tenant:
+  # 租户字段名（默认：tenant_id）
+  column: tenant_id
+  # 忽略多租户过滤的表名列表（系统表、租户表等不需要租户隔离的表）
+  ignore-tables:
+    - sys_tenant # 租户表本身
+    - sys_log # 系统日志表（允许无租户上下文写入）
+    - sys_menu # 菜单表（功能入口定义，所有租户共享）
+    - sys_dict # 字典表（通常共享）
+    - sys_dict_item # 字典项表（通常共享）
+    - sys_config # 系统配置表（通常共享）
+    - gen_table # 代码生成表（平台共用）
+    - gen_table_column # 代码生成字段表（平台共用）
 # ============================================

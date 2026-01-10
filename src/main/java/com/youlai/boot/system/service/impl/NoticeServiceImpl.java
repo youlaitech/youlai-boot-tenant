@@ -215,7 +215,7 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
             Set<String> receivers = targetUserList.stream().map(User::getUsername).collect(Collectors.toSet());
 
             Set<String> allOnlineUsers = userOnlineService.getOnlineUsers().stream()
-                    .map(UserOnlineService.UserOnlineDto::getUsername)
+                    .map(UserOnlineService.UserOnlineDTO::getUsername)
                     .collect(Collectors.toSet());
 
             // 找出在线用户的通知接收者

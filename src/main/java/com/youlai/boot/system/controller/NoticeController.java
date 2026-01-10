@@ -73,8 +73,8 @@ public class NoticeController {
     public Result<NoticeDetailVO> getNoticeDetail(
             @Parameter(description = "通知公告ID") @PathVariable Long id
     ) {
-        NoticeDetailVO detailVO = noticeService.getNoticeDetail(id);
-        return Result.success(detailVO);
+        NoticeDetailVO detailVo = noticeService.getNoticeDetail(id);
+        return Result.success(detailVo);
     }
 
     @Operation(summary = "修改通知公告")

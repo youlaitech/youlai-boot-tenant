@@ -57,10 +57,11 @@ public class PageResult<T> implements Serializable {
         result.setCode(ResultCode.SUCCESS.getCode());
         result.setMsg(ResultCode.SUCCESS.getMsg());
         result.setData(list != null ? list : Collections.emptyList());
+        result.setPage(null);
         return result;
     }
 
-    @lombok.Data
+    @Data
     public static class Page {
 
         private long pageNum;
