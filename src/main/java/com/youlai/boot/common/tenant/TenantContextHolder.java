@@ -28,9 +28,9 @@ public class TenantContextHolder {
     private static final TransmittableThreadLocal<Boolean> IGNORE_TENANT_HOLDER = new TransmittableThreadLocal<>();
 
     /**
-     * 设置当前租户ID
+     * 设置当前租户 ID
      *
-     * @param tenantId 租户ID
+     * @param tenantId 租户 ID
      */
     public static void setTenantId(Long tenantId) {
         if (tenantId != null) {
@@ -40,7 +40,7 @@ public class TenantContextHolder {
     }
 
     /**
-     * 获取当前租户ID
+     * 获取当前租户 ID
      *
      * @return 租户ID，如果未设置则返回 null
      */

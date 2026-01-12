@@ -13,7 +13,7 @@ public interface SystemConstants {
      */
     Long ROOT_NODE_ID = 0L;
 
-    Long DEFAULT_TENANT_ID = 1L;
+    Long DEFAULT_TENANT_ID = 0L;
 
     Long PLATFORM_MENU_ID = 1L;
 

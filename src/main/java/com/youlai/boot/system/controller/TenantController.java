@@ -86,7 +86,7 @@ public class TenantController {
     @GetMapping("/{tenantId}/form")
     @PreAuthorize("@ss.hasPerm('sys:tenant:update')")
     public Result<TenantForm> getTenantForm(
-            @Parameter(description = "租户ID") @PathVariable Long tenantId
+            @Parameter(description = "租户 ID") @PathVariable Long tenantId
     ) {
         TenantForm formData = tenantService.getTenantForm(tenantId);
         return Result.success(formData);

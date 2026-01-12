@@ -7,7 +7,7 @@ import lombok.Data;
 /**
  * 验证码信息
  *
- * @author Ray。Hao
+ * @author Ray.Hao
  * @since 2023/03/24
  */
 @Schema(description = "验证码信息")

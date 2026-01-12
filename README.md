@@ -1,24 +1,3 @@
-<div align="center">
-
-## 🎉 正在参加 Gitee 2025 最受欢迎开源软件评选
-
-<a href="https://gitee.com/activity/2025opensource?ident=I6VXEH" target="_blank">
-  <img src="https://img.shields.io/badge/🗳️_立即投票-支持本项目-ff6b35?style=for-the-badge&logo=gitee" alt="投票" height="50"/>
-</a>
-
-<p>
-  <strong>一票就够，不用每天投 🙏 您的支持是我们持续更新的最大动力！</strong>
-</p>
-
-<p>
-  <a href="https://gitee.com/activity/2025opensource?ident=I6VXEH" target="_blank">
-    <strong>👉 点击徽章或这里投票 👈</strong>
-  </a>
-</p>
-
-</div>
-
-![](https://foruda.gitee.com/images/1708618984641188532/a7cca095_716974.png "rainbow.png")
 
 <div align="center">
    <img alt="logo" width="100" height="100" src="https://foruda.gitee.com/images/1733417239320800627/3c5290fe_716974.png">
@@ -181,8 +160,64 @@ youlai-boot
    的 main 方法完成后端项目启动；
 
    访问接口文档地址
-   [http://localhost:8989/doc.html](http://localhost:8989/doc.html) 验证项目启动
+   [http://localhost:8000/doc.html](http://localhost:8000/doc.html) 验证项目启动
    是否成功。
+
+## 🧪 多租户测试
+
+本项目采用单库多租户模式，平台默认租户为 `tenant_id=0`。
+
+### 1. 预置租户（初始化脚本内置）
+
+- 平台默认租户：`tenant_id=0`，域名 `vue.youlai.tech`
+- 演示租户：`tenant_id=1`，域名 `demo.youlai.tech`
+
+### 2. 预置账号
+
+导入 [youlai_admin.sql](sql/mysql/youlai_admin.sql) 后的默认账号如下：
+
+- 默认密码：`123456`
+- 平台默认租户（`tenant_id=0`）：`root` / `admin` / `test`
+- 演示租户（`tenant_id=1`）：`admin`
+
+### 3. 本地 hosts 配置（按域名解析租户）
+
+Windows 请修改：`C:\Windows\System32\drivers\etc\hosts`，增加：
+
+```bash
+127.0.0.1 vue.youlai.tech
+127.0.0.1 demo.youlai.tech
+```
+
+### 3.1 反向代理（Nginx）注意事项
+
+如果前端通过 Nginx 反向代理访问后端（例如 `https://vue.youlai.tech` → `/prod-api/` → `http://127.0.0.1:8000`），需要确保在反代时**透传 Host**。
+
+后端会通过 `request.getServerName()` 获取域名并映射到 `sys_tenant.domain` 来解析 `tenant_id`。
+若未透传 Host，后端可能只能拿到 `127.0.0.1/localhost`，导致域名识别租户失效。
+
+Nginx 最小配置示例（仅展示关键项）：
+
+```nginx
+location /prod-api/ {
+  proxy_set_header Host $host;
+  proxy_pass http://127.0.0.1:8000/;
+}
+```
+
+### 4. 登录与切换租户
+
+- 通过域名自动解析租户（不传 `tenantId`）
+  - 请求 `http://vue.youlai.tech:8000`：自动识别为平台租户（`tenant_id=0`）
+  - 请求 `http://demo.youlai.tech:8000`：自动识别为演示租户（`tenant_id=1`）
+- 显式指定租户登录（适用于 `localhost` 或 API 工具）
+  - `POST /api/v1/auth/login`，请求体携带 `tenantId`：`0`（平台） / `1`（演示）
+- 访问 `localhost` 登录（不传 `tenantId` 且域名无法解析）
+  - 使用账号 `admin` / `123456`，由于该用户名在多个租户存在，会返回 `choose_tenant`，前端会弹出“选择登录租户”对话框
+- 平台账号切换租户（仅平台租户下的 `root/admin` 可用）
+  - `POST /api/v1/auth/switch-tenant?tenantId=1`（携带当前登录 token），返回新的 token，token 中的 `tenantId` 切换为目标租户
+- 可选：不修改 hosts 也可测试域名解析
+  - 使用 Host 头模拟域名（示例：`curl -H "Host: demo.youlai.tech" http://127.0.0.1:8000/api/v1/auth/captcha`）
 
 ## 🚀 项目部署
 

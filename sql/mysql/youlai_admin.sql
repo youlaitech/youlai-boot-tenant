@@ -18,6 +18,7 @@ CREATE DATABASE IF NOT EXISTS youlai_admin_tenant CHARACTER SET utf8mb4 DEFAULT 
 USE youlai_admin_tenant;
 
 SET NAMES utf8mb4;  # 设置字符集
+SET SESSION sql_mode='NO_AUTO_VALUE_ON_ZERO';
 SET FOREIGN_KEY_CHECKS = 0; # 关闭外键检查，加快导入速度
 
 -- ----------------------------
@@ -26,7 +27,7 @@ SET FOREIGN_KEY_CHECKS = 0; # 关闭外键检查，加快导入速度
 DROP TABLE IF EXISTS `sys_dept`;
 CREATE TABLE `sys_dept`  (
                              `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
-                             `tenant_id` bigint DEFAULT 1 COMMENT '租户ID',
+                             `tenant_id` bigint DEFAULT 0 COMMENT '租户ID',
                              `name` varchar(100) NOT NULL COMMENT '部门名称',
                              `code` varchar(100) NOT NULL COMMENT '部门编号',
                              `parent_id` bigint DEFAULT 0 COMMENT '父节点id',
@@ -46,15 +47,15 @@ CREATE TABLE `sys_dept`  (
 -- ----------------------------
 -- Records of sys_dept
 -- ----------------------------
--- 默认租户（tenant_id=1）的部门
-INSERT INTO `sys_dept` VALUES (1, 1, '有来技术', 'YOULAI', 0, '0', 1, 1, 1, NULL, 1, now(), 0);
-INSERT INTO `sys_dept` VALUES (2, 1, '研发部门', 'RD001', 1, '0,1', 1, 1, 2, NULL, 2, now(), 0);
-INSERT INTO `sys_dept` VALUES (3, 1, '测试部门', 'QA001', 1, '0,1', 1, 1, 2, NULL, 2, now(), 0);
+-- 默认租户（tenant_id=0）的部门
+INSERT INTO `sys_dept` VALUES (1, 0, '有来技术', 'YOULAI', 0, '0', 1, 1, 1, NULL, 1, now(), 0);
+INSERT INTO `sys_dept` VALUES (2, 0, '研发部门', 'RD001', 1, '0,1', 1, 1, 2, NULL, 2, now(), 0);
+INSERT INTO `sys_dept` VALUES (3, 0, '测试部门', 'QA001', 1, '0,1', 1, 1, 2, NULL, 2, now(), 0);
 
--- 演示租户（tenant_id=2）的部门
-INSERT INTO `sys_dept` VALUES (4, 2, '演示公司', 'DEMO_COMPANY', 0, '0', 1, 1, 4, NULL, 4, now(), 0);
-INSERT INTO `sys_dept` VALUES (5, 2, '演示技术部', 'DEMO_TECH', 4, '0,4', 1, 1, 4, NULL, 5, now(), 0);
-INSERT INTO `sys_dept` VALUES (6, 2, '演示运营部', 'DEMO_OPER', 4, '0,4', 1, 1, 4, NULL, 6, now(), 0);
+-- 演示租户（tenant_id=1）的部门
+INSERT INTO `sys_dept` VALUES (4, 1, '演示公司', 'DEMO_COMPANY', 0, '0', 1, 1, 4, NULL, 4, now(), 0);
+INSERT INTO `sys_dept` VALUES (5, 1, '演示技术部', 'DEMO_TECH', 4, '0,4', 1, 1, 4, NULL, 5, now(), 0);
+INSERT INTO `sys_dept` VALUES (6, 1, '演示运营部', 'DEMO_OPER', 4, '0,4', 1, 1, 4, NULL, 6, now(), 0);
 
 -- ----------------------------
 -- Table structure for sys_dict
@@ -274,7 +275,7 @@ INSERT INTO `sys_menu` VALUES (1002, 10, '0,10', '参数(type=2)', 'M', 'RoutePa
 DROP TABLE IF EXISTS `sys_role`;
 CREATE TABLE `sys_role`  (
                              `id` bigint NOT NULL AUTO_INCREMENT,
-                             `tenant_id` bigint DEFAULT 1 COMMENT '租户ID',
+                             `tenant_id` bigint DEFAULT 0 COMMENT '租户ID',
                              `name` varchar(64) NOT NULL COMMENT '角色名称',
                              `code` varchar(32) NOT NULL COMMENT '角色编码',
                              `sort` int NULL COMMENT '显示顺序',
@@ -294,23 +295,23 @@ CREATE TABLE `sys_role`  (
 -- ----------------------------
 -- Records of sys_role
 -- ----------------------------
--- 默认租户（tenant_id=1）的角色
-INSERT INTO `sys_role` VALUES (1, 1, '超级管理员', 'ROOT', 1, 1, 1, NULL, now(), NULL, now(), 0);
-INSERT INTO `sys_role` VALUES (2, 1, '系统管理员', 'ADMIN', 2, 1, 1, NULL, now(), NULL, NULL, 0);
-INSERT INTO `sys_role` VALUES (3, 1, '访问游客', 'GUEST', 3, 1, 3, NULL, now(), NULL, now(), 0);
-INSERT INTO `sys_role` VALUES (4, 1, '系统管理员1', 'ADMIN1', 4, 1, 1, NULL, now(), NULL, NULL, 0);
-INSERT INTO `sys_role` VALUES (5, 1, '系统管理员2', 'ADMIN2', 5, 1, 1, NULL, now(), NULL, NULL, 0);
-INSERT INTO `sys_role` VALUES (6, 1, '系统管理员3', 'ADMIN3', 6, 1, 1, NULL, now(), NULL, NULL, 0);
-INSERT INTO `sys_role` VALUES (7, 1, '系统管理员4', 'ADMIN4', 7, 1, 1, NULL, now(), NULL, NULL, 0);
-INSERT INTO `sys_role` VALUES (8, 1, '系统管理员5', 'ADMIN5', 8, 1, 1, NULL, now(), NULL, NULL, 0);
-INSERT INTO `sys_role` VALUES (9, 1, '系统管理员6', 'ADMIN6', 9, 1, 1, NULL, now(), NULL, NULL, 0);
-INSERT INTO `sys_role` VALUES (10, 1, '系统管理员7', 'ADMIN7', 10, 1, 1, NULL, now(), NULL, NULL, 0);
-INSERT INTO `sys_role` VALUES (11, 1, '系统管理员8', 'ADMIN8', 11, 1, 1, NULL, now(), NULL, NULL, 0);
-INSERT INTO `sys_role` VALUES (12, 1, '系统管理员9', 'ADMIN9', 12, 1, 1, NULL, now(), NULL, NULL, 0);
+-- 默认租户（tenant_id=0）的角色
+INSERT INTO `sys_role` VALUES (1, 0, '超级管理员', 'ROOT', 1, 1, 1, NULL, now(), NULL, now(), 0);
+INSERT INTO `sys_role` VALUES (2, 0, '系统管理员', 'ADMIN', 2, 1, 1, NULL, now(), NULL, NULL, 0);
+INSERT INTO `sys_role` VALUES (3, 0, '访问游客', 'GUEST', 3, 1, 3, NULL, now(), NULL, now(), 0);
+INSERT INTO `sys_role` VALUES (4, 0, '系统管理员1', 'ADMIN1', 4, 1, 1, NULL, now(), NULL, NULL, 0);
+INSERT INTO `sys_role` VALUES (5, 0, '系统管理员2', 'ADMIN2', 5, 1, 1, NULL, now(), NULL, NULL, 0);
+INSERT INTO `sys_role` VALUES (6, 0, '系统管理员3', 'ADMIN3', 6, 1, 1, NULL, now(), NULL, NULL, 0);
+INSERT INTO `sys_role` VALUES (7, 0, '系统管理员4', 'ADMIN4', 7, 1, 1, NULL, now(), NULL, NULL, 0);
+INSERT INTO `sys_role` VALUES (8, 0, '系统管理员5', 'ADMIN5', 8, 1, 1, NULL, now(), NULL, NULL, 0);
+INSERT INTO `sys_role` VALUES (9, 0, '系统管理员6', 'ADMIN6', 9, 1, 1, NULL, now(), NULL, NULL, 0);
+INSERT INTO `sys_role` VALUES (10, 0, '系统管理员7', 'ADMIN7', 10, 1, 1, NULL, now(), NULL, NULL, 0);
+INSERT INTO `sys_role` VALUES (11, 0, '系统管理员8', 'ADMIN8', 11, 1, 1, NULL, now(), NULL, NULL, 0);
+INSERT INTO `sys_role` VALUES (12, 0, '系统管理员9', 'ADMIN9', 12, 1, 1, NULL, now(), NULL, NULL, 0);
 
--- 演示租户（tenant_id=2）的角色
-INSERT INTO `sys_role` VALUES (13, 2, '演示租户管理员', 'DEMO_ADMIN', 1, 1, 1, NULL, now(), NULL, now(), 0);
-INSERT INTO `sys_role` VALUES (14, 2, '演示普通用户', 'DEMO_USER', 2, 1, 3, NULL, now(), NULL, now(), 0);
+-- 演示租户（tenant_id=1）的角色
+INSERT INTO `sys_role` VALUES (13, 1, '演示租户管理员', 'DEMO_ADMIN', 1, 1, 1, NULL, now(), NULL, now(), 0);
+INSERT INTO `sys_role` VALUES (14, 1, '演示普通用户', 'DEMO_USER', 2, 1, 3, NULL, now(), NULL, now(), 0);
 
 -- ----------------------------
 -- Table structure for sys_role_menu
@@ -319,7 +320,7 @@ DROP TABLE IF EXISTS `sys_role_menu`;
 CREATE TABLE `sys_role_menu`  (
                                   `role_id` bigint NOT NULL COMMENT '角色ID',
                                   `menu_id` bigint NOT NULL COMMENT '菜单ID',
-                                  `tenant_id` bigint DEFAULT 1 COMMENT '租户ID',
+                                  `tenant_id` bigint DEFAULT 0 COMMENT '租户ID',
                                   UNIQUE INDEX `uk_roleid_menuid`(`role_id` ASC, `menu_id` ASC) USING BTREE COMMENT '角色菜单唯一索引',
                                   KEY `idx_role_menu_tenant_id` (`tenant_id`)
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COMMENT = '角色菜单关联表';
@@ -330,96 +331,96 @@ CREATE TABLE `sys_role_menu`  (
 -- ============================================
 -- ROOT 角色菜单权限（role_id=1）- 拥有所有权限
 -- 顶级目录
-INSERT INTO `sys_role_menu` VALUES (1, 1, 1), (1, 2, 1), (1, 3, 1), (1, 4, 1), (1, 5, 1), (1, 6, 1), (1, 7, 1), (1, 8, 1), (1, 9, 1), (1, 10, 1);
+INSERT INTO `sys_role_menu` VALUES (1, 1, 0), (1, 2, 0), (1, 3, 0), (1, 4, 0), (1, 5, 0), (1, 6, 0), (1, 7, 0), (1, 8, 0), (1, 9, 0), (1, 10, 0);
 -- 平台管理
-INSERT INTO `sys_role_menu` VALUES (1, 110, 1), (1, 1101, 1), (1, 1102, 1), (1, 1103, 1), (1, 1104, 1), (1, 1105, 1);
-INSERT INTO `sys_role_menu` VALUES (1, 230, 1), (1, 2301, 1), (1, 2302, 1), (1, 2303, 1), (1, 2304, 1);
-INSERT INTO `sys_role_menu` VALUES (1, 270, 1), (1, 2701, 1), (1, 2702, 1), (1, 2703, 1), (1, 2704, 1), (1, 2705, 1);
+INSERT INTO `sys_role_menu` VALUES (1, 110, 0), (1, 1101, 0), (1, 1102, 0), (1, 1103, 0), (1, 1104, 0), (1, 1105, 0);
+INSERT INTO `sys_role_menu` VALUES (1, 230, 0), (1, 2301, 0), (1, 2302, 0), (1, 2303, 0), (1, 2304, 0);
+INSERT INTO `sys_role_menu` VALUES (1, 270, 0), (1, 2701, 0), (1, 2702, 0), (1, 2703, 0), (1, 2704, 0), (1, 2705, 0);
 -- 系统管理
-INSERT INTO `sys_role_menu` VALUES (1, 210, 1), (1, 2101, 1), (1, 2102, 1), (1, 2103, 1), (1, 2104, 1), (1, 2105, 1), (1, 2106, 1), (1, 2107, 1);
-INSERT INTO `sys_role_menu` VALUES (1, 220, 1), (1, 2201, 1), (1, 2202, 1), (1, 2203, 1), (1, 2204, 1), (1, 2205, 1);
-INSERT INTO `sys_role_menu` VALUES (1, 240, 1), (1, 2401, 1), (1, 2402, 1), (1, 2403, 1), (1, 2404, 1);
-INSERT INTO `sys_role_menu` VALUES (1, 250, 1), (1, 2501, 1), (1, 2502, 1), (1, 2503, 1), (1, 2504, 1);
-INSERT INTO `sys_role_menu` VALUES (1, 251, 1), (1, 2511, 1), (1, 2512, 1), (1, 2513, 1), (1, 2514, 1);
-INSERT INTO `sys_role_menu` VALUES (1, 260, 1);
-INSERT INTO `sys_role_menu` VALUES (1, 280, 1), (1, 2801, 1), (1, 2802, 1), (1, 2803, 1), (1, 2804, 1), (1, 2805, 1), (1, 2806, 1);
+INSERT INTO `sys_role_menu` VALUES (1, 210, 0), (1, 2101, 0), (1, 2102, 0), (1, 2103, 0), (1, 2104, 0), (1, 2105, 0), (1, 2106, 0), (1, 2107, 0);
+INSERT INTO `sys_role_menu` VALUES (1, 220, 0), (1, 2201, 0), (1, 2202, 0), (1, 2203, 0), (1, 2204, 0), (1, 2205, 0);
+INSERT INTO `sys_role_menu` VALUES (1, 240, 0), (1, 2401, 0), (1, 2402, 0), (1, 2403, 0), (1, 2404, 0);
+INSERT INTO `sys_role_menu` VALUES (1, 250, 0), (1, 2501, 0), (1, 2502, 0), (1, 2503, 0), (1, 2504, 0);
+INSERT INTO `sys_role_menu` VALUES (1, 251, 0), (1, 2511, 0), (1, 2512, 0), (1, 2513, 0), (1, 2514, 0);
+INSERT INTO `sys_role_menu` VALUES (1, 260, 0);
+INSERT INTO `sys_role_menu` VALUES (1, 280, 0), (1, 2801, 0), (1, 2802, 0), (1, 2803, 0), (1, 2804, 0), (1, 2805, 0), (1, 2806, 0);
 -- 代码生成
-INSERT INTO `sys_role_menu` VALUES (1, 310, 1);
+INSERT INTO `sys_role_menu` VALUES (1, 310, 0);
 -- AI 助手
-INSERT INTO `sys_role_menu` VALUES (1, 401, 1);
+INSERT INTO `sys_role_menu` VALUES (1, 401, 0);
 -- 平台文档
-INSERT INTO `sys_role_menu` VALUES (1, 501, 1), (1, 502, 1), (1, 503, 1), (1, 504, 1);
+INSERT INTO `sys_role_menu` VALUES (1, 501, 0), (1, 502, 0), (1, 503, 0), (1, 504, 0);
 -- 接口文档
-INSERT INTO `sys_role_menu` VALUES (1, 601, 1);
+INSERT INTO `sys_role_menu` VALUES (1, 601, 0);
 -- 组件封装
-INSERT INTO `sys_role_menu` VALUES (1, 701, 1), (1, 702, 1), (1, 703, 1), (1, 704, 1), (1, 705, 1), (1, 706, 1), (1, 707, 1), (1, 708, 1), (1, 709, 1);
+INSERT INTO `sys_role_menu` VALUES (1, 701, 0), (1, 702, 0), (1, 703, 0), (1, 704, 0), (1, 705, 0), (1, 706, 0), (1, 707, 0), (1, 708, 0), (1, 709, 0);
 -- 功能演示 / 多级菜单
-INSERT INTO `sys_role_menu` VALUES (1, 801, 1), (1, 802, 1), (1, 803, 1), (1, 804, 1), (1, 805, 1), (1, 910, 1), (1, 911, 1), (1, 912, 1), (1, 913, 1);
+INSERT INTO `sys_role_menu` VALUES (1, 801, 0), (1, 802, 0), (1, 803, 0), (1, 804, 0), (1, 805, 0), (1, 910, 0), (1, 911, 0), (1, 912, 0), (1, 913, 0);
 -- 路由参数
-INSERT INTO `sys_role_menu` VALUES (1, 1001, 1), (1, 1002, 1);
+INSERT INTO `sys_role_menu` VALUES (1, 1001, 0), (1, 1002, 0);
 
 -- ============================================
 -- 系统管理员角色菜单权限（role_id=2）
 -- 顶级目录
-INSERT INTO `sys_role_menu` VALUES (2, 1, 1), (2, 2, 1), (2, 3, 1), (2, 4, 1), (2, 5, 1), (2, 6, 1), (2, 7, 1), (2, 8, 1), (2, 9, 1), (2, 10, 1);
+INSERT INTO `sys_role_menu` VALUES (2, 1, 0), (2, 2, 0), (2, 3, 0), (2, 4, 0), (2, 5, 0), (2, 6, 0), (2, 7, 0), (2, 8, 0), (2, 9, 0), (2, 10, 0);
  -- 平台管理
- INSERT INTO `sys_role_menu` VALUES (2, 110, 1), (2, 1101, 1), (2, 1102, 1), (2, 1103, 1), (2, 1104, 1), (2, 1105, 1);
+ INSERT INTO `sys_role_menu` VALUES (2, 110, 0), (2, 1101, 0), (2, 1102, 0), (2, 1103, 0), (2, 1104, 0), (2, 1105, 0);
  -- 系统管理
- INSERT INTO `sys_role_menu` VALUES (2, 210, 1), (2, 2101, 1), (2, 2102, 1), (2, 2103, 1), (2, 2104, 1), (2, 2105, 1), (2, 2106, 1), (2, 2107, 1);
- INSERT INTO `sys_role_menu` VALUES (2, 220, 1), (2, 2201, 1), (2, 2202, 1), (2, 2203, 1), (2, 2204, 1), (2, 2205, 1);
- INSERT INTO `sys_role_menu` VALUES (2, 230, 1), (2, 2301, 1), (2, 2302, 1), (2, 2303, 1), (2, 2304, 1);
- INSERT INTO `sys_role_menu` VALUES (2, 240, 1), (2, 2401, 1), (2, 2402, 1), (2, 2403, 1), (2, 2404, 1);
- INSERT INTO `sys_role_menu` VALUES (2, 250, 1), (2, 2501, 1), (2, 2502, 1), (2, 2503, 1), (2, 2504, 1);
-INSERT INTO `sys_role_menu` VALUES (2, 251, 1), (2, 2511, 1), (2, 2512, 1), (2, 2513, 1), (2, 2514, 1);
-INSERT INTO `sys_role_menu` VALUES (2, 260, 1);
-INSERT INTO `sys_role_menu` VALUES (2, 270, 1), (2, 2701, 1), (2, 2702, 1), (2, 2703, 1), (2, 2704, 1), (2, 2705, 1);
-INSERT INTO `sys_role_menu` VALUES (2, 280, 1), (2, 2801, 1), (2, 2802, 1), (2, 2803, 1), (2, 2804, 1), (2, 2805, 1), (2, 2806, 1);
+ INSERT INTO `sys_role_menu` VALUES (2, 210, 0), (2, 2101, 0), (2, 2102, 0), (2, 2103, 0), (2, 2104, 0), (2, 2105, 0), (2, 2106, 0), (2, 2107, 0);
+ INSERT INTO `sys_role_menu` VALUES (2, 220, 0), (2, 2201, 0), (2, 2202, 0), (2, 2203, 0), (2, 2204, 0), (2, 2205, 0);
+ INSERT INTO `sys_role_menu` VALUES (2, 230, 0), (2, 2301, 0), (2, 2302, 0), (2, 2303, 0), (2, 2304, 0);
+ INSERT INTO `sys_role_menu` VALUES (2, 240, 0), (2, 2401, 0), (2, 2402, 0), (2, 2403, 0), (2, 2404, 0);
+ INSERT INTO `sys_role_menu` VALUES (2, 250, 0), (2, 2501, 0), (2, 2502, 0), (2, 2503, 0), (2, 2504, 0);
+INSERT INTO `sys_role_menu` VALUES (2, 251, 0), (2, 2511, 0), (2, 2512, 0), (2, 2513, 0), (2, 2514, 0);
+INSERT INTO `sys_role_menu` VALUES (2, 260, 0);
+INSERT INTO `sys_role_menu` VALUES (2, 270, 0), (2, 2701, 0), (2, 2702, 0), (2, 2703, 0), (2, 2704, 0), (2, 2705, 0);
+INSERT INTO `sys_role_menu` VALUES (2, 280, 0), (2, 2801, 0), (2, 2802, 0), (2, 2803, 0), (2, 2804, 0), (2, 2805, 0), (2, 2806, 0);
 -- 代码生成
-INSERT INTO `sys_role_menu` VALUES (2, 310, 1);
+INSERT INTO `sys_role_menu` VALUES (2, 310, 0);
 -- AI 助手
-INSERT INTO `sys_role_menu` VALUES (2, 401, 1);
+INSERT INTO `sys_role_menu` VALUES (2, 401, 0);
 -- 平台文档
-INSERT INTO `sys_role_menu` VALUES (2, 501, 1), (2, 502, 1), (2, 503, 1), (2, 504, 1);
+INSERT INTO `sys_role_menu` VALUES (2, 501, 0), (2, 502, 0), (2, 503, 0), (2, 504, 0);
 -- 接口文档
-INSERT INTO `sys_role_menu` VALUES (2, 601, 1);
+INSERT INTO `sys_role_menu` VALUES (2, 601, 0);
 -- 组件封装
-INSERT INTO `sys_role_menu` VALUES (2, 701, 1), (2, 702, 1), (2, 703, 1), (2, 704, 1), (2, 705, 1), (2, 706, 1), (2, 707, 1), (2, 708, 1), (2, 709, 1);
+INSERT INTO `sys_role_menu` VALUES (2, 701, 0), (2, 702, 0), (2, 703, 0), (2, 704, 0), (2, 705, 0), (2, 706, 0), (2, 707, 0), (2, 708, 0), (2, 709, 0);
 -- 功能演示 / 多级菜单
-INSERT INTO `sys_role_menu` VALUES (2, 801, 1), (2, 802, 1), (2, 803, 1), (2, 804, 1), (2, 805, 1), (2, 910, 1), (2, 911, 1), (2, 912, 1), (2, 913, 1);
+INSERT INTO `sys_role_menu` VALUES (2, 801, 0), (2, 802, 0), (2, 803, 0), (2, 804, 0), (2, 805, 0), (2, 910, 0), (2, 911, 0), (2, 912, 0), (2, 913, 0);
 -- 路由参数
-INSERT INTO `sys_role_menu` VALUES (2, 1001, 1), (2, 1002, 1);
+INSERT INTO `sys_role_menu` VALUES (2, 1001, 0), (2, 1002, 0);
 
 -- ============================================
--- 演示租户角色菜单权限（tenant_id=2）
+-- 演示租户角色菜单权限（tenant_id=1）
 -- ============================================
 -- 演示租户管理员（role_id=13）- 拥有系统管理权限（不包含平台管理）
 -- 顶级目录（仅系统管理相关）
-INSERT INTO `sys_role_menu` VALUES (13, 2, 2), (13, 3, 2), (13, 4, 2), (13, 5, 2), (13, 6, 2), (13, 7, 2), (13, 8, 2), (13, 9, 2), (13, 10, 2);
+INSERT INTO `sys_role_menu` VALUES (13, 2, 1), (13, 3, 1), (13, 4, 1), (13, 5, 1), (13, 6, 1), (13, 7, 1), (13, 8, 1), (13, 9, 1), (13, 10, 1);
 -- 系统管理（租户侧）
-INSERT INTO `sys_role_menu` VALUES (13, 210, 2), (13, 2101, 2), (13, 2102, 2), (13, 2103, 2), (13, 2104, 2), (13, 2105, 2), (13, 2106, 2), (13, 2107, 2);
-INSERT INTO `sys_role_menu` VALUES (13, 220, 2), (13, 2201, 2), (13, 2202, 2), (13, 2203, 2), (13, 2204, 2), (13, 2205, 2);
-INSERT INTO `sys_role_menu` VALUES (13, 240, 2), (13, 2401, 2), (13, 2402, 2), (13, 2403, 2), (13, 2404, 2);
-INSERT INTO `sys_role_menu` VALUES (13, 250, 2), (13, 2501, 2), (13, 2502, 2), (13, 2503, 2), (13, 2504, 2);
-INSERT INTO `sys_role_menu` VALUES (13, 251, 2), (13, 2511, 2), (13, 2512, 2), (13, 2513, 2), (13, 2514, 2);
-INSERT INTO `sys_role_menu` VALUES (13, 260, 2);
-INSERT INTO `sys_role_menu` VALUES (13, 280, 2), (13, 2801, 2), (13, 2802, 2), (13, 2803, 2), (13, 2804, 2), (13, 2805, 2), (13, 2806, 2);
+INSERT INTO `sys_role_menu` VALUES (13, 210, 1), (13, 2101, 1), (13, 2102, 1), (13, 2103, 1), (13, 2104, 1), (13, 2105, 1), (13, 2106, 1), (13, 2107, 1);
+INSERT INTO `sys_role_menu` VALUES (13, 220, 1), (13, 2201, 1), (13, 2202, 1), (13, 2203, 1), (13, 2204, 1), (13, 2205, 1);
+INSERT INTO `sys_role_menu` VALUES (13, 240, 1), (13, 2401, 1), (13, 2402, 1), (13, 2403, 1), (13, 2404, 1);
+INSERT INTO `sys_role_menu` VALUES (13, 250, 1), (13, 2501, 1), (13, 2502, 1), (13, 2503, 1), (13, 2504, 1);
+INSERT INTO `sys_role_menu` VALUES (13, 251, 1), (13, 2511, 1), (13, 2512, 1), (13, 2513, 1), (13, 2514, 1);
+INSERT INTO `sys_role_menu` VALUES (13, 260, 1);
+INSERT INTO `sys_role_menu` VALUES (13, 280, 1), (13, 2801, 1), (13, 2802, 1), (13, 2803, 1), (13, 2804, 1), (13, 2805, 1), (13, 2806, 1);
 -- 代码生成
-INSERT INTO `sys_role_menu` VALUES (13, 310, 2);
+INSERT INTO `sys_role_menu` VALUES (13, 310, 1);
 -- AI 助手
-INSERT INTO `sys_role_menu` VALUES (13, 401, 2);
+INSERT INTO `sys_role_menu` VALUES (13, 401, 1);
 -- 平台文档
-INSERT INTO `sys_role_menu` VALUES (13, 501, 2), (13, 502, 2), (13, 503, 2), (13, 504, 2);
+INSERT INTO `sys_role_menu` VALUES (13, 501, 1), (13, 502, 1), (13, 503, 1), (13, 504, 1);
 -- 接口文档
-INSERT INTO `sys_role_menu` VALUES (13, 601, 2);
+INSERT INTO `sys_role_menu` VALUES (13, 601, 1);
 -- 组件封装
-INSERT INTO `sys_role_menu` VALUES (13, 701, 2), (13, 702, 2), (13, 703, 2), (13, 704, 2), (13, 705, 2), (13, 706, 2), (13, 707, 2), (13, 708, 2), (13, 709, 2);
+INSERT INTO `sys_role_menu` VALUES (13, 701, 1), (13, 702, 1), (13, 703, 1), (13, 704, 1), (13, 705, 1), (13, 706, 1), (13, 707, 1), (13, 708, 1), (13, 709, 1);
 -- 功能演示 / 多级菜单
-INSERT INTO `sys_role_menu` VALUES (13, 801, 2), (13, 802, 2), (13, 803, 2), (13, 804, 2), (13, 805, 2), (13, 910, 2), (13, 911, 2), (13, 912, 2), (13, 913, 2);
+INSERT INTO `sys_role_menu` VALUES (13, 801, 1), (13, 802, 1), (13, 803, 1), (13, 804, 1), (13, 805, 1), (13, 910, 1), (13, 911, 1), (13, 912, 1), (13, 913, 1);
 -- 路由参数
-INSERT INTO `sys_role_menu` VALUES (13, 1001, 2), (13, 1002, 2);
+INSERT INTO `sys_role_menu` VALUES (13, 1001, 1), (13, 1002, 1);
 
 -- 演示普通用户（role_id=14）- 仅查看权限
-INSERT INTO `sys_role_menu` VALUES (14, 2, 2), (14, 210, 2), (14, 2101, 2), (14, 220, 2), (14, 2201, 2), (14, 240, 2), (14, 2401, 2), (14, 250, 2), (14, 2501, 2), (14, 260, 2), (14, 280, 2), (14, 2801, 2);
+INSERT INTO `sys_role_menu` VALUES (14, 2, 1), (14, 210, 1), (14, 2101, 1), (14, 220, 1), (14, 2201, 1), (14, 240, 1), (14, 2401, 1), (14, 250, 1), (14, 2501, 1), (14, 260, 1), (14, 280, 1), (14, 2801, 1);
 
 -- ----------------------------
 -- Table structure for sys_user
@@ -427,7 +428,7 @@ INSERT INTO `sys_role_menu` VALUES (14, 2, 2), (14, 210, 2), (14, 2101, 2), (14,
 DROP TABLE IF EXISTS `sys_user`;
 CREATE TABLE `sys_user`  (
                              `id` bigint NOT NULL AUTO_INCREMENT,
-                             `tenant_id` bigint DEFAULT 1 COMMENT '租户ID',
+                             `tenant_id` bigint DEFAULT 0 COMMENT '租户ID',
                              `username` varchar(64) COMMENT '用户名',
                              `nickname` varchar(64) COMMENT '昵称',
                              `gender` tinyint(1) DEFAULT 1 COMMENT '性别((1-男 2-女 0-保密)',
@@ -451,13 +452,13 @@ CREATE TABLE `sys_user`  (
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
--- 默认租户（tenant_id=1）的用户
-INSERT INTO `sys_user` VALUES (1, 1, 'root', '有来技术', 0, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', NULL, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345677', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0,NULL);
-INSERT INTO `sys_user` VALUES (2, 1, 'admin', '系统管理员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 1, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345678', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0,NULL);
-INSERT INTO `sys_user` VALUES (3, 1, 'test', '测试小用户', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 3, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345679', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0,NULL);
+-- 默认租户（tenant_id=0）的用户
+INSERT INTO `sys_user` VALUES (1, 0, 'root', '有来技术', 0, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', NULL, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345677', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0,NULL);
+INSERT INTO `sys_user` VALUES (2, 0, 'admin', '系统管理员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 1, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345678', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0,NULL);
+INSERT INTO `sys_user` VALUES (3, 0, 'test', '测试小用户', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 3, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345679', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0,NULL);
 
--- 演示租户（tenant_id=2）的用户
-INSERT INTO `sys_user` VALUES (4, 2, 'admin', '演示租户管理员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 4, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345680', 1, 'demo@youlai.tech', now(), NULL, now(), NULL, 0,NULL);
+-- 演示租户（tenant_id=1）的用户
+INSERT INTO `sys_user` VALUES (4, 1, 'admin', '演示租户管理员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 4, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345680', 1, 'demo@youlai.tech', now(), NULL, now(), NULL, 0,NULL);
 
 -- ----------------------------
 -- Table structure for sys_user_role
@@ -466,7 +467,7 @@ DROP TABLE IF EXISTS `sys_user_role`;
 CREATE TABLE `sys_user_role`  (
                                   `user_id` bigint NOT NULL COMMENT '用户ID',
                                   `role_id` bigint NOT NULL COMMENT '角色ID',
-                                  `tenant_id` bigint DEFAULT 1 COMMENT '租户ID',
+                                  `tenant_id` bigint DEFAULT 0 COMMENT '租户ID',
                                   PRIMARY KEY (`user_id`, `role_id`) USING BTREE,
                                   KEY `idx_user_role_tenant_id` (`tenant_id`)
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COMMENT = '用户角色关联表';
@@ -474,13 +475,13 @@ CREATE TABLE `sys_user_role`  (
 -- ----------------------------
 -- Records of sys_user_role
 -- ----------------------------
--- 默认租户（tenant_id=1）的用户角色关联
-INSERT INTO `sys_user_role` VALUES (1, 1, 1);
-INSERT INTO `sys_user_role` VALUES (2, 2, 1);
-INSERT INTO `sys_user_role` VALUES (3, 3, 1);
+-- 默认租户（tenant_id=0）的用户角色关联
+INSERT INTO `sys_user_role` VALUES (1, 1, 0);
+INSERT INTO `sys_user_role` VALUES (2, 2, 0);
+INSERT INTO `sys_user_role` VALUES (3, 3, 0);
 
--- 演示租户（tenant_id=2）的用户角色关联
-INSERT INTO `sys_user_role` VALUES (4, 13, 2);
+-- 演示租户（tenant_id=1）的用户角色关联
+INSERT INTO `sys_user_role` VALUES (4, 13, 1);
 
 
 -- ----------------------------
@@ -489,7 +490,7 @@ INSERT INTO `sys_user_role` VALUES (4, 13, 2);
 DROP TABLE IF EXISTS `sys_log`;
 CREATE TABLE `sys_log` (
                            `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
-                           `tenant_id` bigint DEFAULT 1 COMMENT '租户ID',
+                           `tenant_id` bigint DEFAULT 0 COMMENT '租户ID',
                            `module` varchar(50) NOT NULL COMMENT '日志模块',
                            `request_method` varchar(64) NOT NULL COMMENT '请求方式',
                            `request_params` text COMMENT '请求参数(批量请求参数可能会超过text)',
@@ -588,7 +589,7 @@ INSERT INTO `sys_config` VALUES (1, '系统限流QPS', 'IP_QPS_THRESHOLD_LIMIT',
 DROP TABLE IF EXISTS `sys_notice`;
 CREATE TABLE `sys_notice` (
                               `id` bigint NOT NULL AUTO_INCREMENT,
-                              `tenant_id` bigint DEFAULT 1 COMMENT '租户ID',
+                              `tenant_id` bigint DEFAULT 0 COMMENT '租户ID',
                               `title` varchar(50) COMMENT '通知标题',
                               `content` text COMMENT '通知内容',
                               `type` tinyint NOT NULL COMMENT '通知类型（关联字典编码：notice_type）',
@@ -608,16 +609,16 @@ CREATE TABLE `sys_notice` (
                               KEY `idx_tenant_id` (`tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统通知公告表';
 
-INSERT INTO `sys_notice` VALUES (1, 1, 'v3.0.0 版本发布 - 多租户功能上线', '<p>🎉 新版本发布，主要更新内容：</p><p>1. 新增多租户功能，支持租户隔离和数据管理</p><p>2. 优化系统性能，提升响应速度</p><p>3. 完善权限管理，增强安全性</p><p>4. 修复已知问题，提升系统稳定性</p>', 1, 'H', 1, NULL, 1, 1, '2024-12-15 10:00:00', NULL, 1, '2024-12-15 10:00:00', 1, '2024-12-15 10:00:00', 0);
-INSERT INTO `sys_notice` VALUES (2, 1, '系统维护通知 - 2024年12月20日', '<p>⏰ 系统维护通知</p><p>系统将于 <strong>2024年12月20日（本周五）凌晨 2:00-4:00</strong> 进行例行维护升级。</p><p>维护期间系统将暂停服务，请提前做好数据备份工作。</p><p>给您带来的不便，敬请谅解！</p>', 2, 'H', 1, NULL, 1, 1, '2024-12-18 14:30:00', NULL, 1, '2024-12-18 14:30:00', 1, '2024-12-18 14:30:00', 0);
-INSERT INTO `sys_notice` VALUES (3, 1, '安全提醒 - 防范钓鱼邮件', '<p>⚠️ 安全提醒</p><p>近期发现有不法分子通过钓鱼邮件进行网络攻击，请大家提高警惕：</p><p>1. 不要点击来源不明的邮件链接</p><p>2. 不要下载可疑附件</p><p>3. 遇到可疑邮件请及时联系IT部门</p><p>4. 定期修改密码，使用强密码策略</p>', 3, 'H', 1, NULL, 1, 1, '2024-12-10 09:00:00', NULL, 1, '2024-12-10 09:00:00', 1, '2024-12-10 09:00:00', 0);
-INSERT INTO `sys_notice` VALUES (4, 1, '元旦假期安排通知', '<p>📅 元旦假期安排</p><p>根据国家法定节假日安排，公司元旦假期时间为：</p><p><strong>2024年12月30日（周一）至 2025年1月1日（周三）</strong>，共3天。</p><p>2024年12月29日（周日）正常上班。</p><p>祝大家元旦快乐，假期愉快！</p>', 4, 'M', 1, NULL, 1, 1, '2024-12-25 16:00:00', NULL, 1, '2024-12-25 16:00:00', 1, '2024-12-25 16:00:00', 0);
-INSERT INTO `sys_notice` VALUES (5, 1, '新产品发布会邀请', '<p>🎊 新产品发布会邀请</p><p>公司将于 <strong>2025年1月15日下午14:00</strong> 在总部会议室举办新产品发布会。</p><p>届时将展示最新研发的产品和技术成果，欢迎全体员工参加。</p><p>请各部门提前安排好工作，准时参加。</p>', 5, 'M', 1, NULL, 1, 1, '2024-12-28 11:00:00', NULL, 1, '2024-12-28 11:00:00', 1, '2024-12-28 11:00:00', 0);
-INSERT INTO `sys_notice` VALUES (6, 1, 'v2.16.1 版本更新', '<p>✨ 版本更新</p><p>v2.16.1 版本已发布，主要修复内容：</p><p>1. 修复 WebSocket 重复连接导致的后台线程阻塞问题</p><p>2. 优化通知公告功能，提升用户体验</p><p>3. 修复部分已知bug</p><p>建议尽快更新到最新版本。</p>', 1, 'M', 1, NULL, 1, 1, '2024-12-05 15:30:00', NULL, 1, '2024-12-05 15:30:00', 1, '2024-12-05 15:30:00', 0);
-INSERT INTO `sys_notice` VALUES (7, 1, '年终总结会议通知', '<p>📋 年终总结会议通知</p><p>各部门年终总结会议将于 <strong>2024年12月30日上午9:00</strong> 召开。</p><p>请各部门负责人提前准备好年度工作总结和下年度工作计划。</p><p>会议地点：总部大会议室</p>', 5, 'M', 2, '1,2', 1, 1, '2024-12-22 10:00:00', NULL, 1, '2024-12-22 10:00:00', 1, '2024-12-22 10:00:00', 0);
-INSERT INTO `sys_notice` VALUES (8, 1, '系统功能优化完成', '<p>✅ 系统功能优化</p><p>已完成以下功能优化：</p><p>1. 优化用户管理界面，提升操作体验</p><p>2. 增强数据导出功能，支持更多格式</p><p>3. 优化搜索功能，提升查询效率</p><p>4. 修复部分界面显示问题</p>', 1, 'L', 1, NULL, 1, 1, '2024-12-12 14:20:00', NULL, 1, '2024-12-12 14:20:00', 1, '2024-12-12 14:20:00', 0);
-INSERT INTO `sys_notice` VALUES (9, 1, '员工培训计划', '<p>📚 员工培训计划</p><p>为提升员工专业技能，公司将于 <strong>2025年1月8日-10日</strong> 组织技术培训。</p><p>培训内容：</p><p>1. 新技术框架应用</p><p>2. 代码规范与最佳实践</p><p>3. 系统架构设计</p><p>请各部门合理安排工作，确保培训顺利进行。</p>', 5, 'M', 1, NULL, 1, 1, '2024-12-20 09:30:00', NULL, 1, '2024-12-20 09:30:00', 1, '2024-12-20 09:30:00', 0);
-INSERT INTO `sys_notice` VALUES (10, 1, '数据备份提醒', '<p>💾 数据备份提醒</p><p>请各部门注意定期备份重要数据，建议每周至少备份一次。</p><p>备份方式：</p><p>1. 使用系统自带备份功能</p><p>2. 手动导出重要数据</p><p>3. 联系IT部门协助备份</p><p>数据安全，人人有责！</p>', 3, 'L', 1, NULL, 1, 1, '2024-12-08 08:00:00', NULL, 1, '2024-12-08 08:00:00', 1, '2024-12-08 08:00:00', 0);
+INSERT INTO `sys_notice` VALUES (1, 0, 'v3.0.0 版本发布 - 多租户功能上线', '<p>🎉 新版本发布，主要更新内容：</p><p>1. 新增多租户功能，支持租户隔离和数据管理</p><p>2. 优化系统性能，提升响应速度</p><p>3. 完善权限管理，增强安全性</p><p>4. 修复已知问题，提升系统稳定性</p>', 1, 'H', 1, NULL, 1, 1, '2024-12-15 10:00:00', NULL, 1, '2024-12-15 10:00:00', 1, '2024-12-15 10:00:00', 0);
+INSERT INTO `sys_notice` VALUES (2, 0, '系统维护通知 - 2024年12月20日', '<p>⏰ 系统维护通知</p><p>系统将于 <strong>2024年12月20日（本周五）凌晨 2:00-4:00</strong> 进行例行维护升级。</p><p>维护期间系统将暂停服务，请提前做好数据备份工作。</p><p>给您带来的不便，敬请谅解！</p>', 2, 'H', 1, NULL, 1, 1, '2024-12-18 14:30:00', NULL, 1, '2024-12-18 14:30:00', 1, '2024-12-18 14:30:00', 0);
+INSERT INTO `sys_notice` VALUES (3, 0, '安全提醒 - 防范钓鱼邮件', '<p>⚠️ 安全提醒</p><p>近期发现有不法分子通过钓鱼邮件进行网络攻击，请大家提高警惕：</p><p>1. 不要点击来源不明的邮件链接</p><p>2. 不要下载可疑附件</p><p>3. 遇到可疑邮件请及时联系IT部门</p><p>4. 定期修改密码，使用强密码策略</p>', 3, 'H', 1, NULL, 1, 1, '2024-12-10 09:00:00', NULL, 1, '2024-12-10 09:00:00', 1, '2024-12-10 09:00:00', 0);
+INSERT INTO `sys_notice` VALUES (4, 0, '元旦假期安排通知', '<p>📅 元旦假期安排</p><p>根据国家法定节假日安排，公司元旦假期时间为：</p><p><strong>2024年12月30日（周一）至 2025年1月1日（周三）</strong>，共3天。</p><p>2024年12月29日（周日）正常上班。</p><p>祝大家元旦快乐，假期愉快！</p>', 4, 'M', 1, NULL, 1, 1, '2024-12-25 16:00:00', NULL, 1, '2024-12-25 16:00:00', 1, '2024-12-25 16:00:00', 0);
+INSERT INTO `sys_notice` VALUES (5, 0, '新产品发布会邀请', '<p>🎊 新产品发布会邀请</p><p>公司将于 <strong>2025年1月15日下午14:00</strong> 在总部会议室举办新产品发布会。</p><p>届时将展示最新研发的产品和技术成果，欢迎全体员工参加。</p><p>请各部门提前安排好工作，准时参加。</p>', 5, 'M', 1, NULL, 1, 1, '2024-12-28 11:00:00', NULL, 1, '2024-12-28 11:00:00', 1, '2024-12-28 11:00:00', 0);
+INSERT INTO `sys_notice` VALUES (6, 0, 'v2.16.1 版本更新', '<p>✨ 版本更新</p><p>v2.16.1 版本已发布，主要修复内容：</p><p>1. 修复 WebSocket 重复连接导致的后台线程阻塞问题</p><p>2. 优化通知公告功能，提升用户体验</p><p>3. 修复部分已知bug</p><p>建议尽快更新到最新版本。</p>', 1, 'M', 1, NULL, 1, 1, '2024-12-05 15:30:00', NULL, 1, '2024-12-05 15:30:00', 1, '2024-12-05 15:30:00', 0);
+INSERT INTO `sys_notice` VALUES (7, 0, '年终总结会议通知', '<p>📋 年终总结会议通知</p><p>各部门年终总结会议将于 <strong>2024年12月30日上午9:00</strong> 召开。</p><p>请各部门负责人提前准备好年度工作总结和下年度工作计划。</p><p>会议地点：总部大会议室</p>', 5, 'M', 2, '1,2', 1, 1, '2024-12-22 10:00:00', NULL, 1, '2024-12-22 10:00:00', 1, '2024-12-22 10:00:00', 0);
+INSERT INTO `sys_notice` VALUES (8, 0, '系统功能优化完成', '<p>✅ 系统功能优化</p><p>已完成以下功能优化：</p><p>1. 优化用户管理界面，提升操作体验</p><p>2. 增强数据导出功能，支持更多格式</p><p>3. 优化搜索功能，提升查询效率</p><p>4. 修复部分界面显示问题</p>', 1, 'L', 1, NULL, 1, 1, '2024-12-12 14:20:00', NULL, 1, '2024-12-12 14:20:00', 1, '2024-12-12 14:20:00', 0);
+INSERT INTO `sys_notice` VALUES (9, 0, '员工培训计划', '<p>📚 员工培训计划</p><p>为提升员工专业技能，公司将于 <strong>2025年1月8日-10日</strong> 组织技术培训。</p><p>培训内容：</p><p>1. 新技术框架应用</p><p>2. 代码规范与最佳实践</p><p>3. 系统架构设计</p><p>请各部门合理安排工作，确保培训顺利进行。</p>', 5, 'M', 1, NULL, 1, 1, '2024-12-20 09:30:00', NULL, 1, '2024-12-20 09:30:00', 1, '2024-12-20 09:30:00', 0);
+INSERT INTO `sys_notice` VALUES (10, 0, '数据备份提醒', '<p>💾 数据备份提醒</p><p>请各部门注意定期备份重要数据，建议每周至少备份一次。</p><p>备份方式：</p><p>1. 使用系统自带备份功能</p><p>2. 手动导出重要数据</p><p>3. 联系IT部门协助备份</p><p>数据安全，人人有责！</p>', 3, 'L', 1, NULL, 1, 1, '2024-12-08 08:00:00', NULL, 1, '2024-12-08 08:00:00', 1, '2024-12-08 08:00:00', 0);
 
 -- ----------------------------
 -- 用户通知公告表
@@ -627,7 +628,7 @@ CREATE TABLE `sys_user_notice` (
                                    `id` bigint NOT NULL AUTO_INCREMENT COMMENT 'id',
                                    `notice_id` bigint NOT NULL COMMENT '公共通知id',
                                    `user_id` bigint NOT NULL COMMENT '用户id',
-                                   `tenant_id` bigint DEFAULT 1 COMMENT '租户ID',
+                                   `tenant_id` bigint DEFAULT 0 COMMENT '租户ID',
                                    `is_read` bigint DEFAULT '0' COMMENT '读取状态（0: 未读, 1: 已读）',
                                    `read_time` datetime COMMENT '阅读时间',
                                    `create_time` datetime NOT NULL COMMENT '创建时间',
@@ -637,16 +638,16 @@ CREATE TABLE `sys_user_notice` (
                                    KEY `idx_tenant_id` (`tenant_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户通知公告关联表';
 
-INSERT INTO `sys_user_notice` VALUES (1, 1, 2, 1, 1, NULL, now(), now(), 0);
-INSERT INTO `sys_user_notice` VALUES (2, 2, 2, 1, 1, NULL, now(), now(), 0);
-INSERT INTO `sys_user_notice` VALUES (3, 3, 2, 1, 1, NULL, now(), now(), 0);
-INSERT INTO `sys_user_notice` VALUES (4, 4, 2, 1, 1, NULL, now(), now(), 0);
-INSERT INTO `sys_user_notice` VALUES (5, 5, 2, 1, 1, NULL, now(), now(), 0);
-INSERT INTO `sys_user_notice` VALUES (6, 6, 2, 1, 1, NULL, now(), now(), 0);
-INSERT INTO `sys_user_notice` VALUES (7, 7, 2, 1, 1, NULL, now(), now(), 0);
-INSERT INTO `sys_user_notice` VALUES (8, 8, 2, 1, 1, NULL, now(), now(), 0);
-INSERT INTO `sys_user_notice` VALUES (9, 9, 2, 1, 1, NULL, now(), now(), 0);
-INSERT INTO `sys_user_notice` VALUES (10, 10, 2, 1, 1, NULL, now(), now(), 0);
+INSERT INTO `sys_user_notice` VALUES (1, 1, 2, 0, 1, NULL, now(), now(), 0);
+INSERT INTO `sys_user_notice` VALUES (2, 2, 2, 0, 1, NULL, now(), now(), 0);
+INSERT INTO `sys_user_notice` VALUES (3, 3, 2, 0, 1, NULL, now(), now(), 0);
+INSERT INTO `sys_user_notice` VALUES (4, 4, 2, 0, 1, NULL, now(), now(), 0);
+INSERT INTO `sys_user_notice` VALUES (5, 5, 2, 0, 1, NULL, now(), now(), 0);
+INSERT INTO `sys_user_notice` VALUES (6, 6, 2, 0, 1, NULL, now(), now(), 0);
+INSERT INTO `sys_user_notice` VALUES (7, 7, 2, 0, 1, NULL, now(), now(), 0);
+INSERT INTO `sys_user_notice` VALUES (8, 8, 2, 0, 1, NULL, now(), now(), 0);
+INSERT INTO `sys_user_notice` VALUES (9, 9, 2, 0, 1, NULL, now(), now(), 0);
+INSERT INTO `sys_user_notice` VALUES (10, 10, 2, 0, 1, NULL, now(), now(), 0);
 
 -- ----------------------------
 -- AI 命令记录表
@@ -654,7 +655,7 @@ INSERT INTO `sys_user_notice` VALUES (10, 10, 2, 1, 1, NULL, now(), now(), 0);
 DROP TABLE IF EXISTS `ai_assistant_record`;
 CREATE TABLE `ai_assistant_record` (
                                   `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-                                  `tenant_id` bigint DEFAULT 1 COMMENT '租户ID',
+                                  `tenant_id` bigint DEFAULT 0 COMMENT '租户ID',
                                   `user_id` bigint DEFAULT NULL COMMENT '用户ID',
                                   `username` varchar(64) DEFAULT NULL COMMENT '用户名',
                                   `original_command` text COMMENT '原始命令',
@@ -712,8 +713,8 @@ CREATE TABLE `sys_tenant` (
 -- ----------------------------
 -- Records of sys_tenant
 -- ----------------------------
-INSERT INTO `sys_tenant` VALUES (1, '默认租户', 'DEFAULT', '系统管理员', '18812345678', 'admin@youlai.tech', NULL, NULL, 1, '系统默认租户', NULL, now(), now());
-INSERT INTO `sys_tenant` VALUES (2, '演示租户', 'DEMO', '演示用户', '18812345679', 'demo@youlai.tech', 'demo.youlai.tech', NULL, 1, '演示租户', NULL, now(), now());
+INSERT INTO `sys_tenant` VALUES (0, '默认租户', 'DEFAULT', '系统管理员', '18812345678', 'admin@youlai.tech', 'vue.youlai.tech', NULL, 1, '系统默认租户', NULL, now(), now());
+INSERT INTO `sys_tenant` VALUES (1, '演示租户', 'DEMO', '演示用户', '18812345679', 'demo@youlai.tech', 'demo.youlai.tech', NULL, 1, '演示租户', NULL, now(), now());
 
 SET FOREIGN_KEY_CHECKS = 1;
 

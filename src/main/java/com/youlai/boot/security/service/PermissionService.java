@@ -119,7 +119,6 @@ public class PermissionService {
             // 兼容极端情况：单个权限字符串
             perms.add(rolePermsObj.toString());
         }
-
         return perms;
     }
 

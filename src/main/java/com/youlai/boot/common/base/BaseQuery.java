@@ -10,7 +10,7 @@ import java.io.Serializable;
 /**
  * 基础分页请求对象
  *
- * @author haoxr
+ * @author Ray.Hao
  * @since 2021/2/28
  */
 @Data
