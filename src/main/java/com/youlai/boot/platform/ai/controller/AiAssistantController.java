@@ -28,7 +28,7 @@ import java.util.List;
  * @author Ray.Hao
  * @since 3.0.0
  */
-@Tag(name = "AI 助手接口")
+@Tag(name = "13.AI 助手接口")
 @RestController
 @RequestMapping("/api/v1/ai/assistant")
 @RequiredArgsConstructor

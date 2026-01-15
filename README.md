@@ -144,7 +144,7 @@ youlai-boot
 
 2. **数据库初始化**
 
-   执行 [youlai_admin.sql](sql/mysql/youlai_admin.sql) 脚本完成数据库创建、表结
+   执行 [youlai_admin_tenant.sql](sql/mysql/youlai_admin_tenant.sql) 脚本完成数据库创建、表结
    构和基础数据的初始化。
 
 3. **修改配置**
@@ -174,7 +174,7 @@ youlai-boot
 
 ### 2. 预置账号
 
-导入 [youlai_admin.sql](sql/mysql/youlai_admin.sql) 后的默认账号如下：
+导入 [youlai_admin_tenant.sql](sql/mysql/youlai_admin_tenant.sql) 后的默认账号如下：
 
 - 默认密码：`123456`
 - 平台默认租户（`tenant_id=0`）：`root` / `admin` / `test`

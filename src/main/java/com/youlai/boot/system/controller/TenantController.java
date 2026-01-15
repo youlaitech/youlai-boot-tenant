@@ -32,7 +32,7 @@ import java.util.List;
  * @author Ray.Hao
  * @since 3.0.0
  */
-@Tag(name = "租户管理接口")
+@Tag(name = "14.租户管理接口")
 @RestController
 @RequestMapping("/api/v1/tenants")
 @RequiredArgsConstructor

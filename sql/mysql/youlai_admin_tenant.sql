@@ -717,12 +717,3 @@ INSERT INTO `sys_tenant` VALUES (0, '默认租户', 'DEFAULT', '系统管理员'
 INSERT INTO `sys_tenant` VALUES (1, '演示租户', 'DEMO', '演示用户', '18812345679', 'demo@youlai.tech', 'demo.youlai.tech', NULL, 1, '演示租户', NULL, now(), now());
 
 SET FOREIGN_KEY_CHECKS = 1;
-
-GRANT SELECT ON `youlai_admin_tenant`.* TO 'youlai'@'%', 'youlai'@'localhost', 'youlai'@'127.0.0.1';
-
-GRANT SELECT, INSERT, UPDATE, DELETE ON `youlai_admin_tenant`.`sys_log` TO 'youlai'@'%', 'youlai'@'localhost', 'youlai'@'127.0.0.1';
-GRANT SELECT, INSERT, UPDATE, DELETE ON `youlai_admin_tenant`.`ai_assistant_record` TO 'youlai'@'%', 'youlai'@'localhost', 'youlai'@'127.0.0.1';
-GRANT SELECT, INSERT, UPDATE, DELETE ON `youlai_admin_tenant`.`gen_table` TO 'youlai'@'%', 'youlai'@'localhost', 'youlai'@'127.0.0.1';
-GRANT SELECT, INSERT, UPDATE, DELETE ON `youlai_admin_tenant`.`gen_table_column` TO 'youlai'@'%', 'youlai'@'localhost', 'youlai'@'127.0.0.1';
-
-FLUSH PRIVILEGES;

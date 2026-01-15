@@ -232,6 +232,15 @@ public class UserController {
         return Result.judge(result);
     }
 
+    @Operation(summary = "解绑手机号")
+    @DeleteMapping(value = "/mobile")
+    public Result<?> unbindMobile(
+            @RequestBody @Validated PasswordVerifyForm data
+    ) {
+        boolean result = userService.unbindMobile(data);
+        return Result.judge(result);
+    }
+
     @Operation(summary = "发送邮箱验证码（绑定或更换邮箱）")
     @PostMapping(value = "/email/code")
     public Result<Void> sendEmailCode(
@@ -247,6 +256,15 @@ public class UserController {
             @RequestBody @Validated EmailUpdateForm data
     ) {
         boolean result = userService.bindOrChangeEmail(data);
+        return Result.judge(result);
+    }
+
+    @Operation(summary = "解绑邮箱")
+    @DeleteMapping(value = "/email")
+    public Result<?> unbindEmail(
+            @RequestBody @Validated PasswordVerifyForm data
+    ) {
+        boolean result = userService.unbindEmail(data);
         return Result.judge(result);
     }
 

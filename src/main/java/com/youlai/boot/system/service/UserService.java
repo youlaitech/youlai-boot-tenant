@@ -163,6 +163,8 @@ public interface UserService extends IService<User> {
      */
     boolean bindOrChangeMobile(MobileUpdateForm data);
 
+    boolean unbindMobile(PasswordVerifyForm data);
+
     /**
      * 发送邮箱验证码(绑定或更换邮箱)
      *
@@ -177,6 +179,8 @@ public interface UserService extends IService<User> {
      * @return {@link Boolean} 是否绑定成功
      */
     boolean bindOrChangeEmail(EmailUpdateForm data);
+
+    boolean unbindEmail(PasswordVerifyForm data);
 
     /**
      * 获取用户选项列表
