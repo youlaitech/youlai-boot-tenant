@@ -44,6 +44,11 @@ public class OnlineUser {
     private Long tenantId;
 
     /**
+     * 租户身份标识(PLATFORM/TENANT)
+     */
+    private String tenantScope;
+
+    /**
      * 角色权限集合
      */
     private Set<String> roles;

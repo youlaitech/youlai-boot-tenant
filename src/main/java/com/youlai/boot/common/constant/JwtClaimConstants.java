@@ -41,6 +41,11 @@ public interface JwtClaimConstants {
     String TENANT_ID = "tenantId";
 
     /**
+     * 租户身份标识(PLATFORM/TENANT)
+     */
+    String TENANT_SCOPE = "tenantScope";
+
+    /**
      * 安全版本号，用于按用户失效历史令牌
      */
     String SECURITY_VERSION = "securityVersion";

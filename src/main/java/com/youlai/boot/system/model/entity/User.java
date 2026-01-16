@@ -20,6 +20,12 @@ public class User extends BaseEntity {
 
 
     /**
+     * 租户身份标识(PLATFORM/TENANT)
+     */
+    private String tenantScope;
+
+
+    /**
      * 昵称
      */
     private String nickname;

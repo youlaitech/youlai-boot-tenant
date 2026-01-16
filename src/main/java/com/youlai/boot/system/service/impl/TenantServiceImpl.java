@@ -11,6 +11,7 @@ import com.youlai.boot.core.exception.BusinessException;
 import com.youlai.boot.security.model.SysUserDetails;
 import com.youlai.boot.security.util.SecurityUtils;
 import com.youlai.boot.system.converter.TenantConverter;
+import com.youlai.boot.system.enums.TenantScopeEnum;
 import com.youlai.boot.system.mapper.TenantMapper;
 import com.youlai.boot.system.model.entity.Role;
 import com.youlai.boot.system.model.entity.Tenant;
@@ -66,14 +67,9 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
 
     @Override
     public boolean isPlatformTenantOperator() {
-        if (SecurityUtils.isRoot()) {
-            return true;
-        }
-
-        // 平台管理员(ADMIN)在切换租户后，token 中 tenantId 会变成目标租户，不能再用当前 tenantId 判断平台身份
-        if (!SecurityUtils.getRoles().contains(SystemConstants.PLATFORM_ADMIN_ROLE_CODE)
-                && !SecurityUtils.getRoles().contains(SystemConstants.ROOT_ROLE_CODE)) {
-            return false;
+        String tenantScope = SecurityUtils.getTenantScope();
+        if (tenantScope != null) {
+            return TenantScopeEnum.PLATFORM.getValue().equalsIgnoreCase(tenantScope);
         }
 
         Long userId = SecurityUtils.getUserId();
@@ -86,7 +82,7 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
         try {
             TenantContextHolder.setIgnoreTenant(true);
             User user = userService.getById(userId);
-            return user != null && SystemConstants.DEFAULT_TENANT_ID.equals(user.getTenantId());
+            return user != null && TenantScopeEnum.PLATFORM.getValue().equalsIgnoreCase(user.getTenantScope());
         } finally {
             TenantContextHolder.setIgnoreTenant(oldIgnoreTenant);
             if (oldTenantId != null) {

@@ -27,6 +27,9 @@ public class CurrentUserDTO {
     @Schema(description="头像地址")
     private String avatar;
 
+    @Schema(description = "租户身份标识(PLATFORM/TENANT)")
+    private String tenantScope;
+
     @Schema(description="用户角色编码集合")
     private Set<String> roles;
 
@@ -34,5 +37,4 @@ public class CurrentUserDTO {
     private Set<String> perms;
 
 }
-
  

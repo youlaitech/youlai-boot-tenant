@@ -61,4 +61,9 @@ public class UserAuthInfo {
      * 租户ID
      */
     private Long tenantId;
+
+    /**
+     * 租户身份标识(PLATFORM/TENANT)
+     */
+    private String tenantScope;
 }

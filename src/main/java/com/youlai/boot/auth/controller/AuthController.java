@@ -14,9 +14,9 @@ import com.youlai.boot.security.model.AuthenticationToken;
 import com.youlai.boot.security.token.TokenManager;
 import com.youlai.boot.security.util.SecurityUtils;
 import com.youlai.boot.system.model.entity.User;
-import com.youlai.boot.system.model.vo.TenantVO;
 import com.youlai.boot.system.service.TenantService;
 import com.youlai.boot.system.service.UserService;
+import com.youlai.boot.system.enums.TenantScopeEnum;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,9 +31,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import java.util.Objects;
 import java.util.List;
-import java.util.Map;
-import java.util.LinkedHashMap;
-import java.util.stream.Collectors;
 
 /**
  * 认证控制层
@@ -111,28 +108,24 @@ public class AuthController {
             return Result.failed("账号或密码错误");
         }
 
-        // 如果只有1个租户，尝试验证该租户下的密码（兼容性）
+        // 优先平台身份登录：平台用户可登录后显式切换租户
+        User platformUser = passwordMatchedUsers.stream()
+                .filter(user -> TenantScopeEnum.PLATFORM.getValue().equalsIgnoreCase(user.getTenantScope()))
+                .findFirst()
+                .orElse(null);
+        if (platformUser != null) {
+            AuthenticationToken authenticationToken = authService.login(username, password, platformUser.getTenantId());
+            return Result.success(authenticationToken);
+        }
+
+        // 非平台身份：仅允许唯一租户账号登录
         if (passwordMatchedUsers.size() == 1) {
             User user = passwordMatchedUsers.get(0);
-            // 登录（Spring Security 会验证密码）
             AuthenticationToken authenticationToken = authService.login(username, password, user.getTenantId());
             return Result.success(authenticationToken);
         }
 
-        // 如果多个租户，返回 choose_tenant 响应（含 tenants 列表）
-        Map<Long, TenantVO> tenantMap = passwordMatchedUsers.stream()
-                .map(user -> tenantService.getTenantById(user.getTenantId()))
-                .filter(tenant -> tenant != null && tenant.getId() != null)
-                .filter(tenant -> tenant.getStatus() == null || tenant.getStatus() == 1)
-                .collect(Collectors.toMap(TenantVO::getId, t -> t, (a, b) -> a, LinkedHashMap::new));
-        List<TenantVO> tenants = tenantMap.values().stream().toList();
-
-        if (tenants.isEmpty()) {
-            return Result.failed("账号或密码错误");
-        }
-
-        // 返回 choose_tenant 响应
-        return Result.failed(ResultCode.CHOOSE_TENANT, tenants);
+        return Result.failed("账号归属多个租户，请使用租户域名或指定租户登录");
     }
 
     @Operation(summary = "切换租户(平台ROOT)")
@@ -158,6 +151,7 @@ public class AuthController {
         newDetails.setDeptId(details.getDeptId());
         newDetails.setDataScope(details.getDataScope());
         newDetails.setTenantId(tenantId);
+        newDetails.setTenantScope(details.getTenantScope());
 
         Authentication newAuth = new UsernamePasswordAuthenticationToken(newDetails, authentication.getCredentials(), authentication.getAuthorities());
         AuthenticationToken token = tokenManager.generateToken(newAuth);

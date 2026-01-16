@@ -421,7 +421,6 @@ INSERT INTO `sys_role_menu` VALUES (13, 1001, 1), (13, 1002, 1);
 
 -- 演示普通用户（role_id=14）- 仅查看权限
 INSERT INTO `sys_role_menu` VALUES (14, 2, 1), (14, 210, 1), (14, 2101, 1), (14, 220, 1), (14, 2201, 1), (14, 240, 1), (14, 2401, 1), (14, 250, 1), (14, 2501, 1), (14, 260, 1), (14, 280, 1), (14, 2801, 1);
-
 -- ----------------------------
 -- Table structure for sys_user
 -- ----------------------------
@@ -429,6 +428,7 @@ DROP TABLE IF EXISTS `sys_user`;
 CREATE TABLE `sys_user`  (
                              `id` bigint NOT NULL AUTO_INCREMENT,
                              `tenant_id` bigint DEFAULT 0 COMMENT '租户ID',
+                             `tenant_scope` varchar(20) NOT NULL DEFAULT 'TENANT' COMMENT '租户身份标识(PLATFORM/TENANT)',
                              `username` varchar(64) COMMENT '用户名',
                              `nickname` varchar(64) COMMENT '昵称',
                              `gender` tinyint(1) DEFAULT 1 COMMENT '性别((1-男 2-女 0-保密)',
@@ -453,12 +453,12 @@ CREATE TABLE `sys_user`  (
 -- Records of sys_user
 -- ----------------------------
 -- 默认租户（tenant_id=0）的用户
-INSERT INTO `sys_user` VALUES (1, 0, 'root', '有来技术', 0, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', NULL, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345677', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0,NULL);
-INSERT INTO `sys_user` VALUES (2, 0, 'admin', '系统管理员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 1, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345678', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0,NULL);
-INSERT INTO `sys_user` VALUES (3, 0, 'test', '测试小用户', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 3, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345679', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0,NULL);
+INSERT INTO `sys_user` VALUES (1, 0, 'PLATFORM', 'root', '有来技术', 0, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', NULL, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345677', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0, NULL);
+INSERT INTO `sys_user` VALUES (2, 0, 'PLATFORM', 'admin', '系统管理员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 1, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345678', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0, NULL);
+INSERT INTO `sys_user` VALUES (3, 0, 'PLATFORM', 'test', '测试小用户', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 3, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345679', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0, NULL);
 
 -- 演示租户（tenant_id=1）的用户
-INSERT INTO `sys_user` VALUES (4, 1, 'admin', '演示租户管理员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 4, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345680', 1, 'demo@youlai.tech', now(), NULL, now(), NULL, 0,NULL);
+INSERT INTO `sys_user` VALUES (4, 1, 'TENANT', 'admin', '演示租户管理员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 4, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345680', 1, 'demo@youlai.tech', now(), NULL, now(), NULL, 0, NULL);
 
 -- ----------------------------
 -- Table structure for sys_user_role

@@ -62,6 +62,7 @@ public class RedisTokenManager implements TokenManager {
                 user.getDeptId(),
                 user.getDataScope(),
                 user.getTenantId(),
+                user.getTenantScope(),
                 user.getAuthorities().stream()
                         .map(GrantedAuthority::getAuthority)
                         .collect(Collectors.toSet())
@@ -270,6 +271,7 @@ public class RedisTokenManager implements TokenManager {
         userDetails.setDeptId(onlineUser.getDeptId());
         userDetails.setDataScope(onlineUser.getDataScope());
         userDetails.setTenantId(onlineUser.getTenantId());
+        userDetails.setTenantScope(onlineUser.getTenantScope());
         userDetails.setAuthorities(authorities);
         return userDetails;
     }

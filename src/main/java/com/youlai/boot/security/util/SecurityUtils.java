@@ -81,6 +81,16 @@ public class SecurityUtils {
 
 
     /**
+     * 获取租户身份标识
+     *
+     * @return tenantScope (PLATFORM/TENANT)
+     */
+    public static String getTenantScope() {
+        return getUser().map(SysUserDetails::getTenantScope).orElse(null);
+    }
+
+
+    /**
      * 获取角色集合
      *
      * @return 角色集合

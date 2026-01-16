@@ -63,6 +63,11 @@ public class SysUserDetails implements UserDetails {
     private Long tenantId;
 
     /**
+     * 租户身份标识(PLATFORM/TENANT)
+     */
+    private String tenantScope;
+
+    /**
      * 用户角色权限集合
      */
     private Collection<SimpleGrantedAuthority> authorities;
@@ -80,6 +85,7 @@ public class SysUserDetails implements UserDetails {
         this.deptId = user.getDeptId();
         this.dataScope = user.getDataScope();
         this.tenantId = user.getTenantId();
+        this.tenantScope = user.getTenantScope();
 
         // 初始化角色权限集合
         this.authorities = CollectionUtil.isNotEmpty(user.getRoles())
