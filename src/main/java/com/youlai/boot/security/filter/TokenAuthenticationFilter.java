@@ -46,7 +46,7 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
             if (StrUtil.isNotBlank(authorizationHeader)
                     && authorizationHeader.startsWith(SecurityConstants.BEARER_TOKEN_PREFIX)) {
 
-                // 剥离Bearer前缀获取原始令牌
+                // 剥离 Bearer 前缀获取原始令牌
                 String rawToken = authorizationHeader.substring(SecurityConstants.BEARER_TOKEN_PREFIX.length());
 
                 // 执行令牌有效性检查（包含密码学验签和过期时间验证）

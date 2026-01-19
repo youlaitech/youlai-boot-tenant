@@ -197,7 +197,8 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
             List<Tenant> tenants = this.list(
                     new LambdaQueryWrapper<Tenant>()
                             .eq(Tenant::getStatus, 1)
-                            .orderByDesc(Tenant::getId)
+                            .orderByAsc(Tenant::getCreateTime)
+                            .orderByAsc(Tenant::getId)
             );
 
             return tenants.stream()
@@ -401,7 +402,8 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
                                         .or().like(Tenant::getDomain, keywords)
                         )
                         .eq(status != null, Tenant::getStatus, status)
-                        .orderByDesc(Tenant::getId)
+                        .orderByAsc(Tenant::getCreateTime)
+                        .orderByAsc(Tenant::getId)
         );
 
         return tenantConverter.toPageVo(page);

@@ -312,6 +312,7 @@ INSERT INTO `sys_role` VALUES (12, 0, '系统管理员9', 'ADMIN9', 12, 1, 1, NU
 -- 演示租户（tenant_id=1）的角色
 INSERT INTO `sys_role` VALUES (13, 1, '演示租户管理员', 'DEMO_ADMIN', 1, 1, 1, NULL, now(), NULL, now(), 0);
 INSERT INTO `sys_role` VALUES (14, 1, '演示普通用户', 'DEMO_USER', 2, 1, 3, NULL, now(), NULL, now(), 0);
+INSERT INTO `sys_role` VALUES (15, 1, '演示租户系统管理员', 'ADMIN', 3, 1, 1, NULL, now(), NULL, now(), 0);
 
 -- ----------------------------
 -- Table structure for sys_role_menu
@@ -419,6 +420,10 @@ INSERT INTO `sys_role_menu` VALUES (13, 801, 1), (13, 802, 1), (13, 803, 1), (13
 -- 路由参数
 INSERT INTO `sys_role_menu` VALUES (13, 1001, 1), (13, 1002, 1);
 
+-- 演示租户系统管理员（role_id=15）- 复用演示租户管理员菜单权限
+INSERT INTO `sys_role_menu` (role_id, menu_id, tenant_id)
+SELECT 15, menu_id, 1 FROM `sys_role_menu` WHERE role_id = 13 AND tenant_id = 1;
+
 -- 演示普通用户（role_id=14）- 仅查看权限
 INSERT INTO `sys_role_menu` VALUES (14, 2, 1), (14, 210, 1), (14, 2101, 1), (14, 220, 1), (14, 2201, 1), (14, 240, 1), (14, 2401, 1), (14, 250, 1), (14, 2501, 1), (14, 260, 1), (14, 280, 1), (14, 2801, 1);
 -- ----------------------------
@@ -452,13 +457,14 @@ CREATE TABLE `sys_user`  (
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
--- 默认租户（tenant_id=0）的用户
-INSERT INTO `sys_user` VALUES (1, 0, 'PLATFORM', 'root', '有来技术', 0, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', NULL, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345677', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0, NULL);
-INSERT INTO `sys_user` VALUES (2, 0, 'PLATFORM', 'admin', '系统管理员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 1, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345678', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0, NULL);
-INSERT INTO `sys_user` VALUES (3, 0, 'PLATFORM', 'test', '测试小用户', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 3, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345679', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0, NULL);
+-- 平台租户（tenant_id=0）的用户
+INSERT INTO `sys_user` VALUES (1, 0, 'PLATFORM', 'root', '平台租户超级管理员', 0, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', NULL, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345677', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0, NULL);
+INSERT INTO `sys_user` VALUES (2, 0, 'PLATFORM', 'admin', '平台租户系统管理员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 1, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345678', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0, NULL);
+INSERT INTO `sys_user` VALUES (3, 0, 'PLATFORM', 'test', '平台租户测试天命人', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 3, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345679', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0, NULL);
 
 -- 演示租户（tenant_id=1）的用户
 INSERT INTO `sys_user` VALUES (4, 1, 'TENANT', 'admin', '演示租户管理员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 4, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345680', 1, 'demo@youlai.tech', now(), NULL, now(), NULL, 0, NULL);
+INSERT INTO `sys_user` VALUES (5, 1, 'TENANT', 'test', '演示测试人员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 6, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345681', 1, 'test@youlai.tech', now(), NULL, now(), NULL, 0, NULL);
 
 -- ----------------------------
 -- Table structure for sys_user_role
@@ -482,6 +488,8 @@ INSERT INTO `sys_user_role` VALUES (3, 3, 0);
 
 -- 演示租户（tenant_id=1）的用户角色关联
 INSERT INTO `sys_user_role` VALUES (4, 13, 1);
+INSERT INTO `sys_user_role` VALUES (4, 15, 1);
+INSERT INTO `sys_user_role` VALUES (5, 14, 1);
 
 
 -- ----------------------------
@@ -713,7 +721,7 @@ CREATE TABLE `sys_tenant` (
 -- ----------------------------
 -- Records of sys_tenant
 -- ----------------------------
-INSERT INTO `sys_tenant` VALUES (0, '默认租户', 'DEFAULT', '系统管理员', '18812345678', 'admin@youlai.tech', 'vue.youlai.tech', NULL, 1, '系统默认租户', NULL, now(), now());
+INSERT INTO `sys_tenant` VALUES (0, '平台租户', 'DEFAULT', '系统管理员', '18812345678', 'admin@youlai.tech', 'vue.youlai.tech', NULL, 1, '平台租户', NULL, now(), now());
 INSERT INTO `sys_tenant` VALUES (1, '演示租户', 'DEMO', '演示用户', '18812345679', 'demo@youlai.tech', 'demo.youlai.tech', NULL, 1, '演示租户', NULL, now(), now());
 
 SET FOREIGN_KEY_CHECKS = 1;

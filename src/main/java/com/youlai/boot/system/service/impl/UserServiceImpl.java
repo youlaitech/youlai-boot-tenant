@@ -531,6 +531,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         );
         // entity->VO
         CurrentUserDTO userInfoVO = userConverter.toCurrentUserDto(user);
+        // tenantScope 以认证信息为准（平台用户切换租户后仍保持 PLATFORM）
+        userInfoVO.setTenantScope(SecurityUtils.getTenantScope());
 
         // 用户角色集合
         Set<String> roles = SecurityUtils.getRoles();

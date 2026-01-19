@@ -70,8 +70,8 @@
             u.id
         <choose>
             <!-- 如果排序参数都传入 -->
-            <when test="queryParams.field != null and queryParams.field != '' and queryParams.direction != null">
-                ORDER BY u.${queryParams.field} ${queryParams.direction}
+            <when test="queryParams.sortBy != null and queryParams.sortBy != '' and queryParams.order != null">
+                ORDER BY u.${queryParams.sortBy} ${queryParams.order}
             </when>
             <!-- 默认排序 -->
             <otherwise>
