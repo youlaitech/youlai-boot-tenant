@@ -11,7 +11,7 @@ ENV TZ=Asia/Shanghai
 VOLUME /tmp
 
 # 添加应用
-ADD target/youlai-boot.jar app.jar
+ADD target/youlai-boot-tenant.jar app.jar
 
 # 启动命令
 CMD java \

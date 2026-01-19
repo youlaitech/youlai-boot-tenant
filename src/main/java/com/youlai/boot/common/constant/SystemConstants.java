@@ -15,6 +15,11 @@ public interface SystemConstants {
 
     Long DEFAULT_TENANT_ID = 0L;
 
+    /**
+     * 平台租户ID（与默认租户一致）
+     */
+    Long PLATFORM_TENANT_ID = DEFAULT_TENANT_ID;
+
     Long PLATFORM_MENU_ID = 1L;
 
     String PLATFORM_ADMIN_USERNAME = "admin";
@@ -22,6 +27,11 @@ public interface SystemConstants {
     String PLATFORM_ROOT_USERNAME = "root";
 
     String PLATFORM_ADMIN_ROLE_CODE = "ADMIN";
+
+    /**
+     * 租户切换权限标识
+     */
+    String TENANT_SWITCH_PERMISSION = "sys:tenant:switch";
 
     /**
      * 系统默认密码

@@ -167,6 +167,7 @@ INSERT INTO `sys_menu` VALUES (1102, 110, '0,1,110', '租户新增', 'B', NULL, 
 INSERT INTO `sys_menu` VALUES (1103, 110, '0,1,110', '租户编辑', 'B', NULL, '', NULL, 'sys:tenant:update', NULL, NULL, 1, 3, '', NULL, now(), now(), NULL);
 INSERT INTO `sys_menu` VALUES (1104, 110, '0,1,110', '租户删除', 'B', NULL, '', NULL, 'sys:tenant:delete', NULL, NULL, 1, 4, '', NULL, now(), now(), NULL);
 INSERT INTO `sys_menu` VALUES (1105, 110, '0,1,110', '租户启用/禁用', 'B', NULL, '', NULL, 'sys:tenant:change-status', NULL, NULL, 1, 5, '', NULL, now(), now(), NULL);
+INSERT INTO `sys_menu` VALUES (1106, 110, '0,1,110', '租户切换', 'B', NULL, '', NULL, 'sys:tenant:switch', NULL, NULL, 1, 6, '', NULL, now(), now(), NULL);
 
 -- 系统管理（租户侧）
 INSERT INTO `sys_menu` VALUES (210, 2, '0,2', '用户管理', 'M', 'User', 'user', 'system/user/index', NULL, NULL, 1, 1, 1, 'el-icon-User', NULL, now(), now(), NULL);
@@ -334,7 +335,7 @@ CREATE TABLE `sys_role_menu`  (
 -- 顶级目录
 INSERT INTO `sys_role_menu` VALUES (1, 1, 0), (1, 2, 0), (1, 3, 0), (1, 4, 0), (1, 5, 0), (1, 6, 0), (1, 7, 0), (1, 8, 0), (1, 9, 0), (1, 10, 0);
 -- 平台管理
-INSERT INTO `sys_role_menu` VALUES (1, 110, 0), (1, 1101, 0), (1, 1102, 0), (1, 1103, 0), (1, 1104, 0), (1, 1105, 0);
+INSERT INTO `sys_role_menu` VALUES (1, 110, 0), (1, 1101, 0), (1, 1102, 0), (1, 1103, 0), (1, 1104, 0), (1, 1105, 0), (1, 1106, 0);
 INSERT INTO `sys_role_menu` VALUES (1, 230, 0), (1, 2301, 0), (1, 2302, 0), (1, 2303, 0), (1, 2304, 0);
 INSERT INTO `sys_role_menu` VALUES (1, 270, 0), (1, 2701, 0), (1, 2702, 0), (1, 2703, 0), (1, 2704, 0), (1, 2705, 0);
 -- 系统管理
@@ -365,7 +366,7 @@ INSERT INTO `sys_role_menu` VALUES (1, 1001, 0), (1, 1002, 0);
 -- 顶级目录
 INSERT INTO `sys_role_menu` VALUES (2, 1, 0), (2, 2, 0), (2, 3, 0), (2, 4, 0), (2, 5, 0), (2, 6, 0), (2, 7, 0), (2, 8, 0), (2, 9, 0), (2, 10, 0);
  -- 平台管理
- INSERT INTO `sys_role_menu` VALUES (2, 110, 0), (2, 1101, 0), (2, 1102, 0), (2, 1103, 0), (2, 1104, 0), (2, 1105, 0);
+ INSERT INTO `sys_role_menu` VALUES (2, 110, 0), (2, 1101, 0), (2, 1102, 0), (2, 1103, 0), (2, 1104, 0), (2, 1105, 0), (2, 1106, 0);
  -- 系统管理
  INSERT INTO `sys_role_menu` VALUES (2, 210, 0), (2, 2101, 0), (2, 2102, 0), (2, 2103, 0), (2, 2104, 0), (2, 2105, 0), (2, 2106, 0), (2, 2107, 0);
  INSERT INTO `sys_role_menu` VALUES (2, 220, 0), (2, 2201, 0), (2, 2202, 0), (2, 2203, 0), (2, 2204, 0), (2, 2205, 0);
@@ -721,7 +722,7 @@ CREATE TABLE `sys_tenant` (
 -- ----------------------------
 -- Records of sys_tenant
 -- ----------------------------
-INSERT INTO `sys_tenant` VALUES (0, '平台租户', 'DEFAULT', '系统管理员', '18812345678', 'admin@youlai.tech', 'vue.youlai.tech', NULL, 1, '平台租户', NULL, now(), now());
+INSERT INTO `sys_tenant` VALUES (0, '平台租户', 'PLATFORM', '系统管理员', '18812345678', 'admin@youlai.tech', 'vue.youlai.tech', NULL, 1, '平台租户', NULL, now(), now());
 INSERT INTO `sys_tenant` VALUES (1, '演示租户', 'DEMO', '演示用户', '18812345679', 'demo@youlai.tech', 'demo.youlai.tech', NULL, 1, '演示租户', NULL, now(), now());
 
 SET FOREIGN_KEY_CHECKS = 1;

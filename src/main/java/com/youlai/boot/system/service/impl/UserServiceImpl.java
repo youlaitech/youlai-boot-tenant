@@ -22,6 +22,7 @@ import com.youlai.boot.common.tenant.TenantContextHolder;
 import com.youlai.boot.platform.mail.service.MailService;
 import com.youlai.boot.system.converter.UserConverter;
 import com.youlai.boot.system.enums.DictCodeEnum;
+import com.youlai.boot.system.enums.TenantScopeEnum;
 import com.youlai.boot.system.mapper.UserMapper;
 import com.youlai.boot.system.model.bo.UserBO;
 import com.youlai.boot.system.model.dto.CurrentUserDTO;
@@ -116,6 +117,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
+     * 是否允许修改租户身份（平台身份 + 切换权限）
+     */
+    private boolean canManageTenantScope() {
+        String tenantScope = SecurityUtils.getTenantScope();
+        if (!TenantScopeEnum.PLATFORM.getValue().equalsIgnoreCase(tenantScope)) {
+            return false;
+        }
+
+        Long oldTenantId = TenantContextHolder.getTenantId();
+        boolean oldIgnoreTenant = TenantContextHolder.isIgnoreTenant();
+        try {
+            TenantContextHolder.setIgnoreTenant(false);
+            TenantContextHolder.setTenantId(SystemConstants.PLATFORM_TENANT_ID);
+            return permissionService.hasPerm(SystemConstants.TENANT_SWITCH_PERMISSION);
+        } finally {
+            TenantContextHolder.setIgnoreTenant(oldIgnoreTenant);
+            if (oldTenantId != null) {
+                TenantContextHolder.setTenantId(oldTenantId);
+            }
+        }
+    }
+
+    /**
      * 新增用户
      *
      * @param userForm 用户表单对象
@@ -133,6 +157,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 获取当前操作员的租户ID（新增用户时，租户ID由 MyMetaObjectHandler 自动填充）
         Long tenantId = TenantContextHolder.getTenantId();
         Assert.notNull(tenantId, "租户ID不能为空");
+
+        String tenantScope = StrUtil.trimToEmpty(entity.getTenantScope());
+        if (StrUtil.isBlank(tenantScope)) {
+            // 默认租户身份：业务端不提供 tenantScope 时，默认 TENANT
+            entity.setTenantScope(TenantScopeEnum.TENANT.getValue());
+        } else {
+            String normalizedScope = StrUtil.toUpperCase(tenantScope);
+            if (TenantScopeEnum.PLATFORM.getValue().equalsIgnoreCase(normalizedScope)) {
+                Assert.isTrue(canManageTenantScope(), "无权限设置租户身份");
+                Assert.isTrue(SystemConstants.PLATFORM_TENANT_ID.equals(tenantId), "平台身份仅允许在平台租户创建");
+            }
+            entity.setTenantScope(normalizedScope);
+        }
 
         if (!SystemConstants.DEFAULT_TENANT_ID.equals(tenantId)
                 && SystemConstants.PLATFORM_ROOT_USERNAME.equalsIgnoreCase(username)) {
@@ -202,6 +239,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // form -> entity
         User entity = userConverter.toEntity(userForm);
         entity.setUpdateBy(SecurityUtils.getUserId());
+
+        String requestedTenantScope = StrUtil.trimToEmpty(userForm.getTenantScope());
+        if (StrUtil.isBlank(requestedTenantScope)) {
+            // 未提交租户身份，保持原值
+            entity.setTenantScope(oldUser.getTenantScope());
+        } else {
+            String normalizedScope = StrUtil.toUpperCase(requestedTenantScope);
+            if (StrUtil.equalsIgnoreCase(normalizedScope, oldUser.getTenantScope())) {
+                entity.setTenantScope(oldUser.getTenantScope());
+            } else {
+                Assert.isTrue(canManageTenantScope(), "无权限修改租户身份");
+                if (TenantScopeEnum.PLATFORM.getValue().equalsIgnoreCase(normalizedScope)) {
+                    Assert.isTrue(SystemConstants.PLATFORM_TENANT_ID.equals(oldTenantId), "平台身份仅允许设置在平台租户");
+                }
+                entity.setTenantScope(normalizedScope);
+            }
+        }
         
         // 保持租户ID不变（不允许跨租户修改用户）
         entity.setTenantId(oldTenantId);
@@ -540,7 +594,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 用户权限集合
         if (CollectionUtil.isNotEmpty(roles)) {
-            Set<String> perms = permissionService.getRolePermsFormCache(roles);
+            Set<String> perms;
+            if (TenantScopeEnum.PLATFORM.getValue().equalsIgnoreCase(userInfoVO.getTenantScope())) {
+                Long oldTenantId = TenantContextHolder.getTenantId();
+                boolean oldIgnoreTenant = TenantContextHolder.isIgnoreTenant();
+                try {
+                    TenantContextHolder.setIgnoreTenant(false);
+                    TenantContextHolder.setTenantId(SystemConstants.PLATFORM_TENANT_ID);
+                    perms = permissionService.getRolePermsFormCache(roles);
+                } finally {
+                    TenantContextHolder.setIgnoreTenant(oldIgnoreTenant);
+                    if (oldTenantId != null) {
+                        TenantContextHolder.setTenantId(oldTenantId);
+                    }
+                }
+            } else {
+                perms = permissionService.getRolePermsFormCache(roles);
+            }
             userInfoVO.setPerms(perms);
         }
         return userInfoVO;

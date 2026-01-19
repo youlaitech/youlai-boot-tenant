@@ -9,6 +9,7 @@ import com.youlai.boot.common.constant.SystemConstants;
 import com.youlai.boot.common.tenant.TenantContextHolder;
 import com.youlai.boot.core.exception.BusinessException;
 import com.youlai.boot.security.model.SysUserDetails;
+import com.youlai.boot.security.service.PermissionService;
 import com.youlai.boot.security.util.SecurityUtils;
 import com.youlai.boot.system.converter.TenantConverter;
 import com.youlai.boot.system.enums.TenantScopeEnum;
@@ -65,6 +66,8 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
 
     private final TenantConverter tenantConverter;
 
+    private final PermissionService permissionService;
+
     @Override
     public boolean isPlatformTenantOperator() {
         String tenantScope = SecurityUtils.getTenantScope();
@@ -83,6 +86,28 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
             TenantContextHolder.setIgnoreTenant(true);
             User user = userService.getById(userId);
             return user != null && TenantScopeEnum.PLATFORM.getValue().equalsIgnoreCase(user.getTenantScope());
+        } finally {
+            TenantContextHolder.setIgnoreTenant(oldIgnoreTenant);
+            if (oldTenantId != null) {
+                TenantContextHolder.setTenantId(oldTenantId);
+            }
+        }
+    }
+
+    /**
+     * 是否具备租户切换权限（平台身份 + 显式权限）
+     */
+    private boolean hasTenantSwitchPermission() {
+        if (!isPlatformTenantOperator()) {
+            return false;
+        }
+
+        Long oldTenantId = TenantContextHolder.getTenantId();
+        boolean oldIgnoreTenant = TenantContextHolder.isIgnoreTenant();
+        try {
+            TenantContextHolder.setIgnoreTenant(false);
+            TenantContextHolder.setTenantId(SystemConstants.PLATFORM_TENANT_ID);
+            return permissionService.hasPerm(SystemConstants.TENANT_SWITCH_PERMISSION);
         } finally {
             TenantContextHolder.setIgnoreTenant(oldIgnoreTenant);
             if (oldTenantId != null) {
@@ -181,8 +206,10 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
             return List.of();
         }
 
-        // 非平台用户：仅允许访问当前租户
-        if (!isPlatformTenantOperator()) {
+        boolean canSwitchTenant = hasTenantSwitchPermission();
+
+        // 非平台用户/无切换权限：仅允许访问当前租户
+        if (!canSwitchTenant) {
             TenantVO tenant = getTenantById(currentTenantId);
             if (tenant == null || tenant.getStatus() == null || tenant.getStatus() != 1) {
                 return List.of();
@@ -369,8 +396,10 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
             return false;
         }
 
-        // 非平台用户：仅允许访问当前租户
-        if (!isPlatformTenantOperator()) {
+        boolean canSwitchTenant = hasTenantSwitchPermission();
+
+        // 非平台用户/无切换权限：仅允许访问当前租户
+        if (!canSwitchTenant) {
             return tenantId.equals(currentTenantId);
         }
 

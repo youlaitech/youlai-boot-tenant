@@ -159,6 +159,7 @@
         <id property="id" column="id" jdbcType="BIGINT"/>
         <result property="username" column="username" jdbcType="VARCHAR"/>
         <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
+        <result property="tenantScope" column="tenant_scope" jdbcType="VARCHAR"/>
         <result property="mobile" column="mobile" jdbcType="VARCHAR"/>
         <result property="gender" column="gender" jdbcType="TINYINT"/>
         <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
@@ -179,6 +180,7 @@
             id,
             username,
             nickname,
+            tenant_scope,
             mobile,
             gender,
             avatar,
