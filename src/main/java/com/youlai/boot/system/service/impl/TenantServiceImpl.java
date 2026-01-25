@@ -1,5 +1,6 @@
 package com.youlai.boot.system.service.impl;
 
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -8,16 +9,15 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.youlai.boot.common.constant.SystemConstants;
 import com.youlai.boot.common.tenant.TenantContextHolder;
 import com.youlai.boot.core.exception.BusinessException;
-import com.youlai.boot.security.model.SysUserDetails;
-import com.youlai.boot.security.service.PermissionService;
 import com.youlai.boot.security.util.SecurityUtils;
 import com.youlai.boot.system.converter.TenantConverter;
-import com.youlai.boot.system.enums.TenantScopeEnum;
 import com.youlai.boot.system.mapper.TenantMapper;
 import com.youlai.boot.system.model.entity.Role;
 import com.youlai.boot.system.model.entity.Tenant;
 import com.youlai.boot.system.model.entity.User;
 import com.youlai.boot.system.model.entity.Menu;
+import com.youlai.boot.system.enums.MenuTypeEnum;
+import com.youlai.boot.system.enums.MenuScopeEnum;
 import com.youlai.boot.system.model.form.DeptForm;
 import com.youlai.boot.system.model.form.RoleForm;
 import com.youlai.boot.system.model.form.TenantCreateForm;
@@ -30,6 +30,9 @@ import com.youlai.boot.system.model.vo.TenantVO;
 import com.youlai.boot.system.service.DeptService;
 import com.youlai.boot.system.service.MenuService;
 import com.youlai.boot.system.service.RoleService;
+import com.youlai.boot.system.service.TenantMenuService;
+import com.youlai.boot.system.service.TenantPlanMenuService;
+import com.youlai.boot.system.service.TenantPlanService;
 import com.youlai.boot.system.service.TenantService;
 import com.youlai.boot.system.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -39,11 +42,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * 租户服务实现类
@@ -64,116 +64,49 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
 
     private final MenuService menuService;
 
+    private final TenantPlanMenuService tenantPlanMenuService;
+
+    private final TenantMenuService tenantMenuService;
+
+    private final TenantPlanService tenantPlanService;
+
     private final TenantConverter tenantConverter;
 
-    private final PermissionService permissionService;
-
+    /**
+     * 是否具备租户切换权限
+     *
+     * @return true 表示可切换租户
+     */
     @Override
-    public boolean isPlatformTenantOperator() {
-        String tenantScope = SecurityUtils.getTenantScope();
-        if (tenantScope != null) {
-            return TenantScopeEnum.PLATFORM.getValue().equalsIgnoreCase(tenantScope);
-        }
-
-        Long userId = SecurityUtils.getUserId();
-        if (userId == null) {
-            return false;
-        }
-
-        Long oldTenantId = TenantContextHolder.getTenantId();
-        boolean oldIgnoreTenant = TenantContextHolder.isIgnoreTenant();
-        try {
-            TenantContextHolder.setIgnoreTenant(true);
-            User user = userService.getById(userId);
-            return user != null && TenantScopeEnum.PLATFORM.getValue().equalsIgnoreCase(user.getTenantScope());
-        } finally {
-            TenantContextHolder.setIgnoreTenant(oldIgnoreTenant);
-            if (oldTenantId != null) {
-                TenantContextHolder.setTenantId(oldTenantId);
-            }
-        }
+    public boolean hasTenantSwitchPermission() {
+        return SecurityUtils.canSwitchTenant();
     }
 
     /**
-     * 是否具备租户切换权限（平台身份 + 显式权限）
+     * 生成新租户管理员默认菜单ID列表
+     *
+     * @return 菜单ID列表
      */
-    private boolean hasTenantSwitchPermission() {
-        if (!isPlatformTenantOperator()) {
-            return false;
-        }
-
-        Long oldTenantId = TenantContextHolder.getTenantId();
-        boolean oldIgnoreTenant = TenantContextHolder.isIgnoreTenant();
-        try {
-            TenantContextHolder.setIgnoreTenant(false);
-            TenantContextHolder.setTenantId(SystemConstants.PLATFORM_TENANT_ID);
-            return permissionService.hasPerm(SystemConstants.TENANT_SWITCH_PERMISSION);
-        } finally {
-            TenantContextHolder.setIgnoreTenant(oldIgnoreTenant);
-            if (oldTenantId != null) {
-                TenantContextHolder.setTenantId(oldTenantId);
-            }
-        }
-    }
-
-    private List<Long> resolveNewTenantAdminMenuIds() {
+    private List<Long> resolveNewTenantAdminMenuIds(Long planId) {
         Long oldTenantId = TenantContextHolder.getTenantId();
         boolean oldIgnoreTenant = TenantContextHolder.isIgnoreTenant();
 
         try {
-            TenantContextHolder.setIgnoreTenant(false);
-            TenantContextHolder.setTenantId(SystemConstants.DEFAULT_TENANT_ID);
+            TenantContextHolder.setIgnoreTenant(true);
 
-            Role sourceRole = roleService.getOne(new LambdaQueryWrapper<Role>()
-                    .eq(Role::getCode, SystemConstants.PLATFORM_ADMIN_ROLE_CODE)
-                    .eq(Role::getIsDeleted, 0)
-                    .last("LIMIT 1"));
-            Assert.notNull(sourceRole, "默认租户未找到可用于复制的角色(ADMIN)");
-
-            List<Long> sourceMenuIds = roleService.getRoleMenuIds(sourceRole.getId());
-            if (sourceMenuIds == null || sourceMenuIds.isEmpty()) {
-                // 兜底：如果默认租户 ADMIN 未配置 role_menu，则复制“所有非平台管理及其子级”的菜单
-                return menuService.list(new LambdaQueryWrapper<Menu>()
-                                .select(Menu::getId)
-                                .ne(Menu::getId, SystemConstants.PLATFORM_MENU_ID)
-                                .notLikeRight(Menu::getTreePath, "0," + SystemConstants.PLATFORM_MENU_ID)
-                        )
-                        .stream()
-                        .map(Menu::getId)
-                        .filter(Objects::nonNull)
-                        .collect(Collectors.toList());
+            List<Long> planMenuIds = tenantPlanMenuService.listMenuIdsByPlan(planId);
+            if (CollectionUtil.isNotEmpty(planMenuIds)) {
+                return planMenuIds;
             }
 
-            List<Menu> menus = menuService.list(new LambdaQueryWrapper<Menu>()
-                    .in(Menu::getId, sourceMenuIds));
-
-            Set<Long> excludeIds = new HashSet<>();
-            excludeIds.add(SystemConstants.PLATFORM_MENU_ID);
-
-            if (menus != null && !menus.isEmpty()) {
-                String platformTreePathPrefix = "0," + SystemConstants.PLATFORM_MENU_ID;
-                for (Menu menu : menus) {
-                    if (menu == null || menu.getId() == null) {
-                        continue;
-                    }
-                    Long menuId = menu.getId();
-                    if (SystemConstants.PLATFORM_MENU_ID.equals(menuId)) {
-                        excludeIds.add(menuId);
-                        continue;
-                    }
-                    String treePath = menu.getTreePath();
-                    if (treePath == null) {
-                        continue;
-                    }
-                    if (treePath.equals(platformTreePathPrefix) || treePath.startsWith(platformTreePathPrefix + ",")) {
-                        excludeIds.add(menuId);
-                    }
-                }
-            }
-
-            return sourceMenuIds.stream()
+            // 兜底：默认租户未配置套餐菜单，则复制“租户菜单范围”
+            return menuService.list(new LambdaQueryWrapper<Menu>()
+                            .select(Menu::getId)
+                            .eq(Menu::getScope, MenuScopeEnum.TENANT.getValue())
+                    )
+                    .stream()
+                    .map(Menu::getId)
                     .filter(Objects::nonNull)
-                    .filter(id -> !excludeIds.contains(id))
                     .collect(Collectors.toList());
         } finally {
             TenantContextHolder.setIgnoreTenant(oldIgnoreTenant);
@@ -183,18 +116,36 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
         }
     }
 
+    /**
+     * 生成租户管理员角色编码
+     *
+     * @param tenantCode 租户编码
+     * @return 角色编码
+     */
     private String buildTenantAdminRoleCode(String tenantCode) {
         String code = StrUtil.toUpperCase(StrUtil.trimToEmpty(tenantCode));
         String raw = "TENANT_ADMIN_" + code;
         return StrUtil.maxLength(raw, 32);
     }
 
+    /**
+     * 生成租户管理员默认用户名
+     *
+     * @param tenantCode 租户编码
+     * @return 用户名
+     */
     private String buildTenantAdminUsername(String tenantCode) {
         String code = StrUtil.toLowerCase(StrUtil.trimToEmpty(tenantCode));
         String raw = "t_" + code + "_admin";
         return StrUtil.maxLength(raw, 64);
     }
 
+    /**
+     * 获取当前用户可访问的租户列表
+     *
+     * @param userId 用户ID
+     * @return 租户列表
+     */
     @Override
     public List<TenantVO> getAccessibleTenants(Long userId) {
         if (userId == null) {
@@ -208,17 +159,16 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
 
         boolean canSwitchTenant = hasTenantSwitchPermission();
 
-        // 非平台用户/无切换权限：仅允许访问当前租户
+        // 无租户切换权限：仅允许访问当前租户
         if (!canSwitchTenant) {
             TenantVO tenant = getTenantById(currentTenantId);
             if (tenant == null || tenant.getStatus() == null || tenant.getStatus() != 1) {
                 return List.of();
             }
-            tenant.setIsDefault(true);
             return List.of(tenant);
         }
 
-        // 平台用户：可访问所有启用租户（由后端权限控制平台账号本身，避免同名账号跨租户风险）
+        // 具备租户切换权限：可访问所有启用租户（由后端权限控制账号本身，避免同名账号跨租户风险）
         TenantContextHolder.setIgnoreTenant(true);
         try {
             List<Tenant> tenants = this.list(
@@ -273,11 +223,17 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
         return tenant != null ? tenant.getId() : null;
     }
 
+    /**
+     * 创建租户并初始化默认数据
+     *
+     * @param form 租户创建表单
+     * @return 创建结果
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public TenantCreateResultVO createTenantWithInit(TenantCreateForm form) {
         Assert.notNull(form, "请求参数不能为空");
-        Assert.isTrue(isPlatformTenantOperator(), "仅平台管理员允许新增租户");
+        Assert.isTrue(hasTenantSwitchPermission(), "仅具备租户切换权限允许新增租户");
 
         String tenantName = StrUtil.trimToEmpty(form.getName());
         String tenantCode = StrUtil.toUpperCase(StrUtil.trimToEmpty(form.getCode()));
@@ -293,6 +249,10 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
             Assert.isTrue(domainCount == 0, "租户域名已存在");
         }
 
+        Long planId = form.getPlanId();
+        Assert.notNull(planId, "租户方案不能为空");
+        Assert.isTrue(tenantPlanService.getById(planId) != null, "租户方案不存在");
+
         Tenant tenant = new Tenant();
         tenant.setName(tenantName);
         tenant.setCode(tenantCode);
@@ -301,6 +261,7 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
         tenant.setContactEmail(form.getContactEmail());
         tenant.setDomain(form.getDomain());
         tenant.setLogo(form.getLogo());
+        tenant.setPlanId(planId);
         tenant.setRemark(form.getRemark());
         tenant.setExpireTime(form.getExpireTime());
         tenant.setStatus(1);
@@ -365,8 +326,9 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
             boolean userSaved = userService.saveUser(userForm);
             Assert.isTrue(userSaved, "租户管理员用户创建失败");
 
-            // 4) 角色菜单授权（租户侧权限，不含平台管理）
-            List<Long> menuIds = resolveNewTenantAdminMenuIds();
+            // 4) 租户菜单初始化 + 角色菜单授权（租户侧权限）
+            List<Long> menuIds = resolveNewTenantAdminMenuIds(planId);
+            tenantMenuService.saveTenantMenus(newTenantId, menuIds);
             roleService.assignMenusToRole(role.getId(), menuIds);
 
             TenantCreateResultVO resultVo = new TenantCreateResultVO();
@@ -385,6 +347,13 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
         }
     }
 
+    /**
+     * 校验用户是否可访问指定租户
+     *
+     * @param userId   用户ID
+     * @param tenantId 租户ID
+     * @return true 表示可访问
+     */
     @Override
     public boolean canAccessTenant(Long userId, Long tenantId) {
         if (userId == null || tenantId == null) {
@@ -398,14 +367,14 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
 
         boolean canSwitchTenant = hasTenantSwitchPermission();
 
-        // 非平台用户/无切换权限：仅允许访问当前租户
+        // 无租户切换权限：仅允许访问当前租户
         if (!canSwitchTenant) {
             return tenantId.equals(currentTenantId);
         }
 
         TenantContextHolder.setIgnoreTenant(true);
         try {
-            // 平台用户：仅允许切换到启用租户
+            // 具备租户切换权限：仅允许切换到启用租户
             Tenant tenant = this.getById(tenantId);
             return tenant != null && tenant.getStatus() != null && tenant.getStatus() == 1;
         } finally {
@@ -413,10 +382,16 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
         }
     }
 
+    /**
+     * 租户分页查询
+     *
+     * @param queryParams 查询参数
+     * @return 分页结果
+     */
     @Override
     public Page<TenantPageVO> getTenantPage(TenantQuery queryParams) {
         Assert.notNull(queryParams, "请求参数不能为空");
-        Assert.isTrue(isPlatformTenantOperator(), "仅平台管理员允许查询租户列表");
+        Assert.isTrue(hasTenantSwitchPermission(), "仅具备租户切换权限允许查询租户列表");
 
         int pageNum = queryParams.getPageNum();
         int pageSize = queryParams.getPageSize();
@@ -441,18 +416,25 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
     @Override
     public TenantForm getTenantForm(Long tenantId) {
         Assert.notNull(tenantId, "租户ID不能为空");
-        Assert.isTrue(isPlatformTenantOperator(), "仅平台管理员允许查看租户信息");
+        Assert.isTrue(hasTenantSwitchPermission(), "仅具备租户切换权限允许查看租户信息");
 
         Tenant tenant = this.getById(tenantId);
         Assert.isTrue(tenant != null, "租户不存在");
         return tenantConverter.toForm(tenant);
     }
 
+    /**
+     * 更新租户信息
+     *
+     * @param tenantId 租户ID
+     * @param formData 表单数据
+     * @return true 表示更新成功
+     */
     @Override
     public boolean updateTenant(Long tenantId, TenantForm formData) {
         Assert.notNull(tenantId, "租户ID不能为空");
         Assert.notNull(formData, "请求参数不能为空");
-        Assert.isTrue(isPlatformTenantOperator(), "仅平台管理员允许修改租户");
+        Assert.isTrue(hasTenantSwitchPermission(), "仅具备租户切换权限允许修改租户");
 
         Tenant old = this.getById(tenantId);
         Assert.isTrue(old != null, "租户不存在");
@@ -462,6 +444,12 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
         String domain = StrUtil.trimToEmpty(formData.getDomain());
         if (StrUtil.isBlank(domain)) {
             domain = null;
+        }
+
+        Long planId = formData.getPlanId();
+        if (!SystemConstants.PLATFORM_TENANT_ID.equals(tenantId)) {
+            Assert.notNull(planId, "租户方案不能为空");
+            Assert.isTrue(tenantPlanService.getById(planId) != null, "租户方案不存在");
         }
 
         Assert.isTrue(StrUtil.isNotBlank(tenantName), "租户名称不能为空");
@@ -486,14 +474,20 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
         tenant.setName(tenantName);
         tenant.setCode(tenantCode);
         tenant.setDomain(domain);
+        tenant.setPlanId(planId);
 
         return this.updateById(tenant);
     }
 
+    /**
+     * 删除租户
+     *
+     * @param ids 租户ID列表
+     */
     @Override
     public void deleteTenants(String ids) {
         Assert.isTrue(StrUtil.isNotBlank(ids), "删除的租户ID不能为空");
-        Assert.isTrue(isPlatformTenantOperator(), "仅平台管理员允许删除租户");
+        Assert.isTrue(hasTenantSwitchPermission(), "仅具备租户切换权限允许删除租户");
 
         List<Long> tenantIds = java.util.Arrays.stream(ids.split(","))
                 .map(String::trim)
@@ -518,11 +512,18 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
         }
     }
 
+    /**
+     * 修改租户状态
+     *
+     * @param tenantId 租户ID
+     * @param status   状态
+     * @return true 表示修改成功
+     */
     @Override
     public boolean updateTenantStatus(Long tenantId, Integer status) {
         Assert.notNull(tenantId, "租户ID不能为空");
         Assert.notNull(status, "状态不能为空");
-        Assert.isTrue(isPlatformTenantOperator(), "仅平台管理员允许修改租户状态");
+        Assert.isTrue(hasTenantSwitchPermission(), "仅具备租户切换权限允许修改租户状态");
 
         Tenant tenant = this.getById(tenantId);
         Assert.isTrue(tenant != null, "租户不存在");

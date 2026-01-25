@@ -44,9 +44,9 @@ public class OnlineUser {
     private Long tenantId;
 
     /**
-     * 租户身份标识(PLATFORM/TENANT)
+     * 租户切换权限（true 可切换租户）
      */
-    private String tenantScope;
+    private Boolean canSwitchTenant;
 
     /**
      * 角色权限集合

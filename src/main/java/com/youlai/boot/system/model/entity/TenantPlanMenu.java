@@ -1,32 +1,29 @@
 package com.youlai.boot.system.model.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 角色和菜单关联表
+ * 租户方案菜单关联实体
+ *
+ * @author Ray.Hao
+ * @since 3.0.0
  */
-@TableName("sys_role_menu")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RoleMenu {
+@TableName("sys_tenant_plan_menu")
+public class TenantPlanMenu {
+
     /**
-     * 角色ID
+     * 方案ID
      */
-    private Long roleId;
+    private Long planId;
 
     /**
      * 菜单ID
      */
     private Long menuId;
-
-    /**
-     * 租户ID
-     */
-    private Long tenantId;
 }

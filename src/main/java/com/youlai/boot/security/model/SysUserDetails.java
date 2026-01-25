@@ -3,7 +3,6 @@ package com.youlai.boot.security.model;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.youlai.boot.common.constant.SecurityConstants;
-import com.youlai.boot.security.model.UserAuthInfo;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -63,9 +62,9 @@ public class SysUserDetails implements UserDetails {
     private Long tenantId;
 
     /**
-     * 租户身份标识(PLATFORM/TENANT)
+     * 租户切换权限（true 可切换租户）
      */
-    private String tenantScope;
+    private Boolean canSwitchTenant;
 
     /**
      * 用户角色权限集合
@@ -85,7 +84,7 @@ public class SysUserDetails implements UserDetails {
         this.deptId = user.getDeptId();
         this.dataScope = user.getDataScope();
         this.tenantId = user.getTenantId();
-        this.tenantScope = user.getTenantScope();
+        this.canSwitchTenant = user.getCanSwitchTenant();
 
         // 初始化角色权限集合
         this.authorities = CollectionUtil.isNotEmpty(user.getRoles())

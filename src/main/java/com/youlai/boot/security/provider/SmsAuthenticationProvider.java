@@ -49,7 +49,7 @@ public class SmsAuthenticationProvider implements AuthenticationProvider {
         String inputVerifyCode = (String) authentication.getCredentials();
 
         // 根据手机号获取用户信息
-        UserAuthInfo userAuthInfo = userService.getAuthCredentialsByMobile(mobile);
+        UserAuthInfo userAuthInfo = userService.getAuthInfoByMobile(mobile);
 
         if (userAuthInfo == null) {
             throw new UsernameNotFoundException("用户不存在");

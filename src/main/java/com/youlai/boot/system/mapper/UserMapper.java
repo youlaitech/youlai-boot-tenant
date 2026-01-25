@@ -49,10 +49,6 @@ public interface UserMapper extends BaseMapper<User> {
      */
     UserAuthInfo getAuthInfoByUsername(String username);
 
-    default UserAuthInfo getAuthCredentialsByUsername(String username) {
-        return getAuthInfoByUsername(username);
-    }
-
     /**
      * 根据微信openid获取用户认证信息
      *
@@ -61,10 +57,6 @@ public interface UserMapper extends BaseMapper<User> {
      */
     UserAuthInfo getAuthInfoByOpenId(String openid);
 
-    default UserAuthInfo getAuthCredentialsByOpenId(String openid) {
-        return getAuthInfoByOpenId(openid);
-    }
-
     /**
      * 根据手机号获取用户认证信息
      *
@@ -72,10 +64,6 @@ public interface UserMapper extends BaseMapper<User> {
      * @return 认证信息
      */
     UserAuthInfo getAuthInfoByMobile(String mobile);
-
-    default UserAuthInfo getAuthCredentialsByMobile(String mobile) {
-        return getAuthInfoByMobile(mobile);
-    }
 
     /**
      * 获取导出用户列表

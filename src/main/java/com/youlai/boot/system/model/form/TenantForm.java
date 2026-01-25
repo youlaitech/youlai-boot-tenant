@@ -2,6 +2,7 @@ package com.youlai.boot.system.model.form;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.hibernate.validator.constraints.Range;
 
@@ -36,6 +37,9 @@ public class TenantForm {
 
     @Schema(description = "租户Logo")
     private String logo;
+
+    @Schema(description = "方案ID")
+    private Long planId;
 
     @Schema(description = "状态(1-正常 0-禁用)")
     @Range(max = 1, min = 0, message = "租户状态不正确")

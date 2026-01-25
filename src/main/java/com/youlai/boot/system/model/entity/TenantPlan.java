@@ -10,73 +10,45 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * 租户实体
+ * 租户方案实体
  *
  * @author Ray.Hao
  * @since 3.0.0
  */
 @Data
-@TableName(value = "sys_tenant")
-public class Tenant {
-
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
-
-    /**
-     * 租户名称
-     */
-    private String name;
-
-    /**
-     * 租户编码（唯一）
-     */
-    private String code;
-
-    /**
-     * 联系人姓名
-     */
-    private String contactName;
-
-    /**
-     * 联系人电话
-     */
-    private String contactPhone;
-
-    /**
-     * 联系人邮箱
-     */
-    private String contactEmail;
-
-    /**
-     * 租户域名（用于域名识别）
-     */
-    private String domain;
-
-    /**
-     * 租户Logo
-     */
-    private String logo;
+@TableName("sys_tenant_plan")
+public class TenantPlan {
 
     /**
      * 方案ID
      */
-    @TableField(value = "plan_id")
-    private Long planId;
+    @TableId(type = IdType.AUTO)
+    private Long id;
 
     /**
-     * 状态(1-正常 0-禁用)
+     * 方案名称
+     */
+    private String name;
+
+    /**
+     * 方案编码
+     */
+    private String code;
+
+    /**
+     * 状态(1-启用 0-停用)
      */
     private Integer status;
+
+    /**
+     * 排序
+     */
+    private Integer sort;
 
     /**
      * 备注
      */
     private String remark;
-
-    /**
-     * 过期时间（NULL表示永不过期）
-     */
-    private LocalDateTime expireTime;
 
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
@@ -84,4 +56,3 @@ public class Tenant {
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 }
-

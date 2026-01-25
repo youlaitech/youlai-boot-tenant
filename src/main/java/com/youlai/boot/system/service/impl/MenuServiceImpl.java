@@ -20,12 +20,15 @@ import com.youlai.boot.system.model.query.MenuQuery;
 import com.youlai.boot.system.model.vo.MenuVO;
 import com.youlai.boot.system.model.vo.RouteVO;
 import com.youlai.boot.common.constant.SystemConstants;
+import com.youlai.boot.common.tenant.TenantContextHolder;
 import com.youlai.boot.system.enums.MenuTypeEnum;
 import com.youlai.boot.common.enums.StatusEnum;
 import com.youlai.boot.common.model.KeyValue;
 import com.youlai.boot.common.model.Option;
 import com.youlai.boot.system.service.MenuService;
 import com.youlai.boot.system.service.RoleMenuService;
+import com.youlai.boot.system.service.TenantMenuService;
+import com.youlai.boot.system.enums.MenuScopeEnum;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.CacheEvict;
@@ -47,6 +50,8 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
     private final MenuConverter menuConverter;
 
     private final RoleMenuService roleMenuService;
+
+    private final TenantMenuService tenantMenuService;
 
 
     /**
@@ -104,10 +109,22 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
      * 菜单下拉数据
      *
      * @param onlyParent 是否只查询父级菜单 如果为true，排除按钮
+     * @param scope 菜单范围(1=平台 2=租户)
      */
     @Override
-    public List<Option<Long>> listMenuOptions(boolean onlyParent) {
+    public List<Option<Long>> listMenuOptions(boolean onlyParent, Integer scope) {
+        Long tenantId = TenantContextHolder.getTenantId();
+        List<Long> tenantMenuIds = Collections.emptyList();
+        if (tenantId != null && !SystemConstants.PLATFORM_TENANT_ID.equals(tenantId)) {
+            tenantMenuIds = tenantMenuService.listMenuIdsByTenant(tenantId);
+            if (CollectionUtil.isEmpty(tenantMenuIds)) {
+                return Collections.emptyList();
+            }
+        }
+
         List<Menu> menuList = this.list(new LambdaQueryWrapper<Menu>()
+                .in(CollectionUtil.isNotEmpty(tenantMenuIds), Menu::getId, tenantMenuIds)
+                .eq(scope != null, Menu::getScope, scope)
                 .in(onlyParent, Menu::getType, MenuTypeEnum.CATALOG.getValue(), MenuTypeEnum.MENU.getValue())
                 .orderByAsc(Menu::getSort)
         );
@@ -149,56 +166,46 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
             return Collections.emptyList();
         }
 
-        List<Menu> menuList;
-        if (SecurityUtils.isRoot()) {
-            // 超级管理员获取所有菜单
-            menuList = this.list(new LambdaQueryWrapper<Menu>()
-                    .ne(Menu::getType, MenuTypeEnum.BUTTON.getValue())
-                    .orderByAsc(Menu::getSort)
-            );
-        } else {
-            // 普通用户：通过角色获取菜单（权限控制已过滤）
-            menuList = this.baseMapper.getMenusByRoleCodes(roleCodes);
+        Long originalTenantId = TenantContextHolder.getTenantId();
+        boolean originalIgnoreTenant = TenantContextHolder.isIgnoreTenant();
+        boolean canSwitchTenant = SecurityUtils.canSwitchTenant();
 
-            // 双重保障：动态查询"平台管理"目录，过滤其子菜单
-            // 通过路由路径识别平台管理目录，避免硬编码
-            Menu platformMenu = this.getOne(new LambdaQueryWrapper<Menu>()
-                    .eq(Menu::getRoutePath, "/platform")
-                    .eq(Menu::getParentId, SystemConstants.ROOT_NODE_ID)
-                    .eq(Menu::getType, MenuTypeEnum.CATALOG.getValue())
-                    .last("LIMIT 1")
-            );
-
-            if (platformMenu != null) {
-                final Long platformMenuId = platformMenu.getId();
-                menuList = menuList.stream()
-                        .filter(menu -> {
-                            String treePath = menu.getTreePath();
-                            // 排除平台管理目录及其子菜单
-                            // treePath 格式：0,1 或 0,1,110 等
-                            return treePath == null ||
-                                    (!treePath.startsWith("0," + platformMenuId + ",") &&
-                                     !treePath.equals("0," + platformMenuId));
-                        })
-                        .collect(Collectors.toList());
-            }
+        if (originalTenantId == null) {
+            return Collections.emptyList();
         }
-        return buildRoutes(SystemConstants.ROOT_NODE_ID, menuList);
-    }
 
-    /**
-     * 获取当前用户的菜单路由列表（指定数据源）
-     * 
-     * @param datasource 数据源名称
-     *                   - master: 主库菜单数据
-     *                   - naiveui: NaiveUI项目菜单数据  
-     *                   - template: 模板项目菜单数据
-     */
-    @Override
-    public List<RouteVO> listCurrentUserRoutes(String datasource) {
-        return listCurrentUserRoutes();
-    }
+        Long roleTenantId = canSwitchTenant ? SystemConstants.PLATFORM_TENANT_ID : originalTenantId;
+        Long targetTenantId = originalTenantId;
 
+        List<Menu> menuList;
+        try {
+            // 使用手动 tenant_id 过滤，避免租户上下文影响联合查询
+            TenantContextHolder.setIgnoreTenant(true);
+            if (SecurityUtils.isRoot()) {
+                if (SystemConstants.PLATFORM_TENANT_ID.equals(targetTenantId)) {
+                    menuList = this.list(new LambdaQueryWrapper<Menu>()
+                            .ne(Menu::getType, MenuTypeEnum.BUTTON.getValue())
+                            .orderByAsc(Menu::getSort)
+                    );
+                } else {
+                    List<Long> tenantMenuIds = tenantMenuService.listMenuIdsByTenant(targetTenantId);
+                    if (CollectionUtil.isEmpty(tenantMenuIds)) {
+                        return Collections.emptyList();
+                    }
+                    menuList = this.list(new LambdaQueryWrapper<Menu>()
+                            .in(Menu::getId, tenantMenuIds)
+                            .ne(Menu::getType, MenuTypeEnum.BUTTON.getValue())
+                            .orderByAsc(Menu::getSort)
+                    );
+                }
+            } else {
+                menuList = this.baseMapper.getMenusByRoleCodesAndTenant(roleCodes, roleTenantId, targetTenantId);
+            }
+            return buildRoutes(SystemConstants.ROOT_NODE_ID, menuList);
+        } finally {
+            TenantContextHolder.setIgnoreTenant(originalIgnoreTenant);
+        }
+    }
 
     /**
      * 递归生成菜单路由层级列表
@@ -300,6 +307,20 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
         if (Objects.equals(menuForm.getParentId(), menuForm.getId())) {
             throw new RuntimeException("父级菜单不能为当前菜单");
         }
+        if (MenuTypeEnum.BUTTON.getValue().equals(menuType)) {
+            // 按钮菜单继承父级范围，避免跨平台/业务菜单混用
+            Long parentId = menuForm.getParentId();
+            if (parentId != null) {
+                Menu parent = this.getById(parentId);
+                if (parent != null) {
+                    menuForm.setScope(parent.getScope());
+                }
+            }
+            if (menuForm.getScope() == null) {
+                menuForm.setScope(MenuScopeEnum.TENANT.getValue());
+            }
+        }
+
         Menu entity = menuConverter.toEntity(menuForm);
         String treePath = generateMenuTreePath(menuForm.getParentId());
         entity.setTreePath(treePath);

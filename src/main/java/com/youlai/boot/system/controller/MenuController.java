@@ -47,9 +47,11 @@ public class MenuController {
     @GetMapping("/options")
     public Result<List<Option<Long>>> getMenuOptions(
             @Parameter(description = "是否只查询父级菜单")
-            @RequestParam(required = false, defaultValue = "false") boolean onlyParent
+            @RequestParam(required = false, defaultValue = "false") boolean onlyParent,
+            @Parameter(description = "菜单范围(1=平台 2=租户)")
+            @RequestParam(required = false) Integer scope
     ) {
-        List<Option<Long>> menus = menuService.listMenuOptions(onlyParent);
+        List<Option<Long>> menus = menuService.listMenuOptions(onlyParent, scope);
         return Result.success(menus);
     }
 

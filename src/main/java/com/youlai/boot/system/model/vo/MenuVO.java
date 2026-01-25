@@ -37,6 +37,9 @@ public class MenuVO {
     @Schema(description = "菜单是否可见(1:显示;0:隐藏)")
     private Integer visible;
 
+    @Schema(description = "菜单范围(1=平台菜单 2=业务菜单)")
+    private Integer scope;
+
     @Schema(description = "ICON")
     private String icon;
 

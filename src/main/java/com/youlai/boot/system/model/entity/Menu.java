@@ -64,6 +64,11 @@ public class Menu {
     private Integer visible;
 
     /**
+     * 菜单范围(1=平台菜单 2=业务菜单)
+     */
+    private Integer scope;
+
+    /**
      * 排序
      */
     private Integer sort;

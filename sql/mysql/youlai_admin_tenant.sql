@@ -168,6 +168,13 @@ INSERT INTO `sys_menu` VALUES (1103, 110, '0,1,110', '租户编辑', 'B', NULL, 
 INSERT INTO `sys_menu` VALUES (1104, 110, '0,1,110', '租户删除', 'B', NULL, '', NULL, 'sys:tenant:delete', NULL, NULL, 1, 4, '', NULL, now(), now(), NULL);
 INSERT INTO `sys_menu` VALUES (1105, 110, '0,1,110', '租户启用/禁用', 'B', NULL, '', NULL, 'sys:tenant:change-status', NULL, NULL, 1, 5, '', NULL, now(), now(), NULL);
 INSERT INTO `sys_menu` VALUES (1106, 110, '0,1,110', '租户切换', 'B', NULL, '', NULL, 'sys:tenant:switch', NULL, NULL, 1, 6, '', NULL, now(), now(), NULL);
+INSERT INTO `sys_menu` VALUES (1107, 110, '0,1,110', '方案菜单', 'B', NULL, '', NULL, 'sys:tenant-plan:assign', NULL, NULL, 1, 7, '', NULL, now(), now(), NULL);
+INSERT INTO `sys_menu` VALUES (120, 1, '0,1', '租户套餐', 'M', 'TenantPlan', 'tenant-plan', 'system/tenant-plan/index', NULL, NULL, 1, 2, 2, 'el-icon-CollectionTag', NULL, now(), now(), NULL);
+INSERT INTO `sys_menu` VALUES (1201, 120, '0,1,120', '套餐查询', 'B', NULL, '', NULL, 'sys:tenant-plan:list', NULL, NULL, 1, 1, '', NULL, now(), now(), NULL);
+INSERT INTO `sys_menu` VALUES (1202, 120, '0,1,120', '套餐新增', 'B', NULL, '', NULL, 'sys:tenant-plan:create', NULL, NULL, 1, 2, '', NULL, now(), now(), NULL);
+INSERT INTO `sys_menu` VALUES (1203, 120, '0,1,120', '套餐编辑', 'B', NULL, '', NULL, 'sys:tenant-plan:update', NULL, NULL, 1, 3, '', NULL, now(), now(), NULL);
+INSERT INTO `sys_menu` VALUES (1204, 120, '0,1,120', '套餐删除', 'B', NULL, '', NULL, 'sys:tenant-plan:delete', NULL, NULL, 1, 4, '', NULL, now(), now(), NULL);
+INSERT INTO `sys_menu` VALUES (1205, 120, '0,1,120', '套餐菜单配置', 'B', NULL, '', NULL, 'sys:tenant-plan:assign', NULL, NULL, 1, 5, '', NULL, now(), now(), NULL);
 
 -- 系统管理（租户侧）
 INSERT INTO `sys_menu` VALUES (210, 2, '0,2', '用户管理', 'M', 'User', 'user', 'system/user/index', NULL, NULL, 1, 1, 1, 'el-icon-User', NULL, now(), now(), NULL);
@@ -267,8 +274,88 @@ INSERT INTO `sys_menu` VALUES (912, 911, '0,9,910,911', '菜单三级-1', 'M', N
 INSERT INTO `sys_menu` VALUES (913, 911, '0,9,910,911', '菜单三级-2', 'M', NULL, 'multi-level3-2', 'demo/multi-level/children/children/level3-2', NULL, 0, 1, 1, 2, '', '', now(), now(), NULL);
 
 -- 路由参数
-INSERT INTO `sys_menu` VALUES (1001, 10, '0,10', '参数(type=1)', 'M', 'RouteParamType1', 'route-param-type1', 'demo/route-param', NULL, 0, 1, 1, 1, 'el-icon-Star', NULL, now(), now(), '{\"type\": \"1\"}');
-INSERT INTO `sys_menu` VALUES (1002, 10, '0,10', '参数(type=2)', 'M', 'RouteParamType2', 'route-param-type2', 'demo/route-param', NULL, 0, 1, 1, 2, 'el-icon-StarFilled', NULL, now(), now(), '{\"type\": \"2\"}');
+INSERT INTO `sys_menu` VALUES (1001, 10, '0,10', '参数(type=1)', 'M', 'RouteParamType1', 'route-param-type1', 'demo/route-param', NULL, 0, 1, 1, 1, 'el-icon-Star', NULL, now(), now(), '{"type": "1"}');
+INSERT INTO `sys_menu` VALUES (1002, 10, '0,10', '参数(type=2)', 'M', 'RouteParamType2', 'route-param-type2', 'demo/route-param', NULL, 0, 1, 1, 2, 'el-icon-StarFilled', NULL, now(), now(), '{"type": "2"}');
+
+-- ----------------------------
+-- Menu scope init
+-- ----------------------------
+ALTER TABLE `sys_menu`
+    ADD COLUMN `scope` tinyint(1) NOT NULL DEFAULT 2 COMMENT '菜单范围(1=平台菜单 2=业务菜单)';
+
+UPDATE `sys_menu`
+SET `scope` = 1
+WHERE `id` = 1 OR `tree_path` LIKE '0,1%';
+
+-- ----------------------------
+-- Table structure for sys_tenant_menu
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_tenant_menu`;
+CREATE TABLE `sys_tenant_menu`  (
+                                    `tenant_id` bigint NOT NULL COMMENT '租户ID',
+                                    `menu_id` bigint NOT NULL COMMENT '菜单ID',
+                                    PRIMARY KEY (`tenant_id`, `menu_id`) USING BTREE,
+                                    KEY `idx_tenant_menu_menu_id` (`menu_id`)
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COMMENT = '租户菜单关联表';
+
+-- ----------------------------
+-- Records of sys_tenant_menu
+-- ----------------------------
+-- 平台租户（tenant_id=0）可用菜单：全量菜单
+INSERT INTO `sys_tenant_menu` (tenant_id, menu_id)
+SELECT 0, id FROM `sys_menu`;
+
+-- 演示租户（tenant_id=1）可用菜单：仅租户菜单（不含平台管理）
+INSERT INTO `sys_tenant_menu` (tenant_id, menu_id)
+SELECT 1, id FROM `sys_menu`
+WHERE scope = 2;
+
+-- ----------------------------
+-- Table structure for sys_tenant_plan
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_tenant_plan`;
+CREATE TABLE `sys_tenant_plan`  (
+                                  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '套餐ID',
+                                  `name` varchar(100) NOT NULL COMMENT '套餐名称',
+                                  `code` varchar(50) NOT NULL COMMENT '套餐编码',
+                                  `status` tinyint DEFAULT '1' COMMENT '状态(1-启用 0-停用)',
+                                  `sort` int DEFAULT 0 COMMENT '排序',
+                                  `remark` varchar(500) DEFAULT NULL COMMENT '备注',
+                                  `create_time` datetime NULL COMMENT '创建时间',
+                                  `update_time` datetime NULL COMMENT '更新时间',
+                                  PRIMARY KEY (`id`) USING BTREE,
+                                  UNIQUE KEY `uk_code` (`code`)
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COMMENT = '租户套餐表';
+
+-- ----------------------------
+-- Table structure for sys_tenant_plan_menu
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_tenant_plan_menu`;
+CREATE TABLE `sys_tenant_plan_menu`  (
+                                       `plan_id` bigint NOT NULL COMMENT '套餐ID',
+                                       `menu_id` bigint NOT NULL COMMENT '菜单ID',
+                                       PRIMARY KEY (`plan_id`, `menu_id`) USING BTREE,
+                                       KEY `idx_plan_menu_menu_id` (`menu_id`)
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COMMENT = '租户套餐菜单关联表';
+
+-- ----------------------------
+-- Records of sys_tenant_plan
+-- ----------------------------
+INSERT INTO `sys_tenant_plan` VALUES (1, '基础套餐', 'BASIC', 1, 1, '仅系统管理菜单', now(), now());
+INSERT INTO `sys_tenant_plan` VALUES (2, '高级套餐', 'PRO', 1, 2, '全部租户菜单', now(), now());
+
+-- ----------------------------
+-- Records of sys_tenant_plan_menu
+-- ----------------------------
+-- 基础套餐：系统管理菜单
+INSERT INTO `sys_tenant_plan_menu` (plan_id, menu_id)
+SELECT 1, id FROM `sys_menu`
+WHERE id = 2 OR tree_path LIKE '0,2%';
+
+-- 高级套餐：全部租户菜单
+INSERT INTO `sys_tenant_plan_menu` (plan_id, menu_id)
+SELECT 2, id FROM `sys_menu`
+WHERE scope = 2;
 
 -- ----------------------------
 -- Table structure for sys_role
@@ -324,7 +411,8 @@ CREATE TABLE `sys_role_menu`  (
                                   `menu_id` bigint NOT NULL COMMENT '菜单ID',
                                   `tenant_id` bigint DEFAULT 0 COMMENT '租户ID',
                                   UNIQUE INDEX `uk_roleid_menuid`(`role_id` ASC, `menu_id` ASC) USING BTREE COMMENT '角色菜单唯一索引',
-                                  KEY `idx_role_menu_tenant_id` (`tenant_id`)
+                                  KEY `idx_role_menu_tenant_id` (`tenant_id`),
+                                  KEY `idx_tenant_role` (`tenant_id`, `role_id`)
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COMMENT = '角色菜单关联表';
 
 -- ----------------------------
@@ -335,7 +423,8 @@ CREATE TABLE `sys_role_menu`  (
 -- 顶级目录
 INSERT INTO `sys_role_menu` VALUES (1, 1, 0), (1, 2, 0), (1, 3, 0), (1, 4, 0), (1, 5, 0), (1, 6, 0), (1, 7, 0), (1, 8, 0), (1, 9, 0), (1, 10, 0);
 -- 平台管理
-INSERT INTO `sys_role_menu` VALUES (1, 110, 0), (1, 1101, 0), (1, 1102, 0), (1, 1103, 0), (1, 1104, 0), (1, 1105, 0), (1, 1106, 0);
+INSERT INTO `sys_role_menu` VALUES (1, 110, 0), (1, 1101, 0), (1, 1102, 0), (1, 1103, 0), (1, 1104, 0), (1, 1105, 0), (1, 1106, 0), (1, 1107, 0);
+INSERT INTO `sys_role_menu` VALUES (1, 120, 0), (1, 1201, 0), (1, 1202, 0), (1, 1203, 0), (1, 1204, 0), (1, 1205, 0);
 INSERT INTO `sys_role_menu` VALUES (1, 230, 0), (1, 2301, 0), (1, 2302, 0), (1, 2303, 0), (1, 2304, 0);
 INSERT INTO `sys_role_menu` VALUES (1, 270, 0), (1, 2701, 0), (1, 2702, 0), (1, 2703, 0), (1, 2704, 0), (1, 2705, 0);
 -- 系统管理
@@ -366,7 +455,8 @@ INSERT INTO `sys_role_menu` VALUES (1, 1001, 0), (1, 1002, 0);
 -- 顶级目录
 INSERT INTO `sys_role_menu` VALUES (2, 1, 0), (2, 2, 0), (2, 3, 0), (2, 4, 0), (2, 5, 0), (2, 6, 0), (2, 7, 0), (2, 8, 0), (2, 9, 0), (2, 10, 0);
  -- 平台管理
- INSERT INTO `sys_role_menu` VALUES (2, 110, 0), (2, 1101, 0), (2, 1102, 0), (2, 1103, 0), (2, 1104, 0), (2, 1105, 0), (2, 1106, 0);
+ INSERT INTO `sys_role_menu` VALUES (2, 110, 0), (2, 1101, 0), (2, 1102, 0), (2, 1103, 0), (2, 1104, 0), (2, 1105, 0), (2, 1106, 0), (2, 1107, 0);
+ INSERT INTO `sys_role_menu` VALUES (2, 120, 0), (2, 1201, 0), (2, 1202, 0), (2, 1203, 0), (2, 1204, 0), (2, 1205, 0);
  -- 系统管理
  INSERT INTO `sys_role_menu` VALUES (2, 210, 0), (2, 2101, 0), (2, 2102, 0), (2, 2103, 0), (2, 2104, 0), (2, 2105, 0), (2, 2106, 0), (2, 2107, 0);
  INSERT INTO `sys_role_menu` VALUES (2, 220, 0), (2, 2201, 0), (2, 2202, 0), (2, 2203, 0), (2, 2204, 0), (2, 2205, 0);
@@ -434,8 +524,7 @@ DROP TABLE IF EXISTS `sys_user`;
 CREATE TABLE `sys_user`  (
                              `id` bigint NOT NULL AUTO_INCREMENT,
                              `tenant_id` bigint DEFAULT 0 COMMENT '租户ID',
-                             `tenant_scope` varchar(20) NOT NULL DEFAULT 'TENANT' COMMENT '租户身份标识(PLATFORM/TENANT)',
-                             `username` varchar(64) COMMENT '用户名',
+                              `username` varchar(64) COMMENT '用户名',
                              `nickname` varchar(64) COMMENT '昵称',
                              `gender` tinyint(1) DEFAULT 1 COMMENT '性别((1-男 2-女 0-保密)',
                              `password` varchar(100) COMMENT '密码',
@@ -459,13 +548,13 @@ CREATE TABLE `sys_user`  (
 -- Records of sys_user
 -- ----------------------------
 -- 平台租户（tenant_id=0）的用户
-INSERT INTO `sys_user` VALUES (1, 0, 'PLATFORM', 'root', '平台租户超级管理员', 0, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', NULL, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345677', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0, NULL);
-INSERT INTO `sys_user` VALUES (2, 0, 'PLATFORM', 'admin', '平台租户系统管理员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 1, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345678', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0, NULL);
-INSERT INTO `sys_user` VALUES (3, 0, 'PLATFORM', 'test', '平台租户测试天命人', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 3, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345679', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0, NULL);
+INSERT INTO `sys_user` VALUES (1, 0, 'root', '平台租户超级管理员', 0, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', NULL, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345677', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0, NULL);
+INSERT INTO `sys_user` VALUES (2, 0, 'admin', '平台租户系统管理员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 1, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345678', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0, NULL);
+INSERT INTO `sys_user` VALUES (3, 0, 'test', '平台租户测试天命人', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 3, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345679', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0, NULL);
 
 -- 演示租户（tenant_id=1）的用户
-INSERT INTO `sys_user` VALUES (4, 1, 'TENANT', 'admin', '演示租户管理员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 4, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345680', 1, 'demo@youlai.tech', now(), NULL, now(), NULL, 0, NULL);
-INSERT INTO `sys_user` VALUES (5, 1, 'TENANT', 'test', '演示测试人员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 6, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345681', 1, 'test@youlai.tech', now(), NULL, now(), NULL, 0, NULL);
+INSERT INTO `sys_user` VALUES (4, 1, 'admin', '演示租户管理员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 4, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345680', 1, 'demo@youlai.tech', now(), NULL, now(), NULL, 0, NULL);
+INSERT INTO `sys_user` VALUES (5, 1, 'test', '演示测试人员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 6, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345681', 1, 'test@youlai.tech', now(), NULL, now(), NULL, 0, NULL);
 
 -- ----------------------------
 -- Table structure for sys_user_role
@@ -708,6 +797,7 @@ CREATE TABLE `sys_tenant` (
                               `contact_email` varchar(100) DEFAULT NULL COMMENT '联系人邮箱',
                               `domain` varchar(100) DEFAULT NULL COMMENT '租户域名（用于域名识别）',
                               `logo` varchar(255) DEFAULT NULL COMMENT '租户Logo',
+                              `plan_id` bigint DEFAULT NULL COMMENT '套餐ID',
                               `status` tinyint DEFAULT '1' COMMENT '状态(1-正常 0-禁用)',
                               `remark` varchar(500) DEFAULT NULL COMMENT '备注',
                               `expire_time` datetime DEFAULT NULL COMMENT '过期时间（NULL表示永不过期）',
@@ -716,13 +806,14 @@ CREATE TABLE `sys_tenant` (
                               PRIMARY KEY (`id`),
                               UNIQUE KEY `uk_code` (`code`),
                               UNIQUE KEY `uk_domain` (`domain`),
-                              KEY `idx_status` (`status`)
+                              KEY `idx_status` (`status`),
+                              KEY `idx_plan_id` (`plan_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='系统租户表';
 
 -- ----------------------------
 -- Records of sys_tenant
 -- ----------------------------
-INSERT INTO `sys_tenant` VALUES (0, '平台租户', 'PLATFORM', '系统管理员', '18812345678', 'admin@youlai.tech', 'vue.youlai.tech', NULL, 1, '平台租户', NULL, now(), now());
-INSERT INTO `sys_tenant` VALUES (1, '演示租户', 'DEMO', '演示用户', '18812345679', 'demo@youlai.tech', 'demo.youlai.tech', NULL, 1, '演示租户', NULL, now(), now());
+INSERT INTO `sys_tenant` VALUES (0, '平台租户', 'PLATFORM', '系统管理员', '18812345678', 'admin@youlai.tech', 'vue.youlai.tech', NULL, NULL, 1, '平台租户', NULL, now(), now());
+INSERT INTO `sys_tenant` VALUES (1, '演示租户', 'DEMO', '演示用户', '18812345679', 'demo@youlai.tech', 'demo.youlai.tech', NULL, 2, 1, '演示租户', NULL, now(), now());
 
 SET FOREIGN_KEY_CHECKS = 1;

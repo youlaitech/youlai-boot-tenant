@@ -38,7 +38,7 @@ public class UserRole {
     /**
      * 租户ID（多租户模式）
      */
-    @TableField(value = "tenant_id", exist = false)
+    @TableField("tenant_id")
     @JsonInclude(value = JsonInclude.Include.NON_NULL)
     private Long tenantId;
 }

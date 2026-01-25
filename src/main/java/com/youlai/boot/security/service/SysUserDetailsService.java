@@ -1,6 +1,5 @@
 package com.youlai.boot.security.service;
 
-import com.youlai.boot.common.tenant.TenantContextHolder;
 import com.youlai.boot.security.model.SysUserDetails;
 import com.youlai.boot.security.model.UserAuthInfo;
 import com.youlai.boot.system.service.UserService;
@@ -34,7 +33,7 @@ public class SysUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         try {
-            UserAuthInfo userAuthInfo = userService.getAuthCredentialsByUsername(username);
+            UserAuthInfo userAuthInfo = userService.getAuthInfoByUsername(username);
             if (userAuthInfo == null) {
                 throw new UsernameNotFoundException(username);
             }

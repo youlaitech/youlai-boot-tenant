@@ -78,7 +78,7 @@ public class WxMiniAppPhoneAuthenticationProvider implements AuthenticationProvi
         String phoneNumber = phoneNumberInfo.getPhoneNumber();
 
         // 3. 根据手机号查询用户，不存在则创建新用户
-        UserAuthInfo userAuthInfo = userService.getAuthCredentialsByMobile(phoneNumber);
+        UserAuthInfo userAuthInfo = userService.getAuthInfoByMobile(phoneNumber);
 
         if (userAuthInfo == null) {
             // 用户不存在，注册新用户
@@ -87,7 +87,7 @@ public class WxMiniAppPhoneAuthenticationProvider implements AuthenticationProvi
                 throw new UsernameNotFoundException("用户注册失败");
             }
             // 重新获取用户信息
-            userAuthInfo = userService.getAuthCredentialsByMobile(phoneNumber);
+            userAuthInfo = userService.getAuthInfoByMobile(phoneNumber);
         } else {
             // 用户存在，绑定openId（如果未绑定）
             userService.bindUserOpenId(userAuthInfo.getUserId(), openId);

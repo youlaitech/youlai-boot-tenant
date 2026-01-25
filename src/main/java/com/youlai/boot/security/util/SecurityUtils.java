@@ -81,12 +81,12 @@ public class SecurityUtils {
 
 
     /**
-     * 获取租户身份标识
+     * 是否可切换租户
      *
-     * @return tenantScope (PLATFORM/TENANT)
+     * @return true 表示可切换租户
      */
-    public static String getTenantScope() {
-        return getUser().map(SysUserDetails::getTenantScope).orElse(null);
+    public static boolean canSwitchTenant() {
+        return getUser().map(SysUserDetails::getCanSwitchTenant).orElse(false);
     }
 
 

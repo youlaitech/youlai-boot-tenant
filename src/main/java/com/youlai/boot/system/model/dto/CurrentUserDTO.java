@@ -27,8 +27,8 @@ public class CurrentUserDTO {
     @Schema(description="头像地址")
     private String avatar;
 
-    @Schema(description = "租户身份标识(PLATFORM/TENANT)")
-    private String tenantScope;
+    @Schema(description = "租户切换权限（true 可切换租户）")
+    private Boolean canSwitchTenant;
 
     @Schema(description="用户角色编码集合")
     private Set<String> roles;

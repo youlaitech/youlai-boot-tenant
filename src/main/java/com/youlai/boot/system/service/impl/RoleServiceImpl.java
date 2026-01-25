@@ -231,9 +231,10 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
         );
         // 新增角色菜单
         if (CollectionUtil.isNotEmpty(menuIds)) {
+            Long tenantId = role.getTenantId();
             List<RoleMenu> roleMenus = menuIds
                     .stream()
-                    .map(menuId -> new RoleMenu(roleId, menuId))
+                    .map(menuId -> new RoleMenu(roleId, menuId, tenantId))
                     .toList();
             roleMenuService.saveBatch(roleMenus);
         }

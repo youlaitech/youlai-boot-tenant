@@ -159,7 +159,6 @@
         <id property="id" column="id" jdbcType="BIGINT"/>
         <result property="username" column="username" jdbcType="VARCHAR"/>
         <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
-        <result property="tenantScope" column="tenant_scope" jdbcType="VARCHAR"/>
         <result property="mobile" column="mobile" jdbcType="VARCHAR"/>
         <result property="gender" column="gender" jdbcType="TINYINT"/>
         <result property="avatar" column="avatar" jdbcType="VARCHAR"/>
@@ -180,7 +179,6 @@
             id,
             username,
             nickname,
-            tenant_scope,
             mobile,
             gender,
             avatar,
@@ -201,7 +199,6 @@
         <result property="status" column="status" jdbcType="BOOLEAN"/>
         <result property="deptId" column="dept_id" jdbcType="BIGINT"/>
         <result property="tenantId" column="tenant_id" jdbcType="BIGINT"/>
-        <result property="tenantScope" column="tenant_scope" jdbcType="VARCHAR"/>
         <collection property="roles" ofType="string" javaType="java.util.Set">
             <result column="code" />
         </collection>
@@ -217,7 +214,6 @@
             t1.STATUS,
             t1.dept_id ,
             t1.tenant_id,
-            t1.tenant_scope,
             t3.CODE
         FROM
             sys_user t1
@@ -237,7 +233,6 @@
             t1.STATUS,
             t1.dept_id ,
             t1.tenant_id,
-            t1.tenant_scope,
             t3.CODE
         FROM
             sys_user t1
@@ -256,7 +251,6 @@
             t1.STATUS,
             t1.dept_id ,
             t1.tenant_id,
-            t1.tenant_scope,
             t3.CODE
         FROM
             sys_user t1

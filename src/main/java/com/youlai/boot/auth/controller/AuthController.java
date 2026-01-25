@@ -12,11 +12,10 @@ import com.youlai.boot.core.web.ResultCode;
 import com.youlai.boot.security.model.SysUserDetails;
 import com.youlai.boot.security.model.AuthenticationToken;
 import com.youlai.boot.security.token.TokenManager;
-import com.youlai.boot.security.util.SecurityUtils;
 import com.youlai.boot.system.model.entity.User;
 import com.youlai.boot.system.service.TenantService;
 import com.youlai.boot.system.service.UserService;
-import com.youlai.boot.system.enums.TenantScopeEnum;
+import com.youlai.boot.security.model.UserAuthInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -108,17 +107,16 @@ public class AuthController {
             return Result.failed("账号或密码错误");
         }
 
-        // 优先平台身份登录：平台用户可登录后显式切换租户
-        User platformUser = passwordMatchedUsers.stream()
-                .filter(user -> TenantScopeEnum.PLATFORM.getValue().equalsIgnoreCase(user.getTenantScope()))
-                .findFirst()
-                .orElse(null);
-        if (platformUser != null) {
-            AuthenticationToken authenticationToken = authService.login(username, password, platformUser.getTenantId());
-            return Result.success(authenticationToken);
+        // 优先可切换租户账号登录：具备租户切换权限的账号可登录后显式切换租户
+        for (User candidate : passwordMatchedUsers) {
+            UserAuthInfo authInfo = userService.getAuthInfoByUsernameInTenant(username, candidate.getTenantId());
+            if (authInfo != null && Boolean.TRUE.equals(authInfo.getCanSwitchTenant())) {
+                AuthenticationToken authenticationToken = authService.login(username, password, candidate.getTenantId());
+                return Result.success(authenticationToken);
+            }
         }
 
-        // 非平台身份：仅允许唯一租户账号登录
+        // 无租户切换权限：仅允许唯一租户账号登录
         if (passwordMatchedUsers.size() == 1) {
             User user = passwordMatchedUsers.get(0);
             AuthenticationToken authenticationToken = authService.login(username, password, user.getTenantId());
@@ -128,10 +126,10 @@ public class AuthController {
         return Result.failed("账号归属多个租户，请使用租户域名或指定租户登录");
     }
 
-    @Operation(summary = "切换租户(平台ROOT)")
+    @Operation(summary = "切换租户")
     @PostMapping("/switch-tenant")
     public Result<AuthenticationToken> switchTenant(@RequestParam Long tenantId) {
-        if (!tenantService.isPlatformTenantOperator()) {
+        if (!tenantService.hasTenantSwitchPermission()) {
             return Result.failed("无权限");
         }
 
@@ -151,7 +149,7 @@ public class AuthController {
         newDetails.setDeptId(details.getDeptId());
         newDetails.setDataScope(details.getDataScope());
         newDetails.setTenantId(tenantId);
-        newDetails.setTenantScope(details.getTenantScope());
+        newDetails.setCanSwitchTenant(details.getCanSwitchTenant());
 
         Authentication newAuth = new UsernamePasswordAuthenticationToken(newDetails, authentication.getCredentials(), authentication.getAuthorities());
         AuthenticationToken token = tokenManager.generateToken(newAuth);

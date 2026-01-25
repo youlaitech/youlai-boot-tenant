@@ -45,6 +45,10 @@ public class MenuForm {
     @Range(max = 1, min = 0, message = "显示状态不正确")
     private Integer visible;
 
+    @Schema(description = "菜单范围(1=平台菜单 2=业务菜单)")
+    @Range(max = 2, min = 1, message = "菜单范围不正确")
+    private Integer scope;
+
     @Schema(description = "排序(数字越小排名越靠前)")
     private Integer sort;
 

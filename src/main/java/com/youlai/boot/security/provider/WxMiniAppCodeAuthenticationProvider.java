@@ -62,14 +62,14 @@ public class WxMiniAppCodeAuthenticationProvider implements AuthenticationProvid
         }
 
         // 根据微信 OpenID 查询用户信息
-        UserAuthInfo userAuthInfo = userService.getAuthCredentialsByOpenId(openId);
+        UserAuthInfo userAuthInfo = userService.getAuthInfoByOpenId(openId);
 
         if (userAuthInfo == null) {
             // 用户不存在则注册
             userService.registerOrBindWechatUser(openId);
 
             // 再次查询用户信息，确保用户注册成功
-            userAuthInfo = userService.getAuthCredentialsByOpenId(openId);
+            userAuthInfo = userService.getAuthInfoByOpenId(openId);
             if (userAuthInfo == null) {
                 throw new UsernameNotFoundException("用户注册失败，请稍后重试");
             }

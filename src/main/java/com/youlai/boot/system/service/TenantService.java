@@ -20,7 +20,7 @@ import java.util.List;
  */
 public interface TenantService extends IService<Tenant> {
 
-    boolean isPlatformTenantOperator();
+    boolean hasTenantSwitchPermission();
 
     /**
      * 获取用户可访问的租户列表

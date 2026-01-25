@@ -5,23 +5,23 @@ import com.youlai.boot.common.base.IBaseEnum;
 import lombok.Getter;
 
 /**
- * 租户身份标识
+ * 菜单范围枚举
  *
  * @author Ray.Hao
  * @since 3.0.0
  */
 @Getter
-public enum TenantScopeEnum implements IBaseEnum<String> {
+public enum MenuScopeEnum implements IBaseEnum<Integer> {
 
-    PLATFORM("PLATFORM", "平台"),
-    TENANT("TENANT", "租户");
+    PLATFORM(1, "平台菜单"),
+    TENANT(2, "业务菜单");
 
     @EnumValue
-    private final String value;
+    private final Integer value;
 
     private final String label;
 
-    TenantScopeEnum(String value, String label) {
+    MenuScopeEnum(Integer value, String label) {
         this.value = value;
         this.label = label;
     }

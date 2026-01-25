@@ -2,6 +2,7 @@ package com.youlai.boot.system.model.form;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -32,6 +33,10 @@ public class TenantCreateForm {
 
     @Schema(description = "租户Logo")
     private String logo;
+
+    @Schema(description = "方案ID")
+    @NotNull(message = "租户方案不能为空")
+    private Long planId;
 
     @Schema(description = "备注")
     private String remark;

@@ -22,7 +22,6 @@ import com.youlai.boot.common.tenant.TenantContextHolder;
 import com.youlai.boot.platform.mail.service.MailService;
 import com.youlai.boot.system.converter.UserConverter;
 import com.youlai.boot.system.enums.DictCodeEnum;
-import com.youlai.boot.system.enums.TenantScopeEnum;
 import com.youlai.boot.system.mapper.UserMapper;
 import com.youlai.boot.system.model.bo.UserBO;
 import com.youlai.boot.system.model.dto.CurrentUserDTO;
@@ -41,6 +40,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.PatternMatchUtils;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -116,27 +116,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return this.baseMapper.getUserFormData(userId);
     }
 
-    /**
-     * 是否允许修改租户身份（平台身份 + 切换权限）
-     */
-    private boolean canManageTenantScope() {
-        String tenantScope = SecurityUtils.getTenantScope();
-        if (!TenantScopeEnum.PLATFORM.getValue().equalsIgnoreCase(tenantScope)) {
+    private boolean resolveCanSwitchTenant(Set<String> roles) {
+        if (CollectionUtil.isEmpty(roles)) {
             return false;
         }
-
-        Long oldTenantId = TenantContextHolder.getTenantId();
-        boolean oldIgnoreTenant = TenantContextHolder.isIgnoreTenant();
-        try {
-            TenantContextHolder.setIgnoreTenant(false);
-            TenantContextHolder.setTenantId(SystemConstants.PLATFORM_TENANT_ID);
-            return permissionService.hasPerm(SystemConstants.TENANT_SWITCH_PERMISSION);
-        } finally {
-            TenantContextHolder.setIgnoreTenant(oldIgnoreTenant);
-            if (oldTenantId != null) {
-                TenantContextHolder.setTenantId(oldTenantId);
-            }
+        Set<String> perms = permissionService.getRolePermsFormCache(roles);
+        if (CollectionUtil.isEmpty(perms)) {
+            return false;
         }
+        return perms.stream()
+                .filter(Objects::nonNull)
+                .anyMatch(perm -> PatternMatchUtils.simpleMatch(perm, SystemConstants.TENANT_SWITCH_PERMISSION));
     }
 
     /**
@@ -157,19 +147,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 获取当前操作员的租户ID（新增用户时，租户ID由 MyMetaObjectHandler 自动填充）
         Long tenantId = TenantContextHolder.getTenantId();
         Assert.notNull(tenantId, "租户ID不能为空");
-
-        String tenantScope = StrUtil.trimToEmpty(entity.getTenantScope());
-        if (StrUtil.isBlank(tenantScope)) {
-            // 默认租户身份：业务端不提供 tenantScope 时，默认 TENANT
-            entity.setTenantScope(TenantScopeEnum.TENANT.getValue());
-        } else {
-            String normalizedScope = StrUtil.toUpperCase(tenantScope);
-            if (TenantScopeEnum.PLATFORM.getValue().equalsIgnoreCase(normalizedScope)) {
-                Assert.isTrue(canManageTenantScope(), "无权限设置租户身份");
-                Assert.isTrue(SystemConstants.PLATFORM_TENANT_ID.equals(tenantId), "平台身份仅允许在平台租户创建");
-            }
-            entity.setTenantScope(normalizedScope);
-        }
 
         if (!SystemConstants.DEFAULT_TENANT_ID.equals(tenantId)
                 && SystemConstants.PLATFORM_ROOT_USERNAME.equalsIgnoreCase(username)) {
@@ -240,23 +217,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User entity = userConverter.toEntity(userForm);
         entity.setUpdateBy(SecurityUtils.getUserId());
 
-        String requestedTenantScope = StrUtil.trimToEmpty(userForm.getTenantScope());
-        if (StrUtil.isBlank(requestedTenantScope)) {
-            // 未提交租户身份，保持原值
-            entity.setTenantScope(oldUser.getTenantScope());
-        } else {
-            String normalizedScope = StrUtil.toUpperCase(requestedTenantScope);
-            if (StrUtil.equalsIgnoreCase(normalizedScope, oldUser.getTenantScope())) {
-                entity.setTenantScope(oldUser.getTenantScope());
-            } else {
-                Assert.isTrue(canManageTenantScope(), "无权限修改租户身份");
-                if (TenantScopeEnum.PLATFORM.getValue().equalsIgnoreCase(normalizedScope)) {
-                    Assert.isTrue(SystemConstants.PLATFORM_TENANT_ID.equals(oldTenantId), "平台身份仅允许设置在平台租户");
-                }
-                entity.setTenantScope(normalizedScope);
-            }
-        }
-        
         // 保持租户ID不变（不允许跨租户修改用户）
         entity.setTenantId(oldTenantId);
 
@@ -306,12 +266,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             // 获取最大范围的数据权限
             Integer dataScope = roleService.getMaximumDataScope(roles);
             userAuthInfo.setDataScope(dataScope);
+            userAuthInfo.setCanSwitchTenant(resolveCanSwitchTenant(roles));
         }
         return userAuthInfo;
     }
 
     @Override
-    public UserAuthInfo getAuthCredentialsByUsernameAndTenant(String username, Long tenantId) {
+    public UserAuthInfo getAuthInfoByUsernameInTenant(String username, Long tenantId) {
+        Long oldTenantId = TenantContextHolder.getTenantId();
+        boolean oldIgnoreTenant = TenantContextHolder.isIgnoreTenant();
         // 临时忽略租户过滤，查询指定租户下的用户
         TenantContextHolder.setIgnoreTenant(true);
         try {
@@ -327,10 +290,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 return null;
             }
             // 设置租户上下文，然后查询认证信息（这样会包含该租户下的角色）
+            TenantContextHolder.setIgnoreTenant(false);
             TenantContextHolder.setTenantId(tenantId);
             return getAuthInfoByUsername(username);
         } finally {
-            TenantContextHolder.setIgnoreTenant(false);
+            if (oldTenantId != null) {
+                TenantContextHolder.setTenantId(oldTenantId);
+            } else {
+                TenantContextHolder.clear();
+            }
+            TenantContextHolder.setIgnoreTenant(oldIgnoreTenant);
         }
     }
 
@@ -367,6 +336,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             // 获取最大范围的数据权限
             Integer dataScope = roleService.getMaximumDataScope(roles);
             userAuthInfo.setDataScope(dataScope);
+            userAuthInfo.setCanSwitchTenant(resolveCanSwitchTenant(roles));
         }
         return userAuthInfo;
     }
@@ -388,6 +358,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             // 获取最大范围的数据权限
             Integer dataScope = roleService.getMaximumDataScope(roles);
             userAuthInfo.setDataScope(dataScope);
+            userAuthInfo.setCanSwitchTenant(resolveCanSwitchTenant(roles));
         }
         return userAuthInfo;
     }
@@ -572,21 +543,33 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         String username = SecurityUtils.getUsername();
 
-        // 获取登录用户基础信息
-        User user = this.getOne(new LambdaQueryWrapper<User>()
-                .eq(User::getUsername, username)
-                .select(
-                        User::getId,
-                        User::getUsername,
-                        User::getNickname,
-                        User::getAvatar,
-                        User::getTenantScope
-                )
-        );
-        // entity->VO
+        boolean canSwitchTenant = SecurityUtils.canSwitchTenant();
+        Long oldTenantId = TenantContextHolder.getTenantId();
+        boolean oldIgnoreTenant = TenantContextHolder.isIgnoreTenant();
+        User user;
+        try {
+            if (canSwitchTenant) {
+                TenantContextHolder.setIgnoreTenant(false);
+                TenantContextHolder.setTenantId(SystemConstants.PLATFORM_TENANT_ID);
+            }
+            user = this.getOne(new LambdaQueryWrapper<User>()
+                    .eq(User::getUsername, username)
+                    .select(
+                            User::getId,
+                            User::getUsername,
+                            User::getNickname,
+                            User::getAvatar
+                    )
+            );
+        } finally {
+            TenantContextHolder.setIgnoreTenant(oldIgnoreTenant);
+            if (oldTenantId != null) {
+                TenantContextHolder.setTenantId(oldTenantId);
+            }
+        }
+
         CurrentUserDTO userInfoVO = userConverter.toCurrentUserDto(user);
-        // tenantScope 以认证信息为准（平台用户切换租户后仍保持 PLATFORM）
-        userInfoVO.setTenantScope(SecurityUtils.getTenantScope());
+        userInfoVO.setCanSwitchTenant(canSwitchTenant);
 
         // 用户角色集合
         Set<String> roles = SecurityUtils.getRoles();
@@ -595,17 +578,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 用户权限集合
         if (CollectionUtil.isNotEmpty(roles)) {
             Set<String> perms;
-            if (TenantScopeEnum.PLATFORM.getValue().equalsIgnoreCase(userInfoVO.getTenantScope())) {
-                Long oldTenantId = TenantContextHolder.getTenantId();
-                boolean oldIgnoreTenant = TenantContextHolder.isIgnoreTenant();
+            if (canSwitchTenant) {
+                Long permsOldTenantId = TenantContextHolder.getTenantId();
+                boolean permsOldIgnoreTenant = TenantContextHolder.isIgnoreTenant();
                 try {
                     TenantContextHolder.setIgnoreTenant(false);
                     TenantContextHolder.setTenantId(SystemConstants.PLATFORM_TENANT_ID);
                     perms = permissionService.getRolePermsFormCache(roles);
                 } finally {
-                    TenantContextHolder.setIgnoreTenant(oldIgnoreTenant);
-                    if (oldTenantId != null) {
-                        TenantContextHolder.setTenantId(oldTenantId);
+                    TenantContextHolder.setIgnoreTenant(permsOldIgnoreTenant);
+                    if (permsOldTenantId != null) {
+                        TenantContextHolder.setTenantId(permsOldTenantId);
                     }
                 }
             } else {

@@ -92,7 +92,7 @@ public class JwtTokenManager implements TokenManager {
         userDetails.setDeptId(payloads.getLong(JwtClaimConstants.DEPT_ID)); // 部门ID
         userDetails.setDataScope(payloads.getInt(JwtClaimConstants.DATA_SCOPE)); // 数据权限范围
         userDetails.setTenantId(payloads.getLong(JwtClaimConstants.TENANT_ID)); // 租户ID
-        userDetails.setTenantScope(payloads.getStr(JwtClaimConstants.TENANT_SCOPE)); // 租户身份
+        userDetails.setCanSwitchTenant(payloads.getBool(JwtClaimConstants.CAN_SWITCH_TENANT, false)); // 租户切换权限标记
 
         userDetails.setUsername(payloads.getStr(JWTPayload.SUBJECT)); // 用户名
         // 角色集合
@@ -278,7 +278,7 @@ public class JwtTokenManager implements TokenManager {
         payload.put(JwtClaimConstants.DEPT_ID, userDetails.getDeptId()); // 部门ID
         payload.put(JwtClaimConstants.DATA_SCOPE, userDetails.getDataScope()); // 数据权限范围
         payload.put(JwtClaimConstants.TENANT_ID, userDetails.getTenantId()); // 租户ID
-        payload.put(JwtClaimConstants.TENANT_SCOPE, userDetails.getTenantScope()); // 租户身份
+        payload.put(JwtClaimConstants.CAN_SWITCH_TENANT, Boolean.TRUE.equals(userDetails.getCanSwitchTenant())); // 租户切换权限标记
 
         // claims 中添加角色信息
         Set<String> roles = authentication.getAuthorities().stream()

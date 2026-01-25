@@ -41,9 +41,9 @@ public interface JwtClaimConstants {
     String TENANT_ID = "tenantId";
 
     /**
-     * 租户身份标识(PLATFORM/TENANT)
+     * 租户切换权限（true 可切换租户）
      */
-    String TENANT_SCOPE = "tenantScope";
+    String CAN_SWITCH_TENANT = "canSwitchTenant";
 
     /**
      * 安全版本号，用于按用户失效历史令牌

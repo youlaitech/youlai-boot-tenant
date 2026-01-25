@@ -34,6 +34,9 @@ public class TenantVO implements Serializable {
     @Schema(description = "租户Logo")
     private String logo;
 
+    @Schema(description = "方案ID")
+    private Long planId;
+
     @Schema(description = "状态(1-正常 0-禁用)")
     private Integer status;
 

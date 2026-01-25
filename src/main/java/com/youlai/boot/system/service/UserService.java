@@ -66,16 +66,12 @@ public interface UserService extends IService<User> {
 
 
     /**
-     * 根据用户名获取认证信息
+     * 获取用户认证信息
      *
      * @param username 用户名
      * @return {@link UserAuthInfo}
      */
     UserAuthInfo getAuthInfoByUsername(String username);
-
-    default UserAuthInfo getAuthCredentialsByUsername(String username) {
-        return getAuthInfoByUsername(username);
-    }
 
     /**
      * 根据用户名和租户ID获取认证信息（用于多租户登录）
@@ -84,7 +80,7 @@ public interface UserService extends IService<User> {
      * @param tenantId 租户ID
      * @return {@link UserAuthInfo}
      */
-    UserAuthInfo getAuthCredentialsByUsernameAndTenant(String username, Long tenantId);
+    UserAuthInfo getAuthInfoByUsernameInTenant(String username, Long tenantId);
 
     /**
      * 跨租户查询用户账户列表
@@ -198,10 +194,6 @@ public interface UserService extends IService<User> {
 
     UserAuthInfo getAuthInfoByOpenId(String openId);
 
-    default UserAuthInfo getAuthCredentialsByOpenId(String openId) {
-        return getAuthInfoByOpenId(openId);
-    }
-
     /**
      * 根据微信 OpenID 注册或绑定用户
      *
@@ -216,10 +208,6 @@ public interface UserService extends IService<User> {
      * @return {@link UserAuthInfo}
      */
     UserAuthInfo getAuthInfoByMobile(String mobile);
-
-    default UserAuthInfo getAuthCredentialsByMobile(String mobile) {
-        return getAuthInfoByMobile(mobile);
-    }
 
     /**
      * 根据手机号和OpenID注册用户

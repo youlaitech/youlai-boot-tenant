@@ -29,8 +29,9 @@ public interface MenuService extends IService<Menu> {
      * 获取菜单下拉列表
      *
      * @param onlyParent 是否只查询父级菜单
+     * @param scope 菜单范围(1=平台 2=租户)
      */
-    List<Option<Long>> listMenuOptions(boolean onlyParent);
+    List<Option<Long>> listMenuOptions(boolean onlyParent, Integer scope);
 
     /**
      * 新增菜单
@@ -43,13 +44,6 @@ public interface MenuService extends IService<Menu> {
      * 获取当前用户的菜单路由列表
      */
     List<RouteVO> listCurrentUserRoutes();
-
-    /**
-     * 获取当前用户的菜单路由列表（指定数据源）
-     *
-     * @param datasource 数据源名称，如：master(主库)、naiveui(NaiveUI数据库)、template(模板数据库)
-     */
-    List<RouteVO> listCurrentUserRoutes(String datasource);
 
     /**
      * 修改菜单显示状态

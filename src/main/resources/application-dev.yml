@@ -10,9 +10,9 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
     # === MySQL 数据源（默认启用） ===
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://www.youlai.tech:3306/youlai_admin_tenant?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&autoReconnect=true&allowMultiQueries=true
-    username: youlai
-    password: 123456
+    url: jdbc:mysql://www.youlai.tech:3306/youlai_admin_tenant_v2?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&autoReconnect=true&allowMultiQueries=true
+    username: root
+    password: Youlai@2025
 
     # === PostgreSQL 数据源示例（按需启用） ===
     # driver-class-name: org.postgresql.Driver
@@ -265,6 +265,8 @@ tenant:
   # 忽略多租户过滤的表名列表（系统表、租户表等不需要租户隔离的表）
   ignore-tables:
     - sys_tenant # 租户表本身
+    - sys_tenant_plan # 租户方案表
+    - sys_tenant_plan_menu # 租户方案菜单关联表
     - sys_menu # 菜单表（功能入口定义，所有租户共享）
     - sys_dict # 字典表（通常共享）
     - sys_dict_item # 字典项表（通常共享）
