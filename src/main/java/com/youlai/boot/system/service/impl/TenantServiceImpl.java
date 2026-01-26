@@ -16,7 +16,6 @@ import com.youlai.boot.system.model.entity.Role;
 import com.youlai.boot.system.model.entity.Tenant;
 import com.youlai.boot.system.model.entity.User;
 import com.youlai.boot.system.model.entity.Menu;
-import com.youlai.boot.system.enums.MenuTypeEnum;
 import com.youlai.boot.system.enums.MenuScopeEnum;
 import com.youlai.boot.system.model.form.DeptForm;
 import com.youlai.boot.system.model.form.RoleForm;
@@ -38,11 +37,14 @@ import com.youlai.boot.system.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -88,6 +90,19 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
      * @return 菜单ID列表
      */
     private List<Long> resolveNewTenantAdminMenuIds(Long planId) {
+        return resolveTenantPlanMenuIds(planId);
+    }
+
+    /**
+     * 获取租户方案菜单边界ID集合
+     * <p>
+     * 如果方案菜单未配置，则兜底为所有业务菜单
+     * </p>
+     *
+     * @param planId 方案ID
+     * @return 菜单ID集合
+     */
+    private List<Long> resolveTenantPlanMenuIds(Long planId) {
         Long oldTenantId = TenantContextHolder.getTenantId();
         boolean oldIgnoreTenant = TenantContextHolder.isIgnoreTenant();
 
@@ -339,6 +354,94 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
             resultVo.setAdminInitialPassword(SystemConstants.DEFAULT_PASSWORD);
             resultVo.setAdminRoleCode(roleCode);
             return resultVo;
+        } finally {
+            TenantContextHolder.setIgnoreTenant(oldIgnoreTenant);
+            if (oldTenantId != null) {
+                TenantContextHolder.setTenantId(oldTenantId);
+            }
+        }
+    }
+
+    /**
+     * 获取租户菜单ID集合
+     *
+     * @param tenantId 租户ID
+     * @return 菜单ID集合
+     */
+    @Override
+    public List<Long> getTenantMenuIds(Long tenantId) {
+        Assert.notNull(tenantId, "租户ID不能为空");
+        Assert.isTrue(hasTenantSwitchPermission(), "仅具备租户切换权限允许查看租户菜单");
+        Assert.isTrue(!SystemConstants.PLATFORM_TENANT_ID.equals(tenantId), "平台租户不支持配置菜单");
+
+        Tenant tenant = this.getById(tenantId);
+        Assert.isTrue(tenant != null, "租户不存在");
+
+        Long planId = tenant.getPlanId();
+        Assert.notNull(planId, "租户方案不能为空");
+
+        Long oldTenantId = TenantContextHolder.getTenantId();
+        boolean oldIgnoreTenant = TenantContextHolder.isIgnoreTenant();
+        try {
+            TenantContextHolder.setIgnoreTenant(true);
+            List<Long> tenantMenuIds = tenantMenuService.listMenuIdsByTenant(tenantId);
+            List<Long> planMenuIds = resolveTenantPlanMenuIds(planId);
+            if (CollectionUtil.isEmpty(planMenuIds)) {
+                return tenantMenuIds;
+            }
+            Set<Long> planMenuIdSet = new HashSet<>(planMenuIds);
+            return tenantMenuIds.stream()
+                    .filter(Objects::nonNull)
+                    .filter(planMenuIdSet::contains)
+                    .distinct()
+                    .toList();
+        } finally {
+            TenantContextHolder.setIgnoreTenant(oldIgnoreTenant);
+            if (oldTenantId != null) {
+                TenantContextHolder.setTenantId(oldTenantId);
+            }
+        }
+    }
+
+    /**
+     * 更新租户菜单配置
+     *
+     * @param tenantId 租户ID
+     * @param menuIds 菜单ID集合
+     */
+    @Override
+    @Transactional
+    @CacheEvict(cacheNames = "menu", key = "'routes'")
+    public void updateTenantMenus(Long tenantId, List<Long> menuIds) {
+        Assert.notNull(tenantId, "租户ID不能为空");
+        Assert.isTrue(hasTenantSwitchPermission(), "仅具备租户切换权限允许配置租户菜单");
+        Assert.isTrue(!SystemConstants.PLATFORM_TENANT_ID.equals(tenantId), "平台租户不支持配置菜单");
+
+        Tenant tenant = this.getById(tenantId);
+        Assert.isTrue(tenant != null, "租户不存在");
+
+        Long planId = tenant.getPlanId();
+        Assert.notNull(planId, "租户方案不能为空");
+
+        List<Long> allowedMenuIds = resolveTenantPlanMenuIds(planId);
+        List<Long> distinctMenuIds = CollectionUtil.emptyIfNull(menuIds)
+                .stream()
+                .filter(Objects::nonNull)
+                .distinct()
+                .toList();
+
+        if (CollectionUtil.isNotEmpty(distinctMenuIds)) {
+            Assert.isTrue(CollectionUtil.isNotEmpty(allowedMenuIds), "租户菜单范围为空，无法配置");
+            Set<Long> allowedMenuIdSet = new HashSet<>(allowedMenuIds);
+            boolean allAllowed = distinctMenuIds.stream().allMatch(allowedMenuIdSet::contains);
+            Assert.isTrue(allAllowed, "租户菜单只能从套餐菜单中选择");
+        }
+
+        Long oldTenantId = TenantContextHolder.getTenantId();
+        boolean oldIgnoreTenant = TenantContextHolder.isIgnoreTenant();
+        try {
+            TenantContextHolder.setIgnoreTenant(true);
+            tenantMenuService.saveTenantMenus(tenantId, distinctMenuIds);
         } finally {
             TenantContextHolder.setIgnoreTenant(oldIgnoreTenant);
             if (oldTenantId != null) {

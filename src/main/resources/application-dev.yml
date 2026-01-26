@@ -10,9 +10,9 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
     # === MySQL 数据源（默认启用） ===
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://www.youlai.tech:3306/youlai_admin_tenant_v2?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&autoReconnect=true&allowMultiQueries=true
-    username: root
-    password: Youlai@2025
+    url: jdbc:mysql://www.youlai.tech:3306/youlai_admin_tenant?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&autoReconnect=true&allowMultiQueries=true
+    username: youlai
+    password: 123456
 
     # === PostgreSQL 数据源示例（按需启用） ===
     # driver-class-name: org.postgresql.Driver

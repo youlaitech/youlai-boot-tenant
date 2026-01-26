@@ -15,6 +15,7 @@ import com.youlai.boot.security.util.SecurityUtils;
 import com.youlai.boot.system.converter.MenuConverter;
 import com.youlai.boot.system.mapper.MenuMapper;
 import com.youlai.boot.system.model.entity.Menu;
+import com.youlai.boot.system.model.entity.Tenant;
 import com.youlai.boot.system.model.form.MenuForm;
 import com.youlai.boot.system.model.query.MenuQuery;
 import com.youlai.boot.system.model.vo.MenuVO;
@@ -28,10 +29,13 @@ import com.youlai.boot.common.model.Option;
 import com.youlai.boot.system.service.MenuService;
 import com.youlai.boot.system.service.RoleMenuService;
 import com.youlai.boot.system.service.TenantMenuService;
+import com.youlai.boot.system.service.TenantPlanMenuService;
+import com.youlai.boot.system.service.TenantService;
 import com.youlai.boot.system.enums.MenuScopeEnum;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -52,6 +56,10 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
     private final RoleMenuService roleMenuService;
 
     private final TenantMenuService tenantMenuService;
+
+    private final TenantPlanMenuService tenantPlanMenuService;
+
+    private final @Lazy TenantService tenantService;
 
 
     /**
@@ -181,6 +189,14 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
         try {
             // 使用手动 tenant_id 过滤，避免租户上下文影响联合查询
             TenantContextHolder.setIgnoreTenant(true);
+            Set<Long> planMenuIdSet = Collections.emptySet();
+            if (!SystemConstants.PLATFORM_TENANT_ID.equals(targetTenantId)) {
+                planMenuIdSet = resolveTenantPlanMenuIdSet(targetTenantId);
+                if (CollectionUtil.isEmpty(planMenuIdSet)) {
+                    return Collections.emptyList();
+                }
+            }
+
             if (SecurityUtils.isRoot()) {
                 if (SystemConstants.PLATFORM_TENANT_ID.equals(targetTenantId)) {
                     menuList = this.list(new LambdaQueryWrapper<Menu>()
@@ -194,6 +210,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
                     }
                     menuList = this.list(new LambdaQueryWrapper<Menu>()
                             .in(Menu::getId, tenantMenuIds)
+                            .eq(Menu::getScope, MenuScopeEnum.TENANT.getValue())
                             .ne(Menu::getType, MenuTypeEnum.BUTTON.getValue())
                             .orderByAsc(Menu::getSort)
                     );
@@ -201,9 +218,47 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
             } else {
                 menuList = this.baseMapper.getMenusByRoleCodesAndTenant(roleCodes, roleTenantId, targetTenantId);
             }
+
+            if (!planMenuIdSet.isEmpty()) {
+                Set<Long> allowedMenuIds = planMenuIdSet;
+                menuList = menuList.stream()
+                        .filter(menu -> allowedMenuIds.contains(menu.getId()))
+                        .collect(Collectors.toList());
+            }
             return buildRoutes(SystemConstants.ROOT_NODE_ID, menuList);
         } finally {
             TenantContextHolder.setIgnoreTenant(originalIgnoreTenant);
+        }
+    }
+
+    private Set<Long> resolveTenantPlanMenuIdSet(Long tenantId) {
+        Long oldTenantId = TenantContextHolder.getTenantId();
+        boolean oldIgnoreTenant = TenantContextHolder.isIgnoreTenant();
+
+        try {
+            TenantContextHolder.setIgnoreTenant(true);
+            Tenant tenant = tenantService.getById(tenantId);
+            if (tenant == null || tenant.getPlanId() == null) {
+                return Collections.emptySet();
+            }
+            List<Long> planMenuIds = tenantPlanMenuService.listMenuIdsByPlan(tenant.getPlanId());
+            if (CollectionUtil.isNotEmpty(planMenuIds)) {
+                return new HashSet<>(planMenuIds);
+            }
+
+            List<Long> fallbackMenuIds = this.list(new LambdaQueryWrapper<Menu>()
+                            .select(Menu::getId)
+                            .eq(Menu::getScope, MenuScopeEnum.TENANT.getValue()))
+                    .stream()
+                    .map(Menu::getId)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toList());
+            return new HashSet<>(fallbackMenuIds);
+        } finally {
+            TenantContextHolder.setIgnoreTenant(oldIgnoreTenant);
+            if (oldTenantId != null) {
+                TenantContextHolder.setTenantId(oldTenantId);
+            }
         }
     }
 

@@ -99,6 +99,22 @@ public interface TenantService extends IService<Tenant> {
     boolean updateTenantStatus(Long tenantId, Integer status);
 
     /**
+     * 获取租户菜单ID集合
+     *
+     * @param tenantId 租户ID
+     * @return 菜单ID集合
+     */
+    List<Long> getTenantMenuIds(Long tenantId);
+
+    /**
+     * 更新租户菜单配置
+     *
+     * @param tenantId 租户ID
+     * @param menuIds 菜单ID集合
+     */
+    void updateTenantMenus(Long tenantId, List<Long> menuIds);
+
+    /**
      * 检查用户是否可以访问指定租户
      * <p>
      * 验证该用户名在目标租户下是否存在账户
