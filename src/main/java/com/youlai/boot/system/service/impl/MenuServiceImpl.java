@@ -30,12 +30,11 @@ import com.youlai.boot.system.service.MenuService;
 import com.youlai.boot.system.service.RoleMenuService;
 import com.youlai.boot.system.service.TenantMenuService;
 import com.youlai.boot.system.service.TenantPlanMenuService;
-import com.youlai.boot.system.service.TenantService;
+import com.youlai.boot.system.mapper.TenantMapper;
 import com.youlai.boot.system.enums.MenuScopeEnum;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -59,7 +58,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
 
     private final TenantPlanMenuService tenantPlanMenuService;
 
-    private final @Lazy TenantService tenantService;
+    private final TenantMapper tenantMapper;
 
 
     /**
@@ -237,7 +236,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
 
         try {
             TenantContextHolder.setIgnoreTenant(true);
-            Tenant tenant = tenantService.getById(tenantId);
+            Tenant tenant = tenantMapper.selectById(tenantId);
             if (tenant == null || tenant.getPlanId() == null) {
                 return Collections.emptySet();
             }
