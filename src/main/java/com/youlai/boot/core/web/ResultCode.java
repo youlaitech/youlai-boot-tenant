@@ -52,7 +52,7 @@ public enum ResultCode implements IResultCode, Serializable {
     /** 一级宏观错误码：用户端错误（由客户端输入/认证/权限/请求方式等引起，需客户端配合修正） */
     USER_ERROR("A0001", "用户端错误"),
 
-    /** 二级宏观错误码：用户端具体错误（按号段细分，便于定位是注册/登录/令牌/参数/防重等问题） */
+    /* 二级宏观错误码：用户端具体错误（按号段细分，便于定位是注册/登录/令牌/参数/防重等问题） */
 
     /** A01xx：用户注册错误 */
     USER_REGISTRATION_ERROR("A0100", "用户注册错误"),
@@ -75,9 +75,6 @@ public enum ResultCode implements IResultCode, Serializable {
     USER_VERIFICATION_CODE_ERROR("A0240", "验证码错误"),
     USER_VERIFICATION_CODE_ATTEMPT_LIMIT_EXCEEDED("A0241", "用户验证码尝试次数超限"),
     USER_VERIFICATION_CODE_EXPIRED("A0242", "用户验证码过期"),
-
-    /** A025x：多租户登录 */
-    CHOOSE_TENANT("A0250", "请选择登录租户"),
 
     /** A03xx：访问权限异常 */
     ACCESS_PERMISSION_EXCEPTION("A0300", "访问权限异常"),
