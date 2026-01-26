@@ -10,28 +10,28 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * 租户方案实体
+ * 租户套餐实体
  *
- * @author Ray.Hao
- * @since 3.0.0
+ * @author Ray Hao
+ * @since 4.0.0
  */
 @Data
 @TableName("sys_tenant_plan")
 public class TenantPlan {
 
     /**
-     * 方案ID
+     * 套餐ID
      */
     @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
-     * 方案名称
+     * 套餐名称
      */
     private String name;
 
     /**
-     * 方案编码
+     * 套餐编码
      */
     private String code;
 

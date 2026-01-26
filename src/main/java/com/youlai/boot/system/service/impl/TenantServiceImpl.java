@@ -50,8 +50,8 @@ import java.util.stream.Collectors;
 /**
  * 租户服务实现类
  *
- * @author Ray.Hao
- * @since 3.0.0
+ * @author Ray Hao
+ * @since 4.0.0
  */
 @Service
 @Slf4j
@@ -94,12 +94,12 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
     }
 
     /**
-     * 获取租户方案菜单边界ID集合
+     * 获取租户套餐菜单边界ID集合
      * <p>
-     * 如果方案菜单未配置，则兜底为所有业务菜单
+     * 如果套餐菜单未配置，则兜底为所有业务菜单
      * </p>
      *
-     * @param planId 方案ID
+     * @param planId 套餐ID
      * @return 菜单ID集合
      */
     private List<Long> resolveTenantPlanMenuIds(Long planId) {
@@ -265,8 +265,8 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
         }
 
         Long planId = form.getPlanId();
-        Assert.notNull(planId, "租户方案不能为空");
-        Assert.isTrue(tenantPlanService.getById(planId) != null, "租户方案不存在");
+        Assert.notNull(planId, "租户套餐不能为空");
+        Assert.isTrue(tenantPlanService.getById(planId) != null, "租户套餐不存在");
 
         Tenant tenant = new Tenant();
         tenant.setName(tenantName);
@@ -378,7 +378,7 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
         Assert.isTrue(tenant != null, "租户不存在");
 
         Long planId = tenant.getPlanId();
-        Assert.notNull(planId, "租户方案不能为空");
+        Assert.notNull(planId, "租户套餐不能为空");
 
         Long oldTenantId = TenantContextHolder.getTenantId();
         boolean oldIgnoreTenant = TenantContextHolder.isIgnoreTenant();
@@ -421,7 +421,7 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
         Assert.isTrue(tenant != null, "租户不存在");
 
         Long planId = tenant.getPlanId();
-        Assert.notNull(planId, "租户方案不能为空");
+        Assert.notNull(planId, "租户套餐不能为空");
 
         List<Long> allowedMenuIds = resolveTenantPlanMenuIds(planId);
         List<Long> distinctMenuIds = CollectionUtil.emptyIfNull(menuIds)
@@ -551,8 +551,8 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
 
         Long planId = formData.getPlanId();
         if (!SystemConstants.PLATFORM_TENANT_ID.equals(tenantId)) {
-            Assert.notNull(planId, "租户方案不能为空");
-            Assert.isTrue(tenantPlanService.getById(planId) != null, "租户方案不存在");
+            Assert.notNull(planId, "租户套餐不能为空");
+            Assert.isTrue(tenantPlanService.getById(planId) != null, "租户套餐不存在");
         }
 
         Assert.isTrue(StrUtil.isNotBlank(tenantName), "租户名称不能为空");

@@ -1,242 +1,127 @@
-
 <div align="center">
    <img alt="logo" width="100" height="100" src="https://foruda.gitee.com/images/1733417239320800627/3c5290fe_716974.png">
-   <h2>youlai-boot</h2>
-   <img alt="有来技术" src="https://img.shields.io/badge/Java -17-brightgreen.svg"/>
-   <img alt="有来技术" src="https://img.shields.io/badge/SpringBoot-3.5.6-green.svg"/>
-   <a href="https://gitcode.com/youlai/youlai-boot" target="_blank">
-    <img alt="有来技术" src="https://gitcode.com/youlai/youlai-boot/star/badge.svg"/>
-   </a>
-   <a href="https://gitee.com/youlaiorg/youlai-boot" target="_blank">
-     <img alt="有来技术" src="https://gitee.com/youlaiorg/youlai-boot/badge/star.svg"/>
+   <h2>youlai-boot-tenant</h2>
+   <img alt="Java" src="https://img.shields.io/badge/Java-17-brightgreen.svg"/>
+   <img alt="Spring Boot" src="https://img.shields.io/badge/Spring Boot-3.x-green.svg"/>
+   <img alt="Multi-tenancy" src="https://img.shields.io/badge/Multi--tenancy-SaaS-blue.svg"/>
+   <a href="https://gitee.com/youlaiorg/youlai-boot-tenant" target="_blank">
+     <img alt="Gitee star" src="https://gitee.com/youlaiorg/youlai-boot-tenant/badge/star.svg"/>
    </a>     
-   <a href="https://github.com/haoxianrui/youlai-boot" target="_blank">
-     <img alt="有来技术" src="https://img.shields.io/github/stars/haoxianrui/youlai-boot.svg?style=social&label=Stars"/>
-   </a>
-   <br/>
-   <img alt="有来技术" src="https://img.shields.io/badge/license-Apache%20License%202.0-blue.svg"/>
-   <a href="https://gitee.com/youlaiorg" target="_blank">
-     <img alt="有来技术" src="https://img.shields.io/badge/Author-有来开源组织-orange.svg"/>
+   <a href="https://github.com/youlaitech/youlai-boot-tenant" target="_blank">
+     <img alt="Github star" src="https://img.shields.io/github/stars/youlaitech/youlai-boot-tenant.svg?style=social&label=Stars"/>
    </a>
 </div>
 
-![](https://raw.gitmirror.com/youlaitech/image/main/docs/rainbow.png)
-
-<div align="center">
-  <a target="_blank" href="https://vue.youlai.tech/">🖥️ 在线预览</a> |  <a target="_blank" href="https://youlai.blog.csdn.net/article/details/145178880">📑 阅读文档</a> |  <a target="_blank" href="https://www.youlai.tech/youlai-boot">🌐 官网</a>
-</div>
+<p align="center">
+  <a target="_blank" href="https://vue.youlai.tech/">🖥️ 在线预览</a>
+  <span>&nbsp;|&nbsp;</span>
+  <a target="_blank" href="https://www.youlai.tech/youlai-boot-tenant">📑 阅读文档</a>
+  <span>&nbsp;|&nbsp;</span>
+  <a target="_blank" href="https://www.youlai.tech">🌐 官网</a>
+</p>
 
 ## 📢 项目简介
 
-基于 JDK 17、Spring Boot 3、Spring Security 6、JWT、Redis、Mybatis-Plus、Vue
-3、Element-Plus 构建的前后端分离单体权限管理系统。
-[Mybatis-Flex 版本](https://gitee.com/youlaiorg/youlai-boot-flex)
+`youlai-boot-tenant` 是 `youlai-boot` 的多租户版本，基于 Spring Boot 3, Spring Security, Mybatis-Plus, JWT, Redis 构建，专为 SaaS 应用提供后端支持。
 
-- **🚀 开发框架**: 使用 Spring Boot 3 和 Vue 3，以及 Element-Plus 等主流技术栈，
-  实时更新。
-
-- **🔐 安全认证**: 基于 Spring Security 6 原生架构，集成 JWT 令牌自动续期（无状
-  态）和 Redis 会话多端互斥管理（实时强制离线）双重认证机制，构建企业级身份安全
-  中枢。
-
-- **🔑 权限管理**: 基于 RBAC 模型，实现细粒度的权限控制，涵盖接口方法和按钮级别
-  。
-
-- **🛠️ 功能模块**: 包括用户管理、角色管理、菜单管理、部门管理、字典管理等功能。
+- **🏢 多租户架构**: 基于 Mybatis-Plus 的单库多租户方案，通过租户 ID 实现数据隔离。
+- **🚀 最新技术栈**: 采用 Spring Boot 3 和 JDK 17，享受最新的性能优化和语言特性。
+- **🔐 企业级安全**: 深度整合 Spring Security，提供 JWT 无状态认证和 Redis 会话管理双重机制。
+- **🔑 精细化权限**: 内置经典的 RBAC 模型，权限控制可精确到菜单、按钮及后端 API 接口。
 
 ## 🌈 项目源码
 
-| 项目类型       | Gitee                                                                  | Github                                                                   | GitCode                                                               |
-| -------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------ | --------------------------------------------------------------------- |
-| ✅ Java 后端   | [youlai-boot](https://gitee.com/youlaiorg/youlai-boot)                 | [youlai-boot](https://github.com/haoxianrui/youlai-boot)                 | [youlai-boot](https://gitcode.com/youlai/youlai-boot)                 |
-| vue3 前端      | [vue3-element-admin](https://gitee.com/youlaiorg/vue3-element-admin)   | [vue3-element-admin](https://github.com/youlaitech/vue3-element-admin)   | [vue3-element-admin](https://gitcode.com/youlai/vue3-element-admin)   |
+| 项目类型 | Gitee | Github | GitCode |
+| --- | --- | --- | --- |
+| ✅ Java 多租户 | [youlai-boot-tenant](https://gitee.com/youlaiorg/youlai-boot-tenant) | [youlai-boot-tenant](https://github.com/youlaitech/youlai-boot-tenant) | [youlai-boot-tenant](https://gitcode.com/youlai/youlai-boot-tenant) |
+| vue3 前端 | [vue3-element-admin](https://gitee.com/youlaiorg/vue3-element-admin) | [vue3-element-admin](https://github.com/youlaitech/vue3-element-admin) | [vue3-element-admin](https://gitcode.com/youlai/vue3-element-admin) |
 | uni-app 移动端 | [vue-uniapp-template](https://gitee.com/youlaiorg/vue-uniapp-template) | [vue-uniapp-template](https://github.com/youlaitech/vue-uniapp-template) | [vue-uniapp-template](https://gitcode.com/youlai/vue-uniapp-template) |
 
 ## 📚 项目文档
 
-| 文档名称                  | 访问地址                                                                                                         |
-| ------------------------- | ---------------------------------------------------------------------------------------------------------------- |
-| 在线接口文档              | [https://www.apifox.cn/apidoc](https://www.apifox.cn/apidoc/shared-195e783f-4d85-4235-a038-eec696de4ea5)         |
-| 项目介绍与使用指南        | [https://www.youlai.tech/youlai-boot/](https://www.youlai.tech/youlai-boot/)                                     |
-| 功能详解与操作手册        | [https://youlai.blog.csdn.net/article/details/145178880](https://youlai.blog.csdn.net/article/details/145178880) |
-| 新手入门指南(项目 0 到 1) | [https://youlai.blog.csdn.net/article/details/145177011](https://youlai.blog.csdn.net/article/details/145177011) |
+| 文档名称 | 访问地址 |
+| --- | --- |
+| 项目介绍与使用指南 | [https://www.youlai.tech/youlai-boot-tenant](https://www.youlai.tech/youlai-boot-tenant) |
 
 ## 📁 项目目录
 
 <details>
 <summary> 目录结构 </summary>
 
-<br>
-
-```
-youlai-boot
-├── docker                              # Docker 目录
-│   ├── docker-compose.yml              # docker-compose 脚本
-├── sql                                 # SQL脚本
-│   ├── mysql                           # MySQL 脚本
-├── src                                 # 源码目录
-│   ├── auth                            # 认证模块（登录入口）
-│   ├── common                          # 公共模块
-│   │   ├── annotation                  # 注解定义
-│   │   ├── base                        # 基础类
-│   │   ├── constant                    # 常量
-│   │   ├── enums                       # 枚举类型
-│   │   ├── model                       # 数据模型
-│   │   └── util                        # 工具类
-│   ├── config                          # 自动装配配置
-│   │   └── property                    # 配置属性目录
-│   ├── core                            # 核心框架
-│   │   ├── aspect                      # 切面(日志、防重提交)
-│   │   ├── exception                   # 异常处理
-│   │   ├── filter                      # 过滤器(请求日志、限流)
-│   │   ├── validator                   # 验证器
-│   │   └── web                         # Web响应封装(Result、PageResult等)
-│   ├── platform                        # 平台服务（通用服务）
-│   │   ├── codegen                     # 代码生成模块
-│   │   ├── file                        # 文件服务
-│   │   ├── mail                        # 邮件服务
-│   │   ├── sms                         # 短信服务
-│   │   └── websocket                   # WebSocket服务
-│   ├── plugin                          # 插件扩展
-│   │   ├── knife4j                     # Knife4j 扩展
-│   │   └── mybatis                     # Mybatis 扩展
-│   ├── security                        # 安全框架（Spring Security）
-│   │   ├── exception                   # 安全异常
-│   │   ├── filter                      # 安全过滤器
-│   │   ├── handler                     # 安全处理器
-│   │   ├── model                       # 安全模型
-│   │   ├── provider                    # 认证提供者
-│   │   ├── service                     # 安全服务
-│   │   ├── token                       # Token管理
-│   │   └── util                        # 安全工具类
-│   ├── system                          # 系统模块
-│   │   ├── controller                  # 控制层
-│   │   ├── converter                   # MapStruct 转换器
-│   │   ├── enums                       # 枚举
-│   │   ├── handler                     # 处理器
-│   │   ├── listener                    # 监听器
-│   │   ├── mapper                      # 数据库访问层
-│   │   ├── model                       # 模型层
-│   │   │   ├── bo                      # 业务对象
-│   │   │   ├── dto                     # 数据传输对象
-│   │   │   ├── entity                  # 实体对象
-│   │   │   ├── event                   # 事件对象
-│   │   │   ├── form                    # 表单对象
-│   │   │   ├── query                   # 查询参数对象
-│   │   │   └── vo                      # 视图对象
-│   │   └── service                     # 业务逻辑层
-│   └── YouLaiBootApplication           # 启动类
-└── end
+```text
+youlai-boot-tenant/
+├─ docker/                    # Docker 编排
+├─ sql/                       # 数据库脚本
+├─ src/                       # 核心业务源码
+│  ├─ auth/                   # 认证模块
+│  ├─ common/                 # 公共模块
+│  ├─ config/                 # 配置模块
+│  ├─ core/                   # 核心模块
+│  ├─ platform/               # 平台模块
+│  ├─ plugin/                 # 插件模块
+│  ├─ security/               # 安全模块
+│  └─ system/                 # 系统模块
+└─ pom.xml                    # Maven 构建配置
 ```
 
 </details>
 
-## 🚀 项目启动
+## 🚀 快速启动
 
-📚 完整流程参考:
-[项目启动](https://www.youlai.tech/youlai-boot/1.%E9%A1%B9%E7%9B%AE%E5%90%AF%E5%8A%A8/)
+### 1. 环境准备
 
-1. **克隆项目**
+| 要求       | 说明        |
+| ---------- | ----------- |
+| **JDK 17** | 17+ LTS     |
+| **MySQL**  | 5.7+ 或 8.x |
+| **Redis**  | 7.x 稳定版  |
 
-   ```bash
-   git clone https://gitee.com/youlaiorg/youlai-boot.git
-   ```
+> ⚠️ **重要提示**：MySQL 与 Redis 为项目启动必需依赖，请确保服务已启动。
 
-2. **数据库初始化**
+### 2. 数据库初始化
 
-   执行 [youlai_admin_tenant.sql](sql/mysql/youlai_admin_tenant.sql) 脚本完成数据库创建、表结
-   构和基础数据的初始化。
+推荐使用 **Navicat**、**DBeaver** 或 **MySQL Workbench** 执行 `sql/mysql/youlai_admin_tenant.sql` 脚本，完成数据库和基础数据的初始化。
 
-3. **修改配置**
+### 3. 修改配置
 
-   默认连接`有来`线上 MySQL/Redis（仅读权限），本地开发时请修改
-   [application-dev.yml](src/main/resources/application-dev.yml) 中的 MySQL 和
-   Redis 连接信息。
+编辑 `src/main/resources/application-dev.yml` 文件，根据实际情况修改 MySQL 和 Redis 的连接信息。
 
-4. **启动项目**
+### 4. 启动项目
 
-   执行
-   [YoulaiBootApplication.java](src/main/java/com/youlai/boot/YoulaiBootApplication.java)
-   的 main 方法完成后端项目启动；
+运行 `YouLaiBootApplication.java` 的 `main` 方法启动项目。
 
-   访问接口文档地址
-   [http://localhost:8000/doc.html](http://localhost:8000/doc.html) 验证项目启动
-   是否成功。
+启动成功后，访问 [http://localhost:8000/doc.html](http://localhost:8000/doc.html) 验证项目是否成功。
 
 ## 🧪 多租户测试
 
-本项目采用单库多租户模式，平台默认租户为 `tenant_id=0`。
+- **预置租户**: 平台默认租户 (`tenant_id=0`) 和演示租户 (`tenant_id=1`)。
+- **预置账号**: 平台租户 (`root`/`admin`) 和演示租户 (`admin`)，默认密码 `123456`。
+- **本地测试**: 修改本地 `hosts` 文件，添加 `127.0.0.1 vue.youlai.tech` 和 `127.0.0.1 demo.youlai.tech`，通过不同域名访问即可自动切换租户。
 
-### 1. 预置租户（初始化脚本内置）
+## 🐳 项目部署
 
-- 平台默认租户：`tenant_id=0`，域名 `vue.youlai.tech`
-- 演示租户：`tenant_id=1`，域名 `demo.youlai.tech`
-
-### 2. 预置账号
-
-导入 [youlai_admin_tenant.sql](sql/mysql/youlai_admin_tenant.sql) 后的默认账号如下：
-
-- 默认密码：`123456`
-- 平台默认租户（`tenant_id=0`）：`root` / `admin` / `test`
-- 演示租户（`tenant_id=1`）：`admin`
-
-### 3. 本地 hosts 配置（按域名解析租户）
-
-Windows 请修改：`C:\Windows\System32\drivers\etc\hosts`，增加：
+### 1. Jar 部署
 
 ```bash
-127.0.0.1 vue.youlai.tech
-127.0.0.1 demo.youlai.tech
+# 打包
+mvn -DskipTests package
+
+# 运行
+java -jar target/youlai-boot-tenant.jar --spring.profiles.active=prod
 ```
 
-### 3.1 反向代理（Nginx）注意事项
+### 2. Docker 部署
 
-如果前端通过 Nginx 反向代理访问后端（例如 `https://vue.youlai.tech` → `/prod-api/` → `http://127.0.0.1:8000`），需要确保在反代时**透传 Host**。
+```bash
+# 构建镜像
+docker build -t youlai-boot-tenant:latest .
 
-后端会通过 `request.getServerName()` 获取域名并映射到 `sys_tenant.domain` 来解析 `tenant_id`。
-若未透传 Host，后端可能只能拿到 `127.0.0.1/localhost`，导致域名识别租户失效。
-
-Nginx 最小配置示例（仅展示关键项）：
-
-```nginx
-location /prod-api/ {
-  proxy_set_header Host $host;
-  proxy_pass http://127.0.0.1:8000/;
-}
+# 运行容器
+docker run -d -p 8000:8000 --name youlai-boot-tenant youlai-boot-tenant:latest
 ```
 
-### 4. 登录与切换租户
+## 💖 技术交流
 
-- 通过域名自动解析租户（不传 `tenantId`）
-  - 请求 `http://vue.youlai.tech:8000`：自动识别为平台租户（`tenant_id=0`）
-  - 请求 `http://demo.youlai.tech:8000`：自动识别为演示租户（`tenant_id=1`）
-- 显式指定租户登录（适用于 `localhost` 或 API 工具）
-  - `POST /api/v1/auth/login`，请求体携带 `tenantId`：`0`（平台） / `1`（演示）
-- 访问 `localhost` 登录（不传 `tenantId` 且域名无法解析）
-  - 使用账号 `admin` / `123456`，由于该用户名在多个租户存在，会返回 `choose_tenant`，前端会弹出“选择登录租户”对话框
-- 平台账号切换租户（仅平台租户下的 `root/admin` 可用）
-  - `POST /api/v1/auth/switch-tenant?tenantId=1`（携带当前登录 token），返回新的 token，token 中的 `tenantId` 切换为目标租户
-- 可选：不修改 hosts 也可测试域名解析
-  - 使用 Host 头模拟域名（示例：`curl -H "Host: demo.youlai.tech" http://127.0.0.1:8000/api/v1/auth/captcha`）
-
-## 🚀 项目部署
-
-参考官方文档:
-[项目部署指南](https://www.youlai.tech/youlai-boot/5.%E9%A1%B9%E7%9B%AE%E9%83%A8%E7%BD%B2/)
-
-## ✅ 项目统计
-
-![](https://repobeats.axiom.co/api/embed/544c5c0b5b3611a6c4d5ef0faa243a9066b89659.svg "Repobeats analytics image")
-
-Thanks to all the contributors!
-
-[![](https://contrib.rocks/image?repo=haoxianrui/youlai-boot)](https://github.com/haoxianrui/youlai-boot/graphs/contributors)
-
-## 💖 加交流群
-
-① 关注「有来技术」公众号，点击菜单 **交流群** 获取加群二维码（此举防止广告进群，
-感谢理解和支持）。
-
-② 直接添加微信 **`haoxianrui`** 备注「前端/后端/全栈」。
-
-![有来技术公众号](https://foruda.gitee.com/images/1737108820762592766/3390ed0d_716974.png)
+- **问题反馈**：[Gitee Issues](https://gitee.com/youlaiorg/youlai-boot-tenant/issues)
+- **技术交流群**：[QQ 群：950387562](https://qm.qq.com/cgi-bin/qm/qr?k=U57IDw7ufwuzMA4qQ7BomwZ44hpHGkLg)
+- **博客教程**：[https://www.youlai.tech](https://www.youlai.tech)

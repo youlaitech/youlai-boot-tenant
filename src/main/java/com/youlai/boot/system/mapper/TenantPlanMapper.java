@@ -5,10 +5,10 @@ import com.youlai.boot.system.model.entity.TenantPlan;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 租户方案 Mapper
+ * 租户套餐 Mapper
  *
- * @author Ray.Hao
- * @since 3.0.0
+ * @author Ray Hao
+ * @since 4.0.0
  */
 @Mapper
 public interface TenantPlanMapper extends BaseMapper<TenantPlan> {

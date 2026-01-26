@@ -324,8 +324,8 @@ tenant:
   # 忽略多租户过滤的表名列表（系统表、租户表等不需要租户隔离的表）
   ignore-tables:
     - sys_tenant # 租户表本身
-    - sys_tenant_plan # 租户方案表
-    - sys_tenant_plan_menu # 租户方案菜单关联表
+    - sys_tenant_plan # 租户套餐表
+    - sys_tenant_plan_menu # 租户套餐菜单关联表
     - sys_log # 系统日志表（允许无租户上下文写入）
     - sys_menu # 菜单表（功能入口定义，所有租户共享）
     - sys_dict # 字典表（通常共享）

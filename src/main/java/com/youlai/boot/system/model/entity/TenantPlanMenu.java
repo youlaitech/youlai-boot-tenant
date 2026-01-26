@@ -6,10 +6,10 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 租户方案菜单关联实体
+ * 租户套餐菜单关联实体
  *
- * @author Ray.Hao
- * @since 3.0.0
+ * @author Ray Hao
+ * @since 4.0.0
  */
 @Data
 @AllArgsConstructor
@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 public class TenantPlanMenu {
 
     /**
-     * 方案ID
+     * 套餐ID
      */
     private Long planId;
 

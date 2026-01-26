@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 /**
  * 租户实体
  *
- * @author Ray.Hao
- * @since 3.0.0
+ * @author Ray Hao
+ * @since 4.0.0
  */
 @Data
 @TableName(value = "sys_tenant")
@@ -58,7 +58,7 @@ public class Tenant {
     private String logo;
 
     /**
-     * 方案ID
+     * 套餐ID
      */
     @TableField(value = "plan_id")
     private Long planId;

@@ -30,10 +30,10 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * 租户方案服务实现类
+ * 租户套餐服务实现类
  *
- * @author Ray.Hao
- * @since 3.0.0
+ * @author Ray Hao
+ * @since 4.0.0
  */
 @Service
 @RequiredArgsConstructor
@@ -44,10 +44,10 @@ public class TenantPlanServiceImpl extends ServiceImpl<TenantPlanMapper, TenantP
     private final MenuMapper menuMapper;
 
     /**
-     * 租户方案分页列表
+     * 租户套餐分页列表
      *
      * @param queryParams 查询参数
-     * @return 租户方案分页列表
+     * @return 租户套餐分页列表
      */
     @Override
     public IPage<TenantPlanPageVO> getTenantPlanPage(TenantPlanQuery queryParams) {
@@ -69,9 +69,9 @@ public class TenantPlanServiceImpl extends ServiceImpl<TenantPlanMapper, TenantP
     }
 
     /**
-     * 租户方案下拉列表
+     * 租户套餐下拉列表
      *
-     * @return 方案下拉列表
+     * @return 套餐下拉列表
      */
     @Override
     public List<Option<Long>> listTenantPlanOptions() {
@@ -89,10 +89,10 @@ public class TenantPlanServiceImpl extends ServiceImpl<TenantPlanMapper, TenantP
     }
 
     /**
-     * 获取方案表单数据
+     * 获取套餐表单数据
      *
-     * @param planId 方案ID
-     * @return 方案表单数据
+     * @param planId 套餐ID
+     * @return 套餐表单数据
      */
     @Override
     public TenantPlanForm getTenantPlanForm(Long planId) {
@@ -101,25 +101,25 @@ public class TenantPlanServiceImpl extends ServiceImpl<TenantPlanMapper, TenantP
     }
 
     /**
-     * 新增方案
+     * 新增套餐
      *
-     * @param formData 方案表单
+     * @param formData 套餐表单
      * @return 是否新增成功
      */
     @Override
     public boolean saveTenantPlan(TenantPlanForm formData) {
         long count = this.count(new LambdaQueryWrapper<TenantPlan>()
                 .eq(TenantPlan::getCode, formData.getCode()));
-        Assert.isTrue(count == 0, "方案编码已存在");
+        Assert.isTrue(count == 0, "套餐编码已存在");
         TenantPlan entity = tenantPlanConverter.toEntity(formData);
         return this.save(entity);
     }
 
     /**
-     * 更新方案
+     * 更新套餐
      *
-     * @param planId 方案ID
-     * @param formData 方案表单
+     * @param planId 套餐ID
+     * @param formData 套餐表单
      * @return 是否更新成功
      */
     @Override
@@ -127,21 +127,21 @@ public class TenantPlanServiceImpl extends ServiceImpl<TenantPlanMapper, TenantP
         long count = this.count(new LambdaQueryWrapper<TenantPlan>()
                 .eq(TenantPlan::getCode, formData.getCode())
                 .ne(TenantPlan::getId, planId));
-        Assert.isTrue(count == 0, "方案编码已存在");
+        Assert.isTrue(count == 0, "套餐编码已存在");
         TenantPlan entity = tenantPlanConverter.toEntity(formData);
         entity.setId(planId);
         return this.updateById(entity);
     }
 
     /**
-     * 删除方案
+     * 删除套餐
      *
-     * @param ids 方案ID，多个以英文逗号(,)分割
+     * @param ids 套餐ID，多个以英文逗号(,)分割
      */
     @Override
     @Transactional
     public void deleteTenantPlans(String ids) {
-        Assert.isTrue(StrUtil.isNotBlank(ids), "删除的方案ID不能为空");
+        Assert.isTrue(StrUtil.isNotBlank(ids), "删除的套餐ID不能为空");
         List<Long> planIds = Arrays.stream(ids.split(","))
                 .map(Long::parseLong)
                 .toList();
@@ -154,9 +154,9 @@ public class TenantPlanServiceImpl extends ServiceImpl<TenantPlanMapper, TenantP
     }
 
     /**
-     * 获取方案菜单ID集合
+     * 获取套餐菜单ID集合
      *
-     * @param planId 方案ID
+     * @param planId 套餐ID
      * @return 菜单ID集合
      */
     @Override
@@ -165,9 +165,9 @@ public class TenantPlanServiceImpl extends ServiceImpl<TenantPlanMapper, TenantP
     }
 
     /**
-     * 更新方案菜单
+     * 更新套餐菜单
      *
-     * @param planId 方案ID
+     * @param planId 套餐ID
      * @param menuIds 菜单ID集合
      */
     @Override

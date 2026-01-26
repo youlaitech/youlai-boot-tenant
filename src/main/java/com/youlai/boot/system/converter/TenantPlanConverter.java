@@ -7,10 +7,10 @@ import com.youlai.boot.system.model.vo.TenantPlanPageVO;
 import org.mapstruct.Mapper;
 
 /**
- * 租户方案对象转换器
+ * 租户套餐对象转换器
  *
- * @author Ray.Hao
- * @since 3.0.0
+ * @author Ray Hao
+ * @since 4.0.0
  */
 @Mapper(componentModel = "spring")
 public interface TenantPlanConverter {

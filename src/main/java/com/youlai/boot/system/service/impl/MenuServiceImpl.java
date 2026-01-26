@@ -30,7 +30,7 @@ import com.youlai.boot.system.service.MenuService;
 import com.youlai.boot.system.service.RoleMenuService;
 import com.youlai.boot.system.service.TenantMenuService;
 import com.youlai.boot.system.service.TenantPlanMenuService;
-import com.youlai.boot.system.mapper.TenantMapper;
+import com.youlai.boot.system.service.TenantService;
 import com.youlai.boot.system.enums.MenuScopeEnum;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
@@ -58,7 +58,7 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
 
     private final TenantPlanMenuService tenantPlanMenuService;
 
-    private final TenantMapper tenantMapper;
+    private final TenantService tenantService;
 
 
     /**
@@ -230,17 +230,29 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
         }
     }
 
+    /**
+     * 获取租户套餐允许的菜单ID集合
+     * <p>
+     * 优先返回租户套餐菜单；若未配置则兜底为所有业务菜单。
+     * </p>
+     *
+     * @param tenantId 租户ID
+     * @return 菜单ID集合
+     */
     private Set<Long> resolveTenantPlanMenuIdSet(Long tenantId) {
         Long oldTenantId = TenantContextHolder.getTenantId();
         boolean oldIgnoreTenant = TenantContextHolder.isIgnoreTenant();
 
         try {
             TenantContextHolder.setIgnoreTenant(true);
-            Tenant tenant = tenantMapper.selectById(tenantId);
-            if (tenant == null || tenant.getPlanId() == null) {
+            Tenant tenant = tenantService.getOne(new LambdaQueryWrapper<Tenant>()
+                    .select(Tenant::getPlanId)
+                    .eq(Tenant::getId, tenantId));
+            Long planId = tenant == null ? null : tenant.getPlanId();
+            if (planId == null) {
                 return Collections.emptySet();
             }
-            List<Long> planMenuIds = tenantPlanMenuService.listMenuIdsByPlan(tenant.getPlanId());
+            List<Long> planMenuIds = tenantPlanMenuService.listMenuIdsByPlan(planId);
             if (CollectionUtil.isNotEmpty(planMenuIds)) {
                 return new HashSet<>(planMenuIds);
             }

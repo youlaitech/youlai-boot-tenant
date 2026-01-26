@@ -5,11 +5,12 @@ import com.youlai.boot.system.model.entity.TenantPlanMenu;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
- * 租户方案菜单关联 Mapper
+ * 租户套餐菜单关联 Mapper
  *
- * @author Ray.Hao
- * @since 3.0.0
+ * @author Ray Hao
+ * @since 4.0.0
  */
 @Mapper
 public interface TenantPlanMenuMapper extends BaseMapper<TenantPlanMenu> {
+
 }

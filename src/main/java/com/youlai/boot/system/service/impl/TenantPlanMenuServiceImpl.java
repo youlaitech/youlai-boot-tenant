@@ -14,19 +14,19 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
- * 租户方案菜单服务实现类
+ * 租户套餐菜单服务实现类
  *
- * @author Ray.Hao
- * @since 3.0.0
+ * @author Ray Hao
+ * @since 4.0.0
  */
 @Service
 @RequiredArgsConstructor
 public class TenantPlanMenuServiceImpl extends ServiceImpl<TenantPlanMenuMapper, TenantPlanMenu> implements TenantPlanMenuService {
 
     /**
-     * 获取方案菜单ID集合
+     * 获取套餐菜单ID集合
      *
-     * @param planId 方案ID
+     * @param planId 套餐ID
      * @return 菜单ID集合
      */
     @Override
@@ -44,9 +44,9 @@ public class TenantPlanMenuServiceImpl extends ServiceImpl<TenantPlanMenuMapper,
     }
 
     /**
-     * 保存方案菜单配置
+     * 保存套餐菜单配置
      *
-     * @param planId 方案ID
+     * @param planId 套餐ID
      * @param menuIds 菜单ID集合
      */
     @Override

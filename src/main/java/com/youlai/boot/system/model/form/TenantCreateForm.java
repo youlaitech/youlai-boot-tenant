@@ -34,8 +34,8 @@ public class TenantCreateForm {
     @Schema(description = "租户Logo")
     private String logo;
 
-    @Schema(description = "方案ID")
-    @NotNull(message = "租户方案不能为空")
+    @Schema(description = "套餐ID")
+    @NotNull(message = "租户套餐不能为空")
     private Long planId;
 
     @Schema(description = "备注")

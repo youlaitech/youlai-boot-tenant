@@ -38,7 +38,7 @@ public class TenantForm {
     @Schema(description = "租户Logo")
     private String logo;
 
-    @Schema(description = "方案ID")
+    @Schema(description = "套餐ID")
     private Long planId;
 
     @Schema(description = "状态(1-正常 0-禁用)")

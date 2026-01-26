@@ -27,10 +27,10 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * 租户方案控制层
+ * 租户套餐控制层
  *
- * @author Ray.Hao
- * @since 3.0.0
+ * @author Ray Hao
+ * @since 4.0.0
  */
 @Tag(name = "15.租户套餐接口")
 @RestController
@@ -59,7 +59,7 @@ public class TenantPlanController {
     @GetMapping("/{planId}/form")
     @PreAuthorize("@ss.hasPerm('sys:tenant-plan:update')")
     public Result<TenantPlanForm> getTenantPlanForm(
-            @Parameter(description = "方案ID") @PathVariable Long planId
+            @Parameter(description = "套餐ID") @PathVariable Long planId
     ) {
         TenantPlanForm formData = tenantPlanService.getTenantPlanForm(planId);
         return Result.success(formData);
@@ -77,7 +77,7 @@ public class TenantPlanController {
     @PutMapping("/{planId}")
     @PreAuthorize("@ss.hasPerm('sys:tenant-plan:update')")
     public Result<?> updateTenantPlan(
-            @Parameter(description = "方案ID") @PathVariable Long planId,
+            @Parameter(description = "套餐ID") @PathVariable Long planId,
             @Valid @RequestBody TenantPlanForm formData
     ) {
         boolean result = tenantPlanService.updateTenantPlan(planId, formData);
@@ -88,27 +88,27 @@ public class TenantPlanController {
     @DeleteMapping("/{ids}")
     @PreAuthorize("@ss.hasPerm('sys:tenant-plan:delete')")
     public Result<Void> deleteTenantPlans(
-            @Parameter(description = "方案ID，多个以英文逗号(,)分割") @PathVariable String ids
+            @Parameter(description = "套餐ID，多个以英文逗号(,)分割") @PathVariable String ids
     ) {
         tenantPlanService.deleteTenantPlans(ids);
         return Result.success();
     }
 
-    @Operation(summary = "获取方案菜单ID集合")
+    @Operation(summary = "获取套餐菜单ID集合")
     @GetMapping("/{planId}/menuIds")
     @PreAuthorize("@ss.hasPerm('sys:tenant-plan:assign')")
     public Result<List<Long>> getTenantPlanMenuIds(
-            @Parameter(description = "方案ID") @PathVariable Long planId
+            @Parameter(description = "套餐ID") @PathVariable Long planId
     ) {
         List<Long> menuIds = tenantPlanService.getTenantPlanMenuIds(planId);
         return Result.success(menuIds);
     }
 
-    @Operation(summary = "更新方案菜单")
+    @Operation(summary = "更新套餐菜单")
     @PutMapping("/{planId}/menus")
     @PreAuthorize("@ss.hasPerm('sys:tenant-plan:assign')")
     public Result<Void> updateTenantPlanMenus(
-            @Parameter(description = "方案ID") @PathVariable Long planId,
+            @Parameter(description = "套餐ID") @PathVariable Long planId,
             @RequestBody List<Long> menuIds
     ) {
         tenantPlanService.updateTenantPlanMenus(planId, menuIds);
