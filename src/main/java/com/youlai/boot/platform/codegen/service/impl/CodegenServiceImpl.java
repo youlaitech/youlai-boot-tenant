@@ -115,6 +115,8 @@ public class CodegenServiceImpl implements CodegenService {
             // 文件名 UserController.java
             String fileName = getFileName(entityName, templateName, extension);
             previewVO.setFileName(fileName);
+            previewVO.setScope(resolveScope(templateName));
+            previewVO.setLanguage(resolveLanguage(fileName));
 
             /* 2. 生成文件路径 */
             // 包名：com.youlai.boot
@@ -137,6 +139,17 @@ public class CodegenServiceImpl implements CodegenService {
             list.add(previewVO);
         }
         return list;
+    }
+
+    private String resolveScope(String templateName) {
+        return switch (templateName) {
+            case "API", "API_TYPES", "VIEW" -> "frontend";
+            default -> "backend";
+        };
+    }
+
+    private String resolveLanguage(String fileName) {
+        return FileNameUtil.extName(fileName).toLowerCase();
     }
 
     /**
