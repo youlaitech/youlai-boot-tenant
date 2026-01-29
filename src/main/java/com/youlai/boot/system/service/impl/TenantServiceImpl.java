@@ -64,8 +64,6 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
 
     private final RoleService roleService;
 
-    private final MenuService menuService;
-
     private final TenantPlanMenuService tenantPlanMenuService;
 
     private final TenantMenuService tenantMenuService;
@@ -109,20 +107,7 @@ public class TenantServiceImpl extends ServiceImpl<TenantMapper, Tenant> impleme
         try {
             TenantContextHolder.setIgnoreTenant(true);
 
-            List<Long> planMenuIds = tenantPlanMenuService.listMenuIdsByPlan(planId);
-            if (CollectionUtil.isNotEmpty(planMenuIds)) {
-                return planMenuIds;
-            }
-
-            // 兜底：默认租户未配置套餐菜单，则复制“租户菜单范围”
-            return menuService.list(new LambdaQueryWrapper<Menu>()
-                            .select(Menu::getId)
-                            .eq(Menu::getScope, MenuScopeEnum.TENANT.getValue())
-                    )
-                    .stream()
-                    .map(Menu::getId)
-                    .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
+            return tenantPlanMenuService.listMenuIdsByPlan(planId);
         } finally {
             TenantContextHolder.setIgnoreTenant(oldIgnoreTenant);
             if (oldTenantId != null) {

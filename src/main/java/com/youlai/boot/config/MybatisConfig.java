@@ -36,9 +36,6 @@ public class MybatisConfig {
     @Autowired(required = false)
     private MyTenantLineHandler myTenantLineHandler;
 
-    @Autowired(required = false)
-    private TenantProperties tenantProperties;
-
     /**
      * 分页插件和数据权限插件
      * <p>

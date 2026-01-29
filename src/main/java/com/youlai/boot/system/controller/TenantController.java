@@ -134,7 +134,7 @@ public class TenantController {
 
     @Operation(summary = "获取租户菜单ID集合")
     @GetMapping("/{tenantId}/menuIds")
-    @PreAuthorize("@ss.hasPerm('sys:tenant:assign')")
+    @PreAuthorize("@ss.hasPerm('sys:tenant:plan-assign')")
     public Result<List<Long>> getTenantMenuIds(
             @Parameter(description = "租户ID") @PathVariable Long tenantId
     ) {
@@ -144,7 +144,7 @@ public class TenantController {
 
     @Operation(summary = "更新租户菜单")
     @PutMapping("/{tenantId}/menus")
-    @PreAuthorize("@ss.hasPerm('sys:tenant:assign')")
+    @PreAuthorize("@ss.hasPerm('sys:tenant:plan-assign')")
     public Result<Void> updateTenantMenus(
             @Parameter(description = "租户ID") @PathVariable Long tenantId,
             @RequestBody List<Long> menuIds

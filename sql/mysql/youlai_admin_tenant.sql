@@ -168,9 +168,8 @@ INSERT INTO `sys_menu` VALUES (1103, 110, '0,1,110', '租户编辑', 'B', NULL, 
 INSERT INTO `sys_menu` VALUES (1104, 110, '0,1,110', '租户删除', 'B', NULL, '', NULL, 'sys:tenant:delete', NULL, NULL, 1, 4, '', NULL, now(), now(), NULL);
 INSERT INTO `sys_menu` VALUES (1105, 110, '0,1,110', '租户启用/禁用', 'B', NULL, '', NULL, 'sys:tenant:change-status', NULL, NULL, 1, 5, '', NULL, now(), now(), NULL);
 INSERT INTO `sys_menu` VALUES (1106, 110, '0,1,110', '租户切换', 'B', NULL, '', NULL, 'sys:tenant:switch', NULL, NULL, 1, 6, '', NULL, now(), now(), NULL);
-INSERT INTO `sys_menu` VALUES (1107, 110, '0,1,110', '方案菜单', 'B', NULL, '', NULL, 'sys:tenant-plan:assign', NULL, NULL, 1, 7, '', NULL, now(), now(), NULL);
-INSERT INTO `sys_menu` VALUES (1108, 110, '0,1,110', '租户菜单', 'B', NULL, '', NULL, 'sys:tenant:assign', NULL, NULL, 1, 8, '', NULL, now(), now(), NULL);
-INSERT INTO `sys_menu` VALUES (120, 1, '0,1', '租户套餐', 'M', 'TenantPlan', 'tenant-plan', 'system/tenant/plan', NULL, NULL, 1, 2, 2, 'el-icon-CollectionTag', NULL, now(), now(), NULL);
+INSERT INTO `sys_menu` VALUES (1107, 110, '0,1,110', '设置套餐', 'B', NULL, '', NULL, 'sys:tenant:plan-assign', NULL, NULL, 1, 7, '', NULL, now(), now(), NULL);
+INSERT INTO `sys_menu` VALUES (120, 1, '0,1', '租户套餐', 'M', 'TenantPlan', 'tenant-plan', 'system/tenant/plan', NULL, NULL, 1, 1, 2, 'el-icon-CollectionTag', NULL, now(), now(), NULL);
 INSERT INTO `sys_menu` VALUES (1201, 120, '0,1,120', '套餐查询', 'B', NULL, '', NULL, 'sys:tenant-plan:list', NULL, NULL, 1, 1, '', NULL, now(), now(), NULL);
 INSERT INTO `sys_menu` VALUES (1202, 120, '0,1,120', '套餐新增', 'B', NULL, '', NULL, 'sys:tenant-plan:create', NULL, NULL, 1, 2, '', NULL, now(), now(), NULL);
 INSERT INTO `sys_menu` VALUES (1203, 120, '0,1,120', '套餐编辑', 'B', NULL, '', NULL, 'sys:tenant-plan:update', NULL, NULL, 1, 3, '', NULL, now(), now(), NULL);
