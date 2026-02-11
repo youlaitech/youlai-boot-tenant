@@ -148,11 +148,10 @@ CREATE TABLE `sys_menu`  (
 -- ----------------------------
 -- Records of sys_menu
 -- ----------------------------
--- 顶级目录（1-10）：平台/系统/代码生成/AI助手/文档/接口文档/组件/演示/多级/路由
+-- 顶级目录（1-10）：平台/系统/代码生成/文档/接口文档/组件/演示/多级/路由
 INSERT INTO `sys_menu` VALUES (1, 0, '0', '平台管理', 'C', '', '/platform', 'Layout', NULL, NULL, NULL, 1, 1, 'el-icon-Platform', '/platform/tenant', now(), now(), NULL);
 INSERT INTO `sys_menu` VALUES (2, 0, '0', '系统管理', 'C', '', '/system', 'Layout', NULL, NULL, NULL, 1, 2, 'system', '/system/user', now(), now(), NULL);
 INSERT INTO `sys_menu` VALUES (3, 0, '0', '代码生成', 'C', '', '/codegen', 'Layout', NULL, NULL, NULL, 1, 3, 'code', '/codegen/index', now(), now(), NULL);
-INSERT INTO `sys_menu` VALUES (4, 0, '0', 'AI助手', 'C', '', '/ai', 'Layout', NULL, NULL, NULL, 1, 4, 'ai', '/ai/command-record', now(), now(), NULL);
 INSERT INTO `sys_menu` VALUES (5, 0, '0', '平台文档', 'C', '', '/doc', 'Layout', NULL, NULL, NULL, 1, 5, 'document', '', now(), now(), NULL);
 INSERT INTO `sys_menu` VALUES (6, 0, '0', '接口文档', 'C', '', '/api', 'Layout', NULL, NULL, NULL, 1, 6, 'api', '', now(), now(), NULL);
 INSERT INTO `sys_menu` VALUES (7, 0, '0', '组件封装', 'C', '', '/component', 'Layout', NULL, NULL, NULL, 1, 7, 'menu', '', now(), now(), NULL);
@@ -236,9 +235,6 @@ INSERT INTO `sys_menu` VALUES (2806, 280, '0,2,280', '通知撤回', 'B', NULL, 
 
 -- 代码生成
 INSERT INTO `sys_menu` VALUES (310, 3, '0,3', '代码生成', 'M', 'Codegen', 'codegen', 'codegen/index', NULL, NULL, 1, 1, 1, 'code', NULL, now(), now(), NULL);
-
--- AI 助手
-INSERT INTO `sys_menu` VALUES (401, 4, '0,4', 'AI命令记录', 'M', 'ai', 'ai', 'ai/index', NULL, NULL, 1, 1, 1, 'document', NULL, now(), now(), NULL);
 
 -- 平台文档（外链通过 route_path 识别）
 INSERT INTO `sys_menu` VALUES (501, 5, '0,5', '平台文档(外链)', 'M', NULL, 'https://juejin.cn/post/7228990409909108793', '', NULL, NULL, NULL, 1, 1, 'document', '', now(), now(), NULL);
@@ -421,7 +417,7 @@ CREATE TABLE `sys_role_menu`  (
 -- ============================================
 -- ROOT 角色菜单权限（role_id=1）- 拥有所有权限
 -- 顶级目录
-INSERT INTO `sys_role_menu` VALUES (1, 1, 0), (1, 2, 0), (1, 3, 0), (1, 4, 0), (1, 5, 0), (1, 6, 0), (1, 7, 0), (1, 8, 0), (1, 9, 0), (1, 10, 0);
+INSERT INTO `sys_role_menu` VALUES (1, 1, 0), (1, 2, 0), (1, 3, 0), (1, 5, 0), (1, 6, 0), (1, 7, 0), (1, 8, 0), (1, 9, 0), (1, 10, 0);
 -- 平台管理
 INSERT INTO `sys_role_menu` VALUES (1, 110, 0), (1, 1101, 0), (1, 1102, 0), (1, 1103, 0), (1, 1104, 0), (1, 1105, 0), (1, 1106, 0), (1, 1107, 0);
 INSERT INTO `sys_role_menu` VALUES (1, 1108, 0);
@@ -438,8 +434,6 @@ INSERT INTO `sys_role_menu` VALUES (1, 260, 0);
 INSERT INTO `sys_role_menu` VALUES (1, 280, 0), (1, 2801, 0), (1, 2802, 0), (1, 2803, 0), (1, 2804, 0), (1, 2805, 0), (1, 2806, 0);
 -- 代码生成
 INSERT INTO `sys_role_menu` VALUES (1, 310, 0);
--- AI 助手
-INSERT INTO `sys_role_menu` VALUES (1, 401, 0);
 -- 平台文档
 INSERT INTO `sys_role_menu` VALUES (1, 501, 0), (1, 502, 0), (1, 503, 0), (1, 504, 0);
 -- 接口文档
@@ -454,7 +448,7 @@ INSERT INTO `sys_role_menu` VALUES (1, 1001, 0), (1, 1002, 0);
 -- ============================================
 -- 系统管理员角色菜单权限（role_id=2）
 -- 顶级目录
-INSERT INTO `sys_role_menu` VALUES (2, 1, 0), (2, 2, 0), (2, 3, 0), (2, 4, 0), (2, 5, 0), (2, 6, 0), (2, 7, 0), (2, 8, 0), (2, 9, 0), (2, 10, 0);
+INSERT INTO `sys_role_menu` VALUES (2, 1, 0), (2, 2, 0), (2, 3, 0), (2, 5, 0), (2, 6, 0), (2, 7, 0), (2, 8, 0), (2, 9, 0), (2, 10, 0);
  -- 平台管理
  INSERT INTO `sys_role_menu` VALUES (2, 110, 0), (2, 1101, 0), (2, 1102, 0), (2, 1103, 0), (2, 1104, 0), (2, 1105, 0), (2, 1106, 0), (2, 1107, 0);
  INSERT INTO `sys_role_menu` VALUES (2, 1108, 0);
@@ -471,8 +465,6 @@ INSERT INTO `sys_role_menu` VALUES (2, 270, 0), (2, 2701, 0), (2, 2702, 0), (2, 
 INSERT INTO `sys_role_menu` VALUES (2, 280, 0), (2, 2801, 0), (2, 2802, 0), (2, 2803, 0), (2, 2804, 0), (2, 2805, 0), (2, 2806, 0);
 -- 代码生成
 INSERT INTO `sys_role_menu` VALUES (2, 310, 0);
--- AI 助手
-INSERT INTO `sys_role_menu` VALUES (2, 401, 0);
 -- 平台文档
 INSERT INTO `sys_role_menu` VALUES (2, 501, 0), (2, 502, 0), (2, 503, 0), (2, 504, 0);
 -- 接口文档
@@ -489,7 +481,7 @@ INSERT INTO `sys_role_menu` VALUES (2, 1001, 0), (2, 1002, 0);
 -- ============================================
 -- 演示租户管理员（role_id=13）- 拥有系统管理权限（不包含平台管理）
 -- 顶级目录（仅系统管理相关）
-INSERT INTO `sys_role_menu` VALUES (13, 2, 1), (13, 3, 1), (13, 4, 1), (13, 5, 1), (13, 6, 1), (13, 7, 1), (13, 8, 1), (13, 9, 1), (13, 10, 1);
+INSERT INTO `sys_role_menu` VALUES (13, 2, 1), (13, 3, 1), (13, 5, 1), (13, 6, 1), (13, 7, 1), (13, 8, 1), (13, 9, 1), (13, 10, 1);
 -- 系统管理（租户侧）
 INSERT INTO `sys_role_menu` VALUES (13, 210, 1), (13, 2101, 1), (13, 2102, 1), (13, 2103, 1), (13, 2104, 1), (13, 2105, 1), (13, 2106, 1), (13, 2107, 1);
 INSERT INTO `sys_role_menu` VALUES (13, 220, 1), (13, 2201, 1), (13, 2202, 1), (13, 2203, 1), (13, 2204, 1), (13, 2205, 1);
@@ -500,8 +492,6 @@ INSERT INTO `sys_role_menu` VALUES (13, 260, 1);
 INSERT INTO `sys_role_menu` VALUES (13, 280, 1), (13, 2801, 1), (13, 2802, 1), (13, 2803, 1), (13, 2804, 1), (13, 2805, 1), (13, 2806, 1);
 -- 代码生成
 INSERT INTO `sys_role_menu` VALUES (13, 310, 1);
--- AI 助手
-INSERT INTO `sys_role_menu` VALUES (13, 401, 1);
 -- 平台文档
 INSERT INTO `sys_role_menu` VALUES (13, 501, 1), (13, 502, 1), (13, 503, 1), (13, 504, 1);
 -- 接口文档
@@ -540,7 +530,6 @@ CREATE TABLE `sys_user`  (
                              `update_time` datetime COMMENT '更新时间',
                              `update_by` bigint COMMENT '修改人ID',
                              `is_deleted` tinyint(1) DEFAULT 0 COMMENT '逻辑删除标识(0-未删除 1-已删除)',
-                             `openid` char(28) COMMENT '微信 openid',
                              PRIMARY KEY (`id`) USING BTREE,
                              UNIQUE KEY `uk_username_tenant` (`username`, `tenant_id`, `is_deleted`),
                              KEY `idx_tenant_id` (`tenant_id`)
@@ -550,13 +539,13 @@ CREATE TABLE `sys_user`  (
 -- Records of sys_user
 -- ----------------------------
 -- 平台租户（tenant_id=0）的用户
-INSERT INTO `sys_user` VALUES (1, 0, 'root', '平台租户超级管理员', 0, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', NULL, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345677', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0, NULL);
-INSERT INTO `sys_user` VALUES (2, 0, 'admin', '平台租户系统管理员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 1, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345678', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0, NULL);
-INSERT INTO `sys_user` VALUES (3, 0, 'test', '平台租户测试天命人', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 3, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345679', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0, NULL);
+INSERT INTO `sys_user` VALUES (1, 0, 'root', '平台租户超级管理员', 0, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', NULL, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345677', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0);
+INSERT INTO `sys_user` VALUES (2, 0, 'admin', '平台租户系统管理员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 1, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345678', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0);
+INSERT INTO `sys_user` VALUES (3, 0, 'test', '平台租户测试天命人', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 3, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345679', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0);
 
 -- 演示租户（tenant_id=1）的用户
-INSERT INTO `sys_user` VALUES (4, 1, 'admin', '演示租户管理员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 4, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345680', 1, 'demo@youlai.tech', now(), NULL, now(), NULL, 0, NULL);
-INSERT INTO `sys_user` VALUES (5, 1, 'test', '演示测试人员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 6, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345681', 1, 'test@youlai.tech', now(), NULL, now(), NULL, 0, NULL);
+INSERT INTO `sys_user` VALUES (4, 1, 'admin', '演示租户管理员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 4, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345680', 1, 'demo@youlai.tech', now(), NULL, now(), NULL, 0);
+INSERT INTO `sys_user` VALUES (5, 1, 'test', '演示测试人员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 6, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345681', 1, 'test@youlai.tech', now(), NULL, now(), NULL, 0);
 
 -- ----------------------------
 -- Table structure for sys_user_role
@@ -748,43 +737,6 @@ INSERT INTO `sys_user_notice` VALUES (7, 7, 2, 0, 1, NULL, now(), now(), 0);
 INSERT INTO `sys_user_notice` VALUES (8, 8, 2, 0, 1, NULL, now(), now(), 0);
 INSERT INTO `sys_user_notice` VALUES (9, 9, 2, 0, 1, NULL, now(), now(), 0);
 INSERT INTO `sys_user_notice` VALUES (10, 10, 2, 0, 1, NULL, now(), now(), 0);
-
--- ----------------------------
--- AI 命令记录表
--- ----------------------------
-DROP TABLE IF EXISTS `ai_assistant_record`;
-CREATE TABLE `ai_assistant_record` (
-                                  `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键ID',
-                                  `tenant_id` bigint DEFAULT 0 COMMENT '租户ID',
-                                  `user_id` bigint DEFAULT NULL COMMENT '用户ID',
-                                  `username` varchar(64) DEFAULT NULL COMMENT '用户名',
-                                  `original_command` text COMMENT '原始命令',
-                                  `ai_provider` varchar(32) DEFAULT NULL COMMENT 'AI 供应商(qwen/openai/deepseek/gemini等)',
-                                  `ai_model` varchar(64) DEFAULT NULL COMMENT 'AI 模型名称(qwen-plus/qwen-max/gpt-4-turbo等)',
-                                  `parse_status` tinyint DEFAULT '0' COMMENT '解析是否成功(0-失败, 1-成功)',
-                                  `function_calls` text COMMENT '解析出的函数调用列表(JSON)',
-                                  `explanation` varchar(500) DEFAULT NULL COMMENT 'AI的理解说明',
-                                  `confidence` decimal(3,2) DEFAULT NULL COMMENT '置信度(0.00-1.00)',
-                                  `parse_error_message` text COMMENT '解析错误信息',
-                                  `input_tokens` int DEFAULT NULL COMMENT '输入Token数量',
-                                  `output_tokens` int DEFAULT NULL COMMENT '输出Token数量',
-                                  `parse_duration_ms` int DEFAULT NULL COMMENT '解析耗时(毫秒)',
-                                  `function_name` varchar(255) DEFAULT NULL COMMENT '执行的函数名称',
-                                  `function_arguments` text COMMENT '函数参数(JSON)',
-                                  `execute_status` tinyint(1) DEFAULT NULL COMMENT '执行状态(0-待执行, 1-成功, -1-失败)',
-                                  `execute_error_message` text COMMENT '执行错误信息',
-                                  `ip_address` varchar(128) DEFAULT NULL COMMENT 'IP地址',
-                                  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
-                                  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
-                                  PRIMARY KEY (`id`),
-                                  KEY `idx_user_id` (`user_id`),
-                                  KEY `idx_create_time` (`create_time`),
-                                  KEY `idx_provider` (`ai_provider`),
-                                  KEY `idx_model` (`ai_model`),
-                                  KEY `idx_parse_status` (`parse_status`),
-                                  KEY `idx_execute_status` (`execute_status`),
-                                  KEY `idx_tenant_id` (`tenant_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='AI 助手行为记录表（解析、执行、审计）';
 
 -- ----------------------------
 -- 租户表（多租户模式）

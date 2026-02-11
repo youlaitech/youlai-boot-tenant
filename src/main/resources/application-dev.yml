@@ -63,28 +63,6 @@ spring:
             enable: true
     # 邮件发送者
     from: youlaitech@163.com
-  #  Spring AI 配置
-  ai:
-    openai:
-      # API Key
-      api-key: ${DASHSCOPE_API_KEY:sk-c2941d05bf2f411ca80424fxxxxxxxx}
-
-      # Base URL
-      base-url: https://dashscope.aliyuncs.com/compatible-mode
-
-      # Chat 模型配置
-      chat:
-        enabled: true
-        options:
-          # 模型名称（qwen-plus、qwen-turbo、qwen-max、qwen-long）
-          model: qwen-plus
-
-          # Temperature（0.0-1.0，值越高回答越随机）
-          temperature: 0.7
-
-          # JSON 输出格式（确保模型返回合法 JSON）
-          response-format:
-            type: json_object
 
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml
@@ -120,7 +98,6 @@ security:
     - /api/v1/auth/captcha # 验证码获取接口
     - /api/v1/auth/refresh-token # 刷新令牌接口
     - /api/v1/auth/logout # 开放退出登录
-    - /api/v1/auth/wx/miniapp/code-login # 微信小程序code登陆
     - /ws/** # WebSocket接口
   # 非安全端点路径，完全绕过 Spring Security 的安全控制
   unsecured-urls:
