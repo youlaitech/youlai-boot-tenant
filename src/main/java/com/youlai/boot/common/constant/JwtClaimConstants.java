@@ -31,6 +31,11 @@ public interface JwtClaimConstants {
     String DATA_SCOPE = "dataScope";
 
     /**
+     * 数据权限列表（多角色）
+     */
+    String DATA_SCOPES = "dataScopes";
+
+    /**
      * 权限(角色Code)集合
      */
     String AUTHORITIES = "authorities";
@@ -46,8 +51,11 @@ public interface JwtClaimConstants {
     String CAN_SWITCH_TENANT = "canSwitchTenant";
 
     /**
-     * 安全版本号，用于按用户失效历史令牌
+     * Token 版本号
+     * <p>
+     * 用于用户级会话失效，当用户修改密码、被禁用、强制下线时递增版本号，
+     * 使该用户之前签发的所有 Token 失效。
      */
-    String SECURITY_VERSION = "securityVersion";
+    String TOKEN_VERSION = "tokenVersion";
 
 }

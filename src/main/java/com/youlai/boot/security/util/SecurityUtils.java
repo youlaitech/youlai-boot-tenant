@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.youlai.boot.common.constant.SecurityConstants;
 import com.youlai.boot.common.constant.SystemConstants;
+import com.youlai.boot.security.model.RoleDataScope;
 import com.youlai.boot.security.model.SysUserDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
@@ -71,12 +72,12 @@ public class SecurityUtils {
     }
 
     /**
-     * 获取数据权限范围
+     * 获取数据权限列表
      *
-     * @return Integer
+     * @return 数据权限列表
      */
-    public static Integer getDataScope() {
-        return getUser().map(SysUserDetails::getDataScope).orElse(null);
+    public static List<RoleDataScope> getDataScopes() {
+        return getUser().map(SysUserDetails::getDataScopes).orElse(Collections.emptyList());
     }
 
 

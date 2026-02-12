@@ -364,7 +364,7 @@ CREATE TABLE `sys_role`  (
                              `code` varchar(32) NOT NULL COMMENT '角色编码',
                              `sort` int NULL COMMENT '显示顺序',
                              `status` tinyint(1) DEFAULT 1 COMMENT '角色状态(1-正常 0-停用)',
-                             `data_scope` tinyint NULL COMMENT '数据权限(1-所有数据 2-部门及子部门数据 3-本部门数据 4-本人数据)',
+                             `data_scope` tinyint NULL COMMENT '数据权限(1-所有数据 2-部门及子部门数据 3-本部门数据 4-本人数据 5-自定义部门数据)',
                              `create_by` bigint NULL COMMENT '创建人 ID',
                              `create_time` datetime NULL COMMENT '创建时间',
                              `update_by` bigint NULL COMMENT '更新人ID',
@@ -410,6 +410,19 @@ CREATE TABLE `sys_role_menu`  (
                                   KEY `idx_role_menu_tenant_id` (`tenant_id`),
                                   KEY `idx_tenant_role` (`tenant_id`, `role_id`)
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COMMENT = '角色菜单关联表';
+
+-- ----------------------------
+-- Table structure for sys_role_dept
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_role_dept`;
+CREATE TABLE `sys_role_dept`  (
+                                  `tenant_id` bigint DEFAULT 0 COMMENT '租户ID',
+                                  `role_id` bigint NOT NULL COMMENT '角色ID',
+                                  `dept_id` bigint NOT NULL COMMENT '部门ID',
+                                  UNIQUE INDEX `uk_tenant_roleid_deptid`(`tenant_id` ASC, `role_id` ASC, `dept_id` ASC) USING BTREE COMMENT '租户角色部门唯一索引',
+                                  KEY `idx_role_dept_tenant_id` (`tenant_id`),
+                                  KEY `idx_tenant_role_dept` (`tenant_id`, `role_id`)
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COMMENT = '角色部门关联表(用于自定义数据权限)';
 
 -- ----------------------------
 -- Records of sys_role_menu

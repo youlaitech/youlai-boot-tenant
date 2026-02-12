@@ -2,6 +2,7 @@ package com.youlai.boot.system.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.youlai.boot.security.model.RoleDataScope;
 import com.youlai.boot.system.model.entity.Role;
 import com.youlai.boot.common.model.Option;
 import com.youlai.boot.system.model.form.RoleForm;
@@ -88,6 +89,24 @@ public interface RoleService extends IService<Role> {
      * @return
      */
     Integer getMaximumDataScope(Set<String> roles);
+
+    /**
+     * 获取角色的数据权限列表
+     * <p>
+     * 用于多角色数据权限合并（并集策略），返回每个角色的数据权限范围
+     *
+     * @param roleCodes 角色编码集合
+     * @return 数据权限列表
+     */
+    List<RoleDataScope> getRoleDataScopes(Set<String> roleCodes);
+
+    /**
+     * 获取角色的部门ID列表（自定义数据权限）
+     *
+     * @param roleId 角色ID
+     * @return 部门ID列表
+     */
+    List<Long> getRoleDeptIds(Long roleId);
 
 
 }

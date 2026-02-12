@@ -4,6 +4,7 @@ import cn.hutool.core.convert.Convert;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.jwt.JWT;
 import cn.hutool.jwt.JWTPayload;
@@ -15,6 +16,7 @@ import com.youlai.boot.core.exception.BusinessException;
 import com.youlai.boot.core.web.ResultCode;
 import com.youlai.boot.config.property.SecurityProperties;
 import com.youlai.boot.security.model.AuthenticationToken;
+import com.youlai.boot.security.model.RoleDataScope;
 import org.apache.commons.lang3.StringUtils;
 import com.youlai.boot.security.model.SysUserDetails;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
@@ -27,6 +29,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -90,9 +93,27 @@ public class JwtTokenManager implements TokenManager {
         SysUserDetails userDetails = new SysUserDetails();
         userDetails.setUserId(payloads.getLong(JwtClaimConstants.USER_ID)); // 用户ID
         userDetails.setDeptId(payloads.getLong(JwtClaimConstants.DEPT_ID)); // 部门ID
-        userDetails.setDataScope(payloads.getInt(JwtClaimConstants.DATA_SCOPE)); // 数据权限范围
         userDetails.setTenantId(payloads.getLong(JwtClaimConstants.TENANT_ID)); // 租户ID
         userDetails.setCanSwitchTenant(payloads.getBool(JwtClaimConstants.CAN_SWITCH_TENANT, false)); // 租户切换权限标记
+
+        // 解析数据权限列表
+        JSONArray dataScopesArray = payloads.getJSONArray(JwtClaimConstants.DATA_SCOPES);
+        if (dataScopesArray != null && !dataScopesArray.isEmpty()) {
+            List<RoleDataScope> dataScopes = dataScopesArray.stream()
+                    .map(obj -> {
+                        JSONObject item = (JSONObject) obj;
+                        String roleCode = item.getStr("roleCode");
+                        Integer dataScope = item.getInt("dataScope");
+                        JSONArray deptIdsArray = item.getJSONArray("customDeptIds");
+                        List<Long> customDeptIds = null;
+                        if (deptIdsArray != null) {
+                            customDeptIds = deptIdsArray.toList(Long.class);
+                        }
+                        return new RoleDataScope(roleCode, dataScope, customDeptIds);
+                    })
+                    .collect(Collectors.toList());
+            userDetails.setDataScopes(dataScopes);
+        }
 
         userDetails.setUsername(payloads.getStr(JWTPayload.SUBJECT)); // 用户名
         // 角色集合
@@ -149,27 +170,26 @@ public class JwtTokenManager implements TokenManager {
                     return false;
                 }
             }
-            // 2. 校验安全版本号（用于按用户维度失效历史 Token）
-            //    场景示例：用户修改密码、被管理员强制下线、手动“踢所有端”后，将用户安全版本号 +1，旧版本 Token 全部失效
+            // 2. 校验 tokenVersion（用于按用户维度失效历史 Token）
+            //    场景示例：用户修改密码、被管理员强制下线、手动"踢所有端"后，递增 tokenVersion，
+            //    之前签发的 Token 因版本号不匹配而失效
             Long userId = payloads.getLong(JwtClaimConstants.USER_ID);
             if (userId != null) {
-                // 老版本 Token 可能没有 SECURITY_VERSION 声明，视为 0 版本
-                Integer tokenVersionRaw = payloads.getInt(JwtClaimConstants.SECURITY_VERSION);
-                int tokenVersion = tokenVersionRaw != null ? tokenVersionRaw : 0;
+                Integer tokenVersion = payloads.getInt(JwtClaimConstants.TOKEN_VERSION);
+                
+                String versionKey = StrUtil.format(RedisConstants.Auth.USER_TOKEN_VERSION, userId);
+                Object currentVersionObj = redisTemplate.opsForValue().get(versionKey);
+                int currentVersion = currentVersionObj != null ? Convert.toInt(currentVersionObj) : 0;
 
-                String versionKey = StrUtil.format(RedisConstants.Auth.USER_SECURITY_VERSION, userId);
-                Integer currentVersionRaw = (Integer) redisTemplate.opsForValue().get(versionKey);
-                int currentVersion = currentVersionRaw != null ? currentVersionRaw : 0;
-
-                // 如果当前版本号比 Token 携带的版本号新，则认为该 Token 已失效
-                if (tokenVersion < currentVersion) {
+                // 版本号不匹配则 Token 无效（新签发的 Token 版本号必须 >= Redis 中的版本号）
+                if (tokenVersion == null || tokenVersion < currentVersion) {
                     return false;
                 }
             }
 
-            // 3. 判断是否在黑名单中，如果在，则返回 false 标识Token无效
+            // 3. 判断 Token 是否已被撤销（单端退出/会话注销）
             //    场景示例：单点退出登录、后台手动注销某个会话、封禁账号后立即阻断当前 Token 等
-            if (Boolean.TRUE.equals(redisTemplate.hasKey(StrUtil.format(RedisConstants.Auth.BLACKLIST_TOKEN, jti)))) {
+            if (isTokenRevoked(jti)) {
                 return false;
             }
         }
@@ -192,29 +212,48 @@ public class JwtTokenManager implements TokenManager {
         }
         JWT jwt = JWTUtil.parseToken(token);
         JSONObject payloads = jwt.getPayloads();
+        String jti = payloads.getStr(JWTPayload.JWT_ID);
         Integer expirationAt = payloads.getInt(JWTPayload.EXPIRES_AT);
-        // 黑名单Token Key
-        String blacklistTokenKey = StrUtil.format(RedisConstants.Auth.BLACKLIST_TOKEN, payloads.getStr(JWTPayload.JWT_ID));
+        revokeTokenByJti(jti, expirationAt);
+    }
 
+    private boolean isTokenRevoked(String jti) {
+        if (StringUtils.isBlank(jti)) {
+            return false;
+        }
+        return Boolean.TRUE.equals(redisTemplate.hasKey(StrUtil.format(RedisConstants.Auth.REVOKED_JTI, jti)));
+    }
+
+    private void revokeTokenByJti(String jti, Integer expirationAt) {
+        if (StringUtils.isBlank(jti)) {
+            return;
+        }
+
+        String revokedJtiKey = StrUtil.format(RedisConstants.Auth.REVOKED_JTI, jti);
         if (expirationAt != null) {
             int currentTimeSeconds = Convert.toInt(System.currentTimeMillis() / 1000);
             if (expirationAt < currentTimeSeconds) {
-                // Token已过期，直接返回
                 return;
             }
-            // 计算Token剩余时间，将其加入黑名单（值使用简单布尔标记即可）
             int expirationIn = expirationAt - currentTimeSeconds;
-            redisTemplate.opsForValue().set(blacklistTokenKey, Boolean.TRUE, expirationIn, TimeUnit.SECONDS);
+            redisTemplate.opsForValue().set(revokedJtiKey, Boolean.TRUE, expirationIn, TimeUnit.SECONDS);
         } else {
-            // 永不过期的Token永久加入黑名单
-            redisTemplate.opsForValue().set(blacklistTokenKey, Boolean.TRUE);
+            redisTemplate.opsForValue().set(revokedJtiKey, Boolean.TRUE);
         }
     }
 
     /**
      * 失效指定用户的所有会话
      * <p>
-     * 通过提升用户的安全版本号，使携带旧版本号的 Token 在后续校验时全部失效
+     * 通过递增用户 tokenVersion，使该用户之前签发的所有 Token 因版本号不匹配而失效。
+     * <p>
+     * 适用场景：
+     * <ul>
+     *   <li>用户修改密码</li>
+     *   <li>管理员强制下线用户</li>
+     *   <li>用户主动踢出所有设备</li>
+     *   <li>用户被禁用</li>
+     * </ul>
      */
     @Override
     public void invalidateUserSessions(Long userId) {
@@ -222,10 +261,9 @@ public class JwtTokenManager implements TokenManager {
             return;
         }
 
-        String versionKey = StrUtil.format(RedisConstants.Auth.USER_SECURITY_VERSION, userId);
-        // 递增版本号
+        String versionKey = StrUtil.format(RedisConstants.Auth.USER_TOKEN_VERSION, userId);
+        // 递增版本号，无需设置 TTL（版本号永久有效，避免 TTL 过期导致的安全问题）
         redisTemplate.opsForValue().increment(versionKey);
-
     }
 
     /**
@@ -276,9 +314,23 @@ public class JwtTokenManager implements TokenManager {
         Map<String, Object> payload = new HashMap<>();
         payload.put(JwtClaimConstants.USER_ID, userDetails.getUserId()); // 用户ID
         payload.put(JwtClaimConstants.DEPT_ID, userDetails.getDeptId()); // 部门ID
-        payload.put(JwtClaimConstants.DATA_SCOPE, userDetails.getDataScope()); // 数据权限范围
         payload.put(JwtClaimConstants.TENANT_ID, userDetails.getTenantId()); // 租户ID
         payload.put(JwtClaimConstants.CAN_SWITCH_TENANT, Boolean.TRUE.equals(userDetails.getCanSwitchTenant())); // 租户切换权限标记
+
+        // 存储数据权限列表
+        List<RoleDataScope> dataScopes = userDetails.getDataScopes();
+        if (dataScopes != null && !dataScopes.isEmpty()) {
+            List<Map<String, Object>> scopesList = dataScopes.stream()
+                    .map(scope -> {
+                        Map<String, Object> scopeMap = new HashMap<>();
+                        scopeMap.put("roleCode", scope.getRoleCode());
+                        scopeMap.put("dataScope", scope.getDataScope());
+                        scopeMap.put("customDeptIds", scope.getCustomDeptIds());
+                        return scopeMap;
+                    })
+                    .collect(Collectors.toList());
+            payload.put(JwtClaimConstants.DATA_SCOPES, scopesList);
+        }
 
         // claims 中添加角色信息
         Set<String> roles = authentication.getAuthorities().stream()
@@ -286,18 +338,22 @@ public class JwtTokenManager implements TokenManager {
                 .collect(Collectors.toSet());
         payload.put(JwtClaimConstants.AUTHORITIES, roles);
 
+        // 获取当前用户的 Token 版本号，用于会话失效控制
+        Long userId = userDetails.getUserId();
+        int tokenVersion = 0;
+        if (userId != null) {
+            String versionKey = StrUtil.format(RedisConstants.Auth.USER_TOKEN_VERSION, userId);
+            Object versionObj = redisTemplate.opsForValue().get(versionKey);
+            tokenVersion = versionObj != null ? Convert.toInt(versionObj) : 0;
+        }
+        payload.put(JwtClaimConstants.TOKEN_VERSION, tokenVersion);
+
         Date now = new Date();
         payload.put(JWTPayload.ISSUED_AT, now);
         payload.put(JwtClaimConstants.TOKEN_TYPE, false);
         if (isRefreshToken) {
             payload.put(JwtClaimConstants.TOKEN_TYPE, true);
         }
-
-        // 设置安全版本号：不存在时默认为 0
-        String versionKey = StrUtil.format(RedisConstants.Auth.USER_SECURITY_VERSION, userDetails.getUserId());
-        Integer currentVersion = (Integer) redisTemplate.opsForValue().get(versionKey);
-        int securityVersion = currentVersion != null ? currentVersion : 0;
-        payload.put(JwtClaimConstants.SECURITY_VERSION, securityVersion);
 
         // 设置过期时间 -1 表示永不过期
         if (ttl != -1) {

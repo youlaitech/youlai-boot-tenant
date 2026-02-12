@@ -14,6 +14,7 @@ import com.youlai.boot.core.exception.BusinessException;
 import com.youlai.boot.common.model.Option;
 import com.youlai.boot.platform.sms.enums.SmsTypeEnum;
 import com.youlai.boot.platform.sms.service.SmsService;
+import com.youlai.boot.security.model.RoleDataScope;
 import com.youlai.boot.security.model.UserAuthInfo;
 import com.youlai.boot.security.service.PermissionService;
 import com.youlai.boot.security.token.TokenManager;
@@ -120,7 +121,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (CollectionUtil.isEmpty(roles)) {
             return false;
         }
-        Set<String> perms = permissionService.getRolePermsFormCache(roles);
+        Set<String> perms = permissionService.getRolePerms(roles);
         if (CollectionUtil.isEmpty(perms)) {
             return false;
         }
@@ -263,9 +264,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         UserAuthInfo userAuthInfo = this.baseMapper.getAuthInfoByUsername(username);
         if (userAuthInfo != null) {
             Set<String> roles = userAuthInfo.getRoles();
-            // 获取最大范围的数据权限
-            Integer dataScope = roleService.getMaximumDataScope(roles);
-            userAuthInfo.setDataScope(dataScope);
+            // 获取角色的数据权限列表（支持多角色并集）
+            List<RoleDataScope> dataScopes = roleService.getRoleDataScopes(roles);
+            userAuthInfo.setDataScopes(dataScopes);
             userAuthInfo.setCanSwitchTenant(resolveCanSwitchTenant(roles));
         }
         return userAuthInfo;
@@ -584,7 +585,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 try {
                     TenantContextHolder.setIgnoreTenant(false);
                     TenantContextHolder.setTenantId(SystemConstants.PLATFORM_TENANT_ID);
-                    perms = permissionService.getRolePermsFormCache(roles);
+                    perms = permissionService.getRolePerms(roles);
                 } finally {
                     TenantContextHolder.setIgnoreTenant(permsOldIgnoreTenant);
                     if (permsOldTenantId != null) {
@@ -592,7 +593,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                     }
                 }
             } else {
-                perms = permissionService.getRolePermsFormCache(roles);
+                perms = permissionService.getRolePerms(roles);
             }
             userInfoVO.setPerms(perms);
         }

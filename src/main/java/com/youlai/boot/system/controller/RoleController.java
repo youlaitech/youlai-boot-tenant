@@ -102,7 +102,7 @@ public class RoleController {
     }
 
     @Operation(summary = "获取角色的菜单ID集合")
-    @GetMapping("/{roleId}/menuIds")
+    @GetMapping("/{roleId}/menu-ids")
     public Result<List<Long>> getRoleMenuIds(
             @Parameter(description = "角色ID") @PathVariable Long roleId
     ) {
@@ -119,5 +119,15 @@ public class RoleController {
     ) {
         roleService.assignMenusToRole(roleId, menuIds);
         return Result.success();
+    }
+
+    @Operation(summary = "获取角色的部门ID集合(自定义数据权限)")
+    @GetMapping("/{roleId}/dept-ids")
+    @PreAuthorize("@ss.hasPerm('sys:role:update')")
+    public Result<List<Long>> getRoleDeptIds(
+            @Parameter(description = "角色ID") @PathVariable Long roleId
+    ) {
+        List<Long> deptIds = roleService.getRoleDeptIds(roleId);
+        return Result.success(deptIds);
     }
 }

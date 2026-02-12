@@ -1,9 +1,12 @@
 package com.youlai.boot.system.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.youlai.boot.security.model.RoleDataScope;
 import com.youlai.boot.system.model.entity.Role;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -22,4 +25,12 @@ public interface RoleMapper extends BaseMapper<Role> {
      * @return {@link Integer} – 数据权限范围
      */
     Integer getMaximumDataScope(Set<String> roles);
+
+    /**
+     * 获取角色的数据权限列表
+     *
+     * @param roleCodes 角色编码集合
+     * @return 数据权限列表
+     */
+    List<RoleDataScope> getRoleDataScopes(@Param("roleCodes") Set<String> roleCodes);
 }

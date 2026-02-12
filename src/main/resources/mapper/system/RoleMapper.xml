@@ -24,4 +24,27 @@
             </choose>
         </where>
     </select>
+
+    <!-- 获取角色的数据权限列表 -->
+    <select id="getRoleDataScopes" resultType="com.youlai.boot.security.model.RoleDataScope">
+        SELECT
+            code AS roleCode,
+            data_scope AS dataScope
+        FROM
+            sys_role
+        <where>
+            <choose>
+                <when test="roleCodes!=null and roleCodes.size>0">
+                    AND code IN
+                    <foreach collection="roleCodes" item="roleCode" separator="," open="(" close=")">
+                        #{roleCode}
+                    </foreach>
+                </when>
+                <otherwise>
+                    id = -1
+                </otherwise>
+            </choose>
+            AND is_deleted = 0
+        </where>
+    </select>
 </mapper>

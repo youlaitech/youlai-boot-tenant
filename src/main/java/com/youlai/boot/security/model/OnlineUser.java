@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -33,10 +34,10 @@ public class OnlineUser {
     private Long deptId;
 
     /**
-     * 数据权限范围
-     * <p>定义用户可访问的数据范围，如全部、本部门或自定义范围</p>
+     * 数据权限列表
+     * <p>存储用户所有角色的数据权限范围，用于实现多角色权限合并</p>
      */
-    private Integer dataScope;
+    private List<RoleDataScope> dataScopes;
 
     /**
      * 租户ID

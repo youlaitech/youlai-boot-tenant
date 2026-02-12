@@ -7,7 +7,9 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.youlai.boot.common.enums.DataScopeEnum;
 import com.youlai.boot.core.exception.BusinessException;
+import com.youlai.boot.security.model.RoleDataScope;
 import com.youlai.boot.system.converter.RoleConverter;
 import com.youlai.boot.system.mapper.RoleMapper;
 import com.youlai.boot.system.model.entity.Role;
@@ -18,6 +20,7 @@ import com.youlai.boot.system.model.vo.RolePageVO;
 import com.youlai.boot.common.constant.SystemConstants;
 import com.youlai.boot.common.model.Option;
 import com.youlai.boot.security.util.SecurityUtils;
+import com.youlai.boot.system.service.RoleDeptService;
 import com.youlai.boot.system.service.RoleMenuService;
 import com.youlai.boot.system.service.RoleService;
 import com.youlai.boot.system.service.UserRoleService;
@@ -41,6 +44,7 @@ import java.util.Set;
 public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements RoleService {
 
     private final RoleMenuService roleMenuService;
+    private final RoleDeptService roleDeptService;
     private final UserRoleService userRoleService;
     private final RoleConverter roleConverter;
 
@@ -99,6 +103,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
      * @return {@link Boolean}
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public boolean saveRole(RoleForm roleForm) {
 
         Long roleId = roleForm.getId();
@@ -123,6 +128,14 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
 
         boolean result = this.saveOrUpdate(role);
         if (result) {
+            // 保存自定义数据权限部门
+            Long savedRoleId = role.getId();
+            if (DataScopeEnum.CUSTOM.getValue().equals(roleForm.getDataScope())) {
+                roleDeptService.saveRoleDepts(savedRoleId, roleForm.getDeptIds());
+            } else {
+                roleDeptService.deleteByRoleId(savedRoleId);
+            }
+
             // 判断角色编码或状态是否修改，修改了则刷新权限缓存
             if (oldRole != null
                     && (
@@ -144,7 +157,12 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
     @Override
     public RoleForm getRoleForm(Long roleId) {
         Role entity = this.getById(roleId);
-        return roleConverter.toForm(entity);
+        RoleForm roleForm = roleConverter.toForm(entity);
+        if (roleForm != null && DataScopeEnum.CUSTOM.getValue().equals(roleForm.getDataScope())) {
+            List<Long> deptIds = roleDeptService.getDeptIdsByRoleId(roleId);
+            roleForm.setDeptIds(deptIds);
+        }
+        return roleForm;
     }
 
     /**
@@ -253,6 +271,43 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
     public Integer getMaximumDataScope(Set<String> roles) {
         Integer dataScope = this.baseMapper.getMaximumDataScope(roles);
         return dataScope;
+    }
+
+    /**
+     * 获取角色的数据权限列表
+     *
+     * @param roleCodes 角色编码集合
+     * @return 数据权限列表
+     */
+    @Override
+    public List<RoleDataScope> getRoleDataScopes(Set<String> roleCodes) {
+        if (CollectionUtil.isEmpty(roleCodes)) {
+            return List.of();
+        }
+
+        // 查询角色的数据权限范围
+        List<RoleDataScope> dataScopes = this.baseMapper.getRoleDataScopes(roleCodes);
+
+        // 对于自定义数据权限(CUSTOM)，需要查询关联的部门ID
+        for (RoleDataScope scope : dataScopes) {
+            if (DataScopeEnum.CUSTOM.getValue().equals(scope.getDataScope())) {
+                // 通过角色编码查询角色ID，再查询关联部门
+                Role role = this.getOne(new LambdaQueryWrapper<Role>()
+                        .eq(Role::getCode, scope.getRoleCode())
+                        .select(Role::getId));
+                if (role != null) {
+                    List<Long> deptIds = roleDeptService.getDeptIdsByRoleId(role.getId());
+                    scope.setCustomDeptIds(deptIds);
+                }
+            }
+        }
+
+        return dataScopes;
+    }
+
+    @Override
+    public List<Long> getRoleDeptIds(Long roleId) {
+        return roleDeptService.getDeptIdsByRoleId(roleId);
     }
 
 }

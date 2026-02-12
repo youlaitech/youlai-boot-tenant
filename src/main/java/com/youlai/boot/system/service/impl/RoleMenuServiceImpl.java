@@ -16,8 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 角色菜单服务实现类（多租户优化版）
@@ -153,11 +152,12 @@ public class RoleMenuServiceImpl extends ServiceImpl<RoleMenuMapper, RoleMenu> i
             return;
         }
         String cacheKey = buildRolePermsCacheKey(tenantId);
-        
-        // 清理旧角色权限缓存
+
+        // 清理旧角色和新角色权限缓存
         redisTemplate.opsForHash().delete(cacheKey, oldRoleCode);
-        
-        // 添加新角色权限缓存
+        redisTemplate.opsForHash().delete(cacheKey, newRoleCode);
+
+        // 回源 DB 并更新新角色编码缓存
         List<RolePermsBO> list = this.baseMapper.getRolePermsList(newRoleCode);
         if (CollectionUtil.isNotEmpty(list)) {
             RolePermsBO rolePerms = list.get(0);
@@ -168,12 +168,8 @@ public class RoleMenuServiceImpl extends ServiceImpl<RoleMenuMapper, RoleMenu> i
                 }
             }
         }
-        
-        if (tenantId == null) {
-            log.info("角色编码变更: {} -> {}，权限缓存已更新（单租户模式）", oldRoleCode, newRoleCode);
-        } else {
-            log.info("租户[{}]角色编码变更: {} -> {}，权限缓存已更新", tenantId, oldRoleCode, newRoleCode);
-        }
+
+        log.info("租户[{}]角色编码变更: {} -> {}，相关权限缓存刷新完成", tenantId, oldRoleCode, newRoleCode);
     }
 
     /**
@@ -183,9 +179,58 @@ public class RoleMenuServiceImpl extends ServiceImpl<RoleMenuMapper, RoleMenu> i
      * @return 权限集合
      */
     @Override
-    public Set<String> getRolePermsByRoleCodes(Set<String> roles) {
-        // 直接查询数据库（保持原有逻辑）
-        return this.baseMapper.listRolePerms(roles);
+    public Set<String> getRolePermsByRoleCodes(Set<String> roleCodes) {
+        if (CollectionUtil.isEmpty(roleCodes)) {
+            return Collections.emptySet();
+        }
+
+        Long tenantId = TenantContextHolder.getTenantId();
+        if (tenantId == null) {
+            return Collections.emptySet();
+        }
+
+        String cacheKey = buildRolePermsCacheKey(tenantId);
+        Set<String> perms = new HashSet<>();
+        List<String> roleCodeList = new ArrayList<>(roleCodes);
+
+        // 1. 尝试从缓存批量获取
+        List<Object> cachedPermsList = redisTemplate.opsForHash().multiGet(cacheKey, new ArrayList<>(roleCodeList));
+
+        List<String> missingRoles = new ArrayList<>();
+        for (int i = 0; i < roleCodeList.size(); i++) {
+            Object cachedPerms = cachedPermsList.get(i);
+            String roleCode = roleCodeList.get(i);
+
+            if (cachedPerms == null) {
+                missingRoles.add(roleCode);
+                continue;
+            }
+
+            // Redis JSON 序列化后，Set 会以 Collection 形式反序列化
+            if (cachedPerms instanceof Collection<?> collection) {
+                collection.stream()
+                        .filter(Objects::nonNull)
+                        .map(Object::toString)
+                        .forEach(perms::add);
+            } else {
+                perms.add(cachedPerms.toString());
+            }
+        }
+
+        // 2. 回源 DB 并同步到缓存
+        if (!missingRoles.isEmpty()) {
+            for (String roleCode : missingRoles) {
+                Set<String> dbPerms = this.baseMapper.listRolePerms(Collections.singleton(roleCode));
+                if (dbPerms == null) {
+                    dbPerms = Collections.emptySet();
+                }
+                // 空集也写入，防止缓存穿透
+                redisTemplate.opsForHash().put(cacheKey, roleCode, dbPerms);
+                perms.addAll(dbPerms);
+            }
+        }
+
+        return perms;
     }
 
     /**
