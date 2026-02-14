@@ -383,15 +383,12 @@ CREATE TABLE `sys_role`  (
 INSERT INTO `sys_role` VALUES (1, 0, '超级管理员', 'ROOT', 1, 1, 1, NULL, now(), NULL, now(), 0);
 INSERT INTO `sys_role` VALUES (2, 0, '系统管理员', 'ADMIN', 2, 1, 1, NULL, now(), NULL, NULL, 0);
 INSERT INTO `sys_role` VALUES (3, 0, '访问游客', 'GUEST', 3, 1, 3, NULL, now(), NULL, now(), 0);
-INSERT INTO `sys_role` VALUES (4, 0, '系统管理员1', 'ADMIN1', 4, 1, 1, NULL, now(), NULL, NULL, 0);
-INSERT INTO `sys_role` VALUES (5, 0, '系统管理员2', 'ADMIN2', 5, 1, 1, NULL, now(), NULL, NULL, 0);
-INSERT INTO `sys_role` VALUES (6, 0, '系统管理员3', 'ADMIN3', 6, 1, 1, NULL, now(), NULL, NULL, 0);
-INSERT INTO `sys_role` VALUES (7, 0, '系统管理员4', 'ADMIN4', 7, 1, 1, NULL, now(), NULL, NULL, 0);
-INSERT INTO `sys_role` VALUES (8, 0, '系统管理员5', 'ADMIN5', 8, 1, 1, NULL, now(), NULL, NULL, 0);
-INSERT INTO `sys_role` VALUES (9, 0, '系统管理员6', 'ADMIN6', 9, 1, 1, NULL, now(), NULL, NULL, 0);
-INSERT INTO `sys_role` VALUES (10, 0, '系统管理员7', 'ADMIN7', 10, 1, 1, NULL, now(), NULL, NULL, 0);
-INSERT INTO `sys_role` VALUES (11, 0, '系统管理员8', 'ADMIN8', 11, 1, 1, NULL, now(), NULL, NULL, 0);
-INSERT INTO `sys_role` VALUES (12, 0, '系统管理员9', 'ADMIN9', 12, 1, 1, NULL, now(), NULL, NULL, 0);
+
+-- 用于验证数据权限的角色（tenant_id=0）
+INSERT INTO `sys_role` VALUES (4, 0, '部门主管', 'DEPT_MANAGER', 4, 1, 2, NULL, now(), NULL, now(), 0);
+INSERT INTO `sys_role` VALUES (5, 0, '部门成员', 'DEPT_MEMBER', 5, 1, 3, NULL, now(), NULL, now(), 0);
+INSERT INTO `sys_role` VALUES (6, 0, '普通员工', 'EMPLOYEE', 6, 1, 4, NULL, now(), NULL, now(), 0);
+INSERT INTO `sys_role` VALUES (7, 0, '自定义权限用户', 'CUSTOM_USER', 7, 1, 5, NULL, now(), NULL, now(), 0);
 
 -- 演示租户（tenant_id=1）的角色
 INSERT INTO `sys_role` VALUES (13, 1, '演示租户管理员', 'DEMO_ADMIN', 1, 1, 1, NULL, now(), NULL, now(), 0);
@@ -423,6 +420,12 @@ CREATE TABLE `sys_role_dept`  (
                                   KEY `idx_role_dept_tenant_id` (`tenant_id`),
                                   KEY `idx_tenant_role_dept` (`tenant_id`, `role_id`)
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COMMENT = '角色部门关联表(用于自定义数据权限)';
+
+-- ----------------------------
+-- Records of sys_role_dept
+-- ----------------------------
+INSERT IGNORE INTO `sys_role_dept` VALUES (0, 7, 1);
+INSERT IGNORE INTO `sys_role_dept` VALUES (0, 7, 2);
 
 -- ----------------------------
 -- Records of sys_role_menu
@@ -490,6 +493,15 @@ INSERT INTO `sys_role_menu` VALUES (2, 801, 0), (2, 802, 0), (2, 803, 0), (2, 80
 INSERT INTO `sys_role_menu` VALUES (2, 1001, 0), (2, 1002, 0);
 
 -- ============================================
+-- 数据权限测试角色（tenant_id=0）- 最小可用菜单
+-- 说明：仅授予系统管理相关的基础菜单权限，用于进入页面验证数据权限效果
+-- ============================================
+INSERT INTO `sys_role_menu` VALUES (4, 2, 0), (4, 210, 0), (4, 2101, 0), (4, 220, 0), (4, 2201, 0), (4, 240, 0), (4, 2401, 0), (4, 250, 0), (4, 2501, 0), (4, 260, 0), (4, 280, 0), (4, 2801, 0);
+INSERT INTO `sys_role_menu` VALUES (5, 2, 0), (5, 210, 0), (5, 2101, 0), (5, 220, 0), (5, 2201, 0), (5, 240, 0), (5, 2401, 0), (5, 250, 0), (5, 2501, 0), (5, 260, 0), (5, 280, 0), (5, 2801, 0);
+INSERT INTO `sys_role_menu` VALUES (6, 2, 0), (6, 210, 0), (6, 2101, 0), (6, 220, 0), (6, 2201, 0), (6, 240, 0), (6, 2401, 0), (6, 250, 0), (6, 2501, 0), (6, 260, 0), (6, 280, 0), (6, 2801, 0);
+INSERT INTO `sys_role_menu` VALUES (7, 2, 0), (7, 210, 0), (7, 2101, 0), (7, 220, 0), (7, 2201, 0), (7, 240, 0), (7, 2401, 0), (7, 250, 0), (7, 2501, 0), (7, 260, 0), (7, 280, 0), (7, 2801, 0);
+
+-- ============================================
 -- 演示租户角色菜单权限（tenant_id=1）
 -- ============================================
 -- 演示租户管理员（role_id=13）- 拥有系统管理权限（不包含平台管理）
@@ -551,10 +563,14 @@ CREATE TABLE `sys_user`  (
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
--- 平台租户（tenant_id=0）的用户
+-- 默认租户（tenant_id=0）的用户
 INSERT INTO `sys_user` VALUES (1, 0, 'root', '平台租户超级管理员', 0, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', NULL, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345677', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0);
 INSERT INTO `sys_user` VALUES (2, 0, 'admin', '平台租户系统管理员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 1, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345678', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0);
 INSERT INTO `sys_user` VALUES (3, 0, 'test', '平台租户测试天命人', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 3, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345679', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0);
+INSERT INTO `sys_user` VALUES (6, 0, 'dept_manager', '部门主管', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 1, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345680', 1, 'manager@youlaitech.com', now(), NULL, now(), NULL, 0);
+INSERT INTO `sys_user` VALUES (7, 0, 'dept_member', '部门成员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 1, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345681', 1, 'member@youlaitech.com', now(), NULL, now(), NULL, 0);
+INSERT INTO `sys_user` VALUES (8, 0, 'employee', '普通员工', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 2, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345682', 1, 'employee@youlaitech.com', now(), NULL, now(), NULL, 0);
+INSERT INTO `sys_user` VALUES (9, 0, 'custom_user', '自定义权限用户', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', NULL, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345683', 1, 'custom@youlaitech.com', now(), NULL, now(), NULL, 0);
 
 -- 演示租户（tenant_id=1）的用户
 INSERT INTO `sys_user` VALUES (4, 1, 'admin', '演示租户管理员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 4, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345680', 1, 'demo@youlai.tech', now(), NULL, now(), NULL, 0);
@@ -579,6 +595,11 @@ CREATE TABLE `sys_user_role`  (
 INSERT INTO `sys_user_role` VALUES (1, 1, 0);
 INSERT INTO `sys_user_role` VALUES (2, 2, 0);
 INSERT INTO `sys_user_role` VALUES (3, 3, 0);
+
+INSERT INTO `sys_user_role` VALUES (6, 4, 0);
+INSERT INTO `sys_user_role` VALUES (7, 5, 0);
+INSERT INTO `sys_user_role` VALUES (8, 6, 0);
+INSERT INTO `sys_user_role` VALUES (9, 7, 0);
 
 -- 演示租户（tenant_id=1）的用户角色关联
 INSERT INTO `sys_user_role` VALUES (4, 13, 1);

@@ -9,6 +9,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.youlai.boot.common.enums.DataScopeEnum;
 import com.youlai.boot.core.exception.BusinessException;
+import com.youlai.boot.security.token.TokenManager;
 import com.youlai.boot.security.model.RoleDataScope;
 import com.youlai.boot.system.converter.RoleConverter;
 import com.youlai.boot.system.mapper.RoleMapper;
@@ -46,6 +47,7 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
     private final RoleMenuService roleMenuService;
     private final RoleDeptService roleDeptService;
     private final UserRoleService userRoleService;
+    private final TokenManager tokenManager;
     private final RoleConverter roleConverter;
 
     /**
@@ -110,9 +112,14 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
 
         // 编辑角色时，判断角色是否存在
         Role oldRole = null;
+        List<Long> oldDeptIds = null;
         if (roleId != null) {
             oldRole = this.getById(roleId);
             Assert.isTrue(oldRole != null, "角色不存在");
+
+            if (DataScopeEnum.CUSTOM.getValue().equals(oldRole.getDataScope())) {
+                oldDeptIds = roleDeptService.getDeptIdsByRoleId(roleId);
+            }
         }
 
         String roleCode = roleForm.getCode();
@@ -143,6 +150,25 @@ public class RoleServiceImpl extends ServiceImpl<RoleMapper, Role> implements Ro
                             !ObjectUtil.equals(oldRole.getStatus(), roleForm.getStatus())
             )) {
                 roleMenuService.refreshRolePermsCache(oldRole.getCode(), roleCode);
+            }
+
+            // 数据权限发生变化时，失效该角色关联用户的登录态（JWT tokenVersion）
+            if (oldRole != null) {
+                boolean dataScopeChanged = !ObjectUtil.equals(oldRole.getDataScope(), roleForm.getDataScope());
+
+                boolean customDeptChanged = false;
+                if (!dataScopeChanged && DataScopeEnum.CUSTOM.getValue().equals(roleForm.getDataScope())) {
+                    List<Long> newDeptIds = roleForm.getDeptIds() != null ? roleForm.getDeptIds() : List.of();
+                    List<Long> oldIds = oldDeptIds != null ? oldDeptIds : List.of();
+                    customDeptChanged = !new java.util.HashSet<>(oldIds).equals(new java.util.HashSet<>(newDeptIds));
+                }
+
+                if (dataScopeChanged || customDeptChanged) {
+                    List<Long> userIds = userRoleService.listUserIdsByRoleId(savedRoleId);
+                    if (CollectionUtil.isNotEmpty(userIds)) {
+                        userIds.forEach(tokenManager::invalidateUserSessions);
+                    }
+                }
             }
         }
         return result;

@@ -14,13 +14,8 @@ import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
 import net.sf.jsqlparser.expression.operators.relational.EqualsTo;
-import net.sf.jsqlparser.expression.operators.relational.ExpressionList;
-import net.sf.jsqlparser.expression.operators.relational.InExpression;
 import net.sf.jsqlparser.schema.Column;
-import net.sf.jsqlparser.schema.Table;
-import net.sf.jsqlparser.statement.select.PlainSelect;
-import net.sf.jsqlparser.statement.select.Select;
-import net.sf.jsqlparser.statement.select.SubSelect;
+import net.sf.jsqlparser.parser.CCJSqlParserUtil;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -225,34 +220,11 @@ public class MyDataPermissionHandler implements DataPermissionHandler {
      * @return IN 子查询表达式
      */
     private Expression buildDeptAndSubExpression(Column deptColumn, Long deptId) {
-        // 构建子查询: SELECT id FROM sys_dept WHERE id = ? OR FIND_IN_SET(?, tree_path)
-        PlainSelect subSelectBody = new PlainSelect();
-        subSelectBody.setFromItem(new Table(DEPT_TABLE));
-        subSelectBody.addSelectItems(new Column(DEPT_ID_COLUMN));
-
-        // WHERE id = ?
-        EqualsTo idEquals = new EqualsTo();
-        idEquals.setLeftExpression(new Column(DEPT_ID_COLUMN));
-        idEquals.setRightExpression(new LongValue(deptId));
-
-        // FIND_IN_SET(?, tree_path)
-        Function findInSet = new Function();
-        findInSet.setName("FIND_IN_SET");
-        findInSet.setParameters(new ExpressionList<>(
-                new LongValue(deptId),
-                new Column(DEPT_TREE_PATH_COLUMN)
-        ));
-
-        // WHERE id = ? OR FIND_IN_SET(?, tree_path)
-        OrExpression whereClause = new OrExpression(idEquals, findInSet);
-        subSelectBody.setWhere(whereClause);
-
-        // 构建子查询
-        SubSelect subSelect = new SubSelect();
-        subSelect.setSelectBody(subSelectBody);
-
-        // 构建 IN 表达式
-        return new InExpression(deptColumn, subSelect);
+        String columnName = deptColumn.toString();
+        String sql = columnName + " IN (SELECT " + DEPT_ID_COLUMN + " FROM " + DEPT_TABLE +
+                " WHERE " + DEPT_ID_COLUMN + " = " + deptId +
+                " OR FIND_IN_SET(" + deptId + ", " + DEPT_TREE_PATH_COLUMN + "))";
+        return CCJSqlParserUtil.parseCondExpression(sql);
     }
 
     /**
@@ -273,13 +245,10 @@ public class MyDataPermissionHandler implements DataPermissionHandler {
             return falseCondition;
         }
 
-        // 构建 IN 表达式列表
-        ExpressionList<Expression> deptIdList = new ExpressionList<>();
-        for (Long deptId : customDeptIds) {
-            deptIdList.addExpression(new LongValue(deptId));
-        }
-
-        return new InExpression(deptColumn, deptIdList);
+        String columnName = deptColumn.toString();
+        String ids = customDeptIds.stream().map(String::valueOf).reduce((a, b) -> a + "," + b).orElse("");
+        String sql = columnName + " IN (" + ids + ")";
+        return CCJSqlParserUtil.parseCondExpression(sql);
     }
 
 }

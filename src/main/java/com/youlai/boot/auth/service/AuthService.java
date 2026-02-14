@@ -12,7 +12,7 @@ import com.youlai.boot.security.model.AuthenticationToken;
 public interface AuthService {
 
     /**
-     * 登录（与非租户版本对齐）。
+     * 登录（租户ID可选）。
      *
      * @param username 用户名
      * @param password 密码
