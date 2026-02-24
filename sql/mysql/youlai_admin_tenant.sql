@@ -257,11 +257,10 @@ INSERT INTO `sys_menu` VALUES (708, 7, '0,7', '滚动文本', 'M', 'TextScroll',
 INSERT INTO `sys_menu` VALUES (709, 7, '0,7', '自适应表格操作列', 'M', 'AutoOperationColumn', 'operation-column', 'demo/auto-operation-column', NULL, NULL, 1, 1, 1, '', '', now(), now(), NULL);
 
 -- 功能演示
-INSERT INTO `sys_menu` VALUES (801, 8, '0,8', 'Websocket', 'M', 'WebSocket', '/function/websocket', 'demo/websocket', NULL, NULL, 1, 1, 1, '', '', now(), now(), NULL);
-INSERT INTO `sys_menu` VALUES (802, 8, '0,8', 'Icons', 'M', 'IconDemo', 'icon-demo', 'demo/icons', NULL, NULL, 1, 1, 2, 'el-icon-Notification', '', now(), now(), NULL);
-INSERT INTO `sys_menu` VALUES (803, 8, '0,8', '字典实时同步', 'M', 'DictSync', 'dict-sync', 'demo/dict-sync', NULL, NULL, NULL, 1, 3, '', '', now(), now(), NULL);
-INSERT INTO `sys_menu` VALUES (804, 8, '0,8', 'VxeTable', 'M', 'VxeTable', 'vxe-table', 'demo/vxe-table/index', NULL, NULL, 1, 1, 4, 'el-icon-MagicStick', '', now(), now(), NULL);
-INSERT INTO `sys_menu` VALUES (805, 8, '0,8', 'CURD单文件', 'M', 'CurdSingle', 'curd-single', 'demo/curd-single', NULL, NULL, 1, 1, 5, 'el-icon-Reading', '', now(), now(), NULL);
+INSERT INTO `sys_menu` VALUES (801, 8, '0,8', 'Icons', 'M', 'IconDemo', 'icon-demo', 'demo/icons', NULL, NULL, 1, 1, 2, 'el-icon-Notification', '', now(), now(), NULL);
+INSERT INTO `sys_menu` VALUES (802, 8, '0,8', '字典实时同步', 'M', 'DictSync', 'dict-sync', 'demo/dict-sync', NULL, NULL, NULL, 1, 3, '', '', now(), now(), NULL);
+INSERT INTO `sys_menu` VALUES (803, 8, '0,8', 'VxeTable', 'M', 'VxeTable', 'vxe-table', 'demo/vxe-table/index', NULL, NULL, 1, 1, 4, 'el-icon-MagicStick', '', now(), now(), NULL);
+INSERT INTO `sys_menu` VALUES (804, 8, '0,8', 'CURD单文件', 'M', 'CurdSingle', 'curd-single', 'demo/curd-single', NULL, NULL, 1, 1, 5, 'el-icon-Reading', '', now(), now(), NULL);
 
 -- 多级菜单示例
 INSERT INTO `sys_menu` VALUES (910, 9, '0,9', '菜单一级', 'C', NULL, 'multi-level1', 'Layout', NULL, 1, NULL, 1, 1, '', '', now(), now(), NULL);
@@ -457,7 +456,7 @@ INSERT INTO `sys_role_menu` VALUES (1, 601, 0);
 -- 组件封装
 INSERT INTO `sys_role_menu` VALUES (1, 701, 0), (1, 702, 0), (1, 703, 0), (1, 704, 0), (1, 705, 0), (1, 706, 0), (1, 707, 0), (1, 708, 0), (1, 709, 0);
 -- 功能演示 / 多级菜单
-INSERT INTO `sys_role_menu` VALUES (1, 801, 0), (1, 802, 0), (1, 803, 0), (1, 804, 0), (1, 805, 0), (1, 910, 0), (1, 911, 0), (1, 912, 0), (1, 913, 0);
+INSERT INTO `sys_role_menu` VALUES (1, 801, 0), (1, 802, 0), (1, 803, 0), (1, 804, 0), (1, 910, 0), (1, 911, 0), (1, 912, 0), (1, 913, 0);
 -- 路由参数
 INSERT INTO `sys_role_menu` VALUES (1, 1001, 0), (1, 1002, 0);
 
@@ -488,7 +487,7 @@ INSERT INTO `sys_role_menu` VALUES (2, 601, 0);
 -- 组件封装
 INSERT INTO `sys_role_menu` VALUES (2, 701, 0), (2, 702, 0), (2, 703, 0), (2, 704, 0), (2, 705, 0), (2, 706, 0), (2, 707, 0), (2, 708, 0), (2, 709, 0);
 -- 功能演示 / 多级菜单
-INSERT INTO `sys_role_menu` VALUES (2, 801, 0), (2, 802, 0), (2, 803, 0), (2, 804, 0), (2, 805, 0), (2, 910, 0), (2, 911, 0), (2, 912, 0), (2, 913, 0);
+INSERT INTO `sys_role_menu` VALUES (2, 801, 0), (2, 802, 0), (2, 803, 0), (2, 804, 0), (2, 910, 0), (2, 911, 0), (2, 912, 0), (2, 913, 0);
 -- 路由参数
 INSERT INTO `sys_role_menu` VALUES (2, 1001, 0), (2, 1002, 0);
 
@@ -524,7 +523,7 @@ INSERT INTO `sys_role_menu` VALUES (13, 601, 1);
 -- 组件封装
 INSERT INTO `sys_role_menu` VALUES (13, 701, 1), (13, 702, 1), (13, 703, 1), (13, 704, 1), (13, 705, 1), (13, 706, 1), (13, 707, 1), (13, 708, 1), (13, 709, 1);
 -- 功能演示 / 多级菜单
-INSERT INTO `sys_role_menu` VALUES (13, 801, 1), (13, 802, 1), (13, 803, 1), (13, 804, 1), (13, 805, 1), (13, 910, 1), (13, 911, 1), (13, 912, 1), (13, 913, 1);
+INSERT INTO `sys_role_menu` VALUES (13, 801, 1), (13, 802, 1), (13, 803, 1), (13, 804, 1), (13, 910, 1), (13, 911, 1), (13, 912, 1), (13, 913, 1);
 -- 路由参数
 INSERT INTO `sys_role_menu` VALUES (13, 1001, 1), (13, 1002, 1);
 
