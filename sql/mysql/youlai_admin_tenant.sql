@@ -149,7 +149,7 @@ CREATE TABLE `sys_menu`  (
 -- Records of sys_menu
 -- ----------------------------
 -- 顶级目录（1-10）：平台/系统/代码生成/文档/接口文档/组件/演示/多级/路由
-INSERT INTO `sys_menu` VALUES (1, 0, '0', '平台管理', 'C', '', '/platform', 'Layout', NULL, NULL, NULL, 1, 1, 'el-icon-Platform', '/platform/tenant', now(), now(), NULL);
+INSERT INTO `sys_menu` VALUES (1, 0, '0', '平台管理', 'C', '', '/infra', 'Layout', NULL, NULL, NULL, 1, 1, 'el-icon-Platform', '/infra/tenant', now(), now(), NULL);
 INSERT INTO `sys_menu` VALUES (2, 0, '0', '系统管理', 'C', '', '/system', 'Layout', NULL, NULL, NULL, 1, 2, 'system', '/system/user', now(), now(), NULL);
 INSERT INTO `sys_menu` VALUES (3, 0, '0', '代码生成', 'C', '', '/codegen', 'Layout', NULL, NULL, NULL, 1, 3, 'code', '/codegen/index', now(), now(), NULL);
 INSERT INTO `sys_menu` VALUES (5, 0, '0', '平台文档', 'C', '', '/doc', 'Layout', NULL, NULL, NULL, 1, 5, 'document', '', now(), now(), NULL);
@@ -751,7 +751,7 @@ CREATE TABLE `sys_user_notice` (
                                    `notice_id` bigint NOT NULL COMMENT '公共通知id',
                                    `user_id` bigint NOT NULL COMMENT '用户id',
                                    `tenant_id` bigint DEFAULT 0 COMMENT '租户ID',
-                                   `is_read` bigint DEFAULT '0' COMMENT '读取状态（0: 未读, 1: 已读）',
+                                   `is_read` tinyint DEFAULT '0' COMMENT '读取状态（0: 未读, 1: 已读）',
                                    `read_time` datetime COMMENT '阅读时间',
                                    `create_time` datetime NOT NULL COMMENT '创建时间',
                                    `update_time` datetime COMMENT '更新时间',

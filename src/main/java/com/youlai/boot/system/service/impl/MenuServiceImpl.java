@@ -10,7 +10,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
-import com.youlai.boot.platform.codegen.model.entity.GenTable;
+import com.youlai.boot.infra.codegen.model.entity.GenTable;
 import com.youlai.boot.security.util.SecurityUtils;
 import com.youlai.boot.system.converter.MenuConverter;
 import com.youlai.boot.system.mapper.MenuMapper;

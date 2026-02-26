@@ -2,8 +2,8 @@ package com.youlai.boot.system.handler;
 
 
 import com.youlai.boot.system.service.UserOnlineService;
-import com.youlai.boot.platform.websocket.publisher.WebSocketPublisher;
-import com.youlai.boot.platform.websocket.topic.WebSocketTopics;
+import com.youlai.boot.infra.websocket.publisher.WebSocketPublisher;
+import com.youlai.boot.infra.websocket.topic.WebSocketTopics;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
