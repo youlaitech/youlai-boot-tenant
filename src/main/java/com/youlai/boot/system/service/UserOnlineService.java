@@ -1,7 +1,7 @@
 package com.youlai.boot.system.service;
 
-import com.youlai.boot.infra.websocket.publisher.WebSocketPublisher;
-import com.youlai.boot.infra.websocket.topic.WebSocketTopics;
+import com.youlai.boot.support.websocket.publisher.WebSocketPublisher;
+import com.youlai.boot.support.websocket.topic.WebSocketTopics;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

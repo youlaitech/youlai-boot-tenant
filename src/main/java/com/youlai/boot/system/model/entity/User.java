@@ -18,12 +18,10 @@ public class User extends BaseEntity {
      */
     private String username;
 
-
     /**
      * 昵称
      */
     private String nickname;
-
 
     /**
      * 性别((1-男 2-女 0-保密)
@@ -36,7 +34,7 @@ public class User extends BaseEntity {
     private String password;
 
     /**
-     * 部门ID
+     * 部门 ID
      */
     private Long deptId;
 
@@ -74,9 +72,4 @@ public class User extends BaseEntity {
      * 是否删除(0-否 1-是)
      */
     private Integer isDeleted;
-
-    /**
-     * 微信 OpenID
-     */
-    private String openid;
 }

@@ -149,7 +149,7 @@ CREATE TABLE `sys_menu`  (
 -- Records of sys_menu
 -- ----------------------------
 -- 顶级目录（1-10）：平台/系统/代码生成/文档/接口文档/组件/演示/多级/路由
-INSERT INTO `sys_menu` VALUES (1, 0, '0', '平台管理', 'C', '', '/infra', 'Layout', NULL, NULL, NULL, 1, 1, 'el-icon-Platform', '/infra/tenant', now(), now(), NULL);
+INSERT INTO `sys_menu` VALUES (1, 0, '0', '平台管理', 'C', '', '/platform', 'Layout', NULL, NULL, NULL, 1, 1, 'el-icon-Platform', '/platform/tenant', now(), now(), NULL);
 INSERT INTO `sys_menu` VALUES (2, 0, '0', '系统管理', 'C', '', '/system', 'Layout', NULL, NULL, NULL, 1, 2, 'system', '/system/user', now(), now(), NULL);
 INSERT INTO `sys_menu` VALUES (3, 0, '0', '代码生成', 'C', '', '/codegen', 'Layout', NULL, NULL, NULL, 1, 3, 'code', '/codegen/index', now(), now(), NULL);
 INSERT INTO `sys_menu` VALUES (5, 0, '0', '平台文档', 'C', '', '/doc', 'Layout', NULL, NULL, NULL, 1, 5, 'document', '', now(), now(), NULL);
