@@ -66,7 +66,7 @@ public class AuthServiceImpl implements AuthService {
         if (tenantId != null) {
             TenantContextHolder.setTenantId(tenantId);
         }
-        
+
         // 1. 创建用于密码认证的令牌（未认证）
         UsernamePasswordAuthenticationToken authenticationToken =
                 new UsernamePasswordAuthenticationToken(username.trim(), password);
@@ -83,6 +83,7 @@ public class AuthServiceImpl implements AuthService {
         AuthenticationToken authenticationTokenResponse =
                 tokenManager.generateToken(authentication);
         SecurityContextHolder.getContext().setAuthentication(authentication);
+
         return authenticationTokenResponse;
     }
 

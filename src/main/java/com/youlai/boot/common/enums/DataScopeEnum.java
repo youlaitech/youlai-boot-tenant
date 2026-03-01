@@ -33,4 +33,20 @@ public enum DataScopeEnum implements IBaseEnum<Integer> {
         this.value = value;
         this.label = label;
     }
+
+    public static boolean isAll(Integer value) {
+        return ALL.getValue().equals(value);
+    }
+
+    public static DataScopeEnum getByValue(Integer value) {
+        if (value == null) {
+            return null;
+        }
+        for (DataScopeEnum dataScope : values()) {
+            if (dataScope.getValue().equals(value)) {
+                return dataScope;
+            }
+        }
+        return null;
+    }
 }

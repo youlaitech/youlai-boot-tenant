@@ -145,7 +145,7 @@ public class AuthController {
         newDetails.setUserId(details.getUserId());
         newDetails.setUsername(details.getUsername());
         newDetails.setDeptId(details.getDeptId());
-        newDetails.setDataScope(details.getDataScope());
+        newDetails.setDataScopes(details.getDataScopes());
         newDetails.setTenantId(tenantId);
         newDetails.setCanSwitchTenant(details.getCanSwitchTenant());
 

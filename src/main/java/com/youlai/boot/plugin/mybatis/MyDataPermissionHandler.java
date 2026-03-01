@@ -8,8 +8,8 @@ import com.youlai.boot.common.annotation.DataPermission;
 import com.youlai.boot.common.enums.DataScopeEnum;
 import com.youlai.boot.security.model.RoleDataScope;
 import com.youlai.boot.security.util.SecurityUtils;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import net.sf.jsqlparser.JSQLParserException;
 import net.sf.jsqlparser.expression.*;
 import net.sf.jsqlparser.expression.operators.conditional.AndExpression;
 import net.sf.jsqlparser.expression.operators.conditional.OrExpression;
@@ -47,45 +47,49 @@ public class MyDataPermissionHandler implements DataPermissionHandler {
      * @return sql片段
      */
     @Override
-    @SneakyThrows
     public Expression getSqlSegment(Expression where, String mappedStatementId) {
-        // 如果是未登录，或者是定时任务执行的SQL，或者是超级管理员，直接返回
-        if (SecurityUtils.getUserId() == null || SecurityUtils.isRoot()) {
-            return where;
-        }
-
-        // 获取当前用户的数据权限列表
-        List<RoleDataScope> dataScopes = SecurityUtils.getDataScopes();
-
-        // 如果任一角色是 ALL，则跳过数据权限过滤（并集策略）
-        if (hasAllDataScope(dataScopes)) {
-            return where;
-        }
-
-        // 如果没有数据权限，跳过过滤
-        if (CollectionUtil.isEmpty(dataScopes)) {
-            return where;
-        }
-
-        // 获取当前执行的接口类
-        Class<?> clazz = Class.forName(mappedStatementId.substring(0, mappedStatementId.lastIndexOf(StringPool.DOT)));
-        // 获取当前执行的方法名称
-        String methodName = mappedStatementId.substring(mappedStatementId.lastIndexOf(StringPool.DOT) + 1);
-        // 获取当前执行的接口类里所有的方法
-        Method[] methods = clazz.getDeclaredMethods();
-        for (Method method : methods) {
-            // 找到当前执行的方法
-            if (method.getName().equals(methodName)) {
-                DataPermission annotation = method.getAnnotation(DataPermission.class);
-                // 判断当前执行的方法是否有权限注解，如果没有注解直接返回
-                if (annotation == null) {
-                    return where;
-                }
-                // 使用并集策略过滤
-                return dataScopeFilterWithUnion(annotation, dataScopes, where);
+        try {
+            // 如果是未登录，或者是定时任务执行的SQL，或者是超级管理员，直接返回
+            if (SecurityUtils.getUserId() == null || SecurityUtils.isRoot()) {
+                return where;
             }
+
+            // 获取当前用户的数据权限列表
+            List<RoleDataScope> dataScopes = SecurityUtils.getDataScopes();
+
+            // 如果任一角色是 ALL，则跳过数据权限过滤（并集策略）
+            if (hasAllDataScope(dataScopes)) {
+                return where;
+            }
+
+            // 如果没有数据权限，跳过过滤
+            if (CollectionUtil.isEmpty(dataScopes)) {
+                return where;
+            }
+
+            // 获取当前执行的接口类
+            Class<?> clazz = Class.forName(mappedStatementId.substring(0, mappedStatementId.lastIndexOf(StringPool.DOT)));
+            // 获取当前执行的方法名称
+            String methodName = mappedStatementId.substring(mappedStatementId.lastIndexOf(StringPool.DOT) + 1);
+            // 获取当前执行的接口类里所有的方法
+            Method[] methods = clazz.getDeclaredMethods();
+            for (Method method : methods) {
+                // 找到当前执行的方法
+                if (method.getName().equals(methodName)) {
+                    DataPermission annotation = method.getAnnotation(DataPermission.class);
+                    // 判断当前执行的方法是否有权限注解，如果没有注解直接返回
+                    if (annotation == null) {
+                        return where;
+                    }
+                    // 使用并集策略过滤
+                    return dataScopeFilterWithUnion(mappedStatementId, annotation, dataScopes, where);
+                }
+            }
+            return where;
+        } catch (Exception e) {
+            log.error("DataPermission resolve error. mappedStatementId={}", mappedStatementId, e);
+            return where;
         }
-        return where;
     }
 
     /**
@@ -112,7 +116,7 @@ public class MyDataPermissionHandler implements DataPermissionHandler {
      * @param where       原始查询条件
      * @return 追加权限过滤后的查询条件
      */
-    private Expression dataScopeFilterWithUnion(DataPermission annotation, List<RoleDataScope> dataScopes, Expression where) {
+    private Expression dataScopeFilterWithUnion(String mappedStatementId, DataPermission annotation, List<RoleDataScope> dataScopes, Expression where) {
         String deptAlias = annotation.deptAlias();
         String deptIdColumnName = annotation.deptIdColumnName();
         String userAlias = annotation.userAlias();
@@ -138,13 +142,25 @@ public class MyDataPermissionHandler implements DataPermissionHandler {
         }
 
         // 用括号包裹并集条件
-        Expression finalExpression = new Parenthesis(unionExpression);
+        Expression finalExpression = parseCondExpressionSafely("(" + unionExpression + ")");
 
         if (where == null) {
+            log.debug("DataPermission applied. mappedStatementId={}, segment={}", mappedStatementId, finalExpression);
             return finalExpression;
         }
 
-        return new AndExpression(where, finalExpression);
+        Expression combined = new AndExpression(where, finalExpression);
+        log.debug("DataPermission applied. mappedStatementId={}, originWhere={}, segment={}, combined={}",
+                mappedStatementId, where, finalExpression, combined);
+        return combined;
+    }
+
+    private Expression parseCondExpressionSafely(String sql) {
+        try {
+            return CCJSqlParserUtil.parseCondExpression(sql);
+        } catch (JSQLParserException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -224,7 +240,7 @@ public class MyDataPermissionHandler implements DataPermissionHandler {
         String sql = columnName + " IN (SELECT " + DEPT_ID_COLUMN + " FROM " + DEPT_TABLE +
                 " WHERE " + DEPT_ID_COLUMN + " = " + deptId +
                 " OR FIND_IN_SET(" + deptId + ", " + DEPT_TREE_PATH_COLUMN + "))";
-        return CCJSqlParserUtil.parseCondExpression(sql);
+        return parseCondExpressionSafely(sql);
     }
 
     /**
@@ -248,7 +264,7 @@ public class MyDataPermissionHandler implements DataPermissionHandler {
         String columnName = deptColumn.toString();
         String ids = customDeptIds.stream().map(String::valueOf).reduce((a, b) -> a + "," + b).orElse("");
         String sql = columnName + " IN (" + ids + ")";
-        return CCJSqlParserUtil.parseCondExpression(sql);
+        return parseCondExpressionSafely(sql);
     }
 
 }

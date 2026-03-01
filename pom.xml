@@ -61,7 +61,7 @@
         <!-- 微信 jdk -->
         <weixin-java.version>4.7.7.B</weixin-java.version>
         <caffeine.version>2.9.3</caffeine.version>
-        
+
         <!-- 阿里 TransmittableThreadLocal (支持异步场景的ThreadLocal传递) -->
         <transmittable-thread-local.version>2.14.5</transmittable-thread-local.version>
     </properties>

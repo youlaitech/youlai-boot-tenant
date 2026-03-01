@@ -1,10 +1,10 @@
-package com.youlai.boot.platform.websocket.service.impl;
+package com.youlai.boot.support.websocket.service.impl;
 
-import com.youlai.boot.platform.websocket.dto.DictChangeEvent;
-import com.youlai.boot.platform.websocket.publisher.WebSocketPublisher;
-import com.youlai.boot.platform.websocket.session.UserSessionRegistry;
-import com.youlai.boot.platform.websocket.service.WebSocketService;
-import com.youlai.boot.platform.websocket.topic.WebSocketTopics;
+import com.youlai.boot.support.websocket.dto.DictChangeEvent;
+import com.youlai.boot.support.websocket.publisher.WebSocketPublisher;
+import com.youlai.boot.support.websocket.session.UserSessionRegistry;
+import com.youlai.boot.support.websocket.service.WebSocketService;
+import com.youlai.boot.support.websocket.topic.WebSocketTopics;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +13,7 @@ import java.util.Map;
 
 /**
  * WebSocket 服务实现类
- * 
+ *
  * 核心功能：
  * - 用户在线状态管理（支持多设备登录）
  * - 消息推送（广播、点对点）
@@ -145,7 +145,7 @@ public class WebSocketServiceImpl implements WebSocketService {
 
     /**
      * 手动触发在线用户数量广播
-     * 
+     *
      * 供外部服务（如定时任务）调用
      */
     public void notifyOnlineUsersChange() {

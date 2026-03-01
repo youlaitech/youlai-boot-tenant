@@ -16,7 +16,6 @@ import com.youlai.boot.support.sms.enums.SmsTypeEnum;
 import com.youlai.boot.support.sms.service.SmsService;
 import com.youlai.boot.security.model.RoleDataScope;
 import com.youlai.boot.security.model.UserAuthInfo;
-import com.youlai.boot.security.service.PermissionService;
 import com.youlai.boot.security.token.TokenManager;
 import com.youlai.boot.security.util.SecurityUtils;
 import com.youlai.boot.common.tenant.TenantContextHolder;
@@ -29,7 +28,6 @@ import com.youlai.boot.system.model.dto.CurrentUserDTO;
 import com.youlai.boot.system.model.dto.UserExportDTO;
 import com.youlai.boot.system.model.entity.DictItem;
 import com.youlai.boot.system.model.entity.User;
-import com.youlai.boot.system.model.entity.UserRole;
 import com.youlai.boot.system.model.form.*;
 import com.youlai.boot.system.model.query.UserQuery;
 import com.youlai.boot.system.model.vo.UserPageVO;
@@ -43,7 +41,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.PatternMatchUtils;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -65,7 +62,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     private final RoleService roleService;
 
-    private final PermissionService permissionService;
+    private final RoleMenuService roleMenuService;
 
     private final SmsService smsService;
 
@@ -78,8 +75,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private final DictItemService dictItemService;
 
     private final UserConverter userConverter;
-
-    private final com.youlai.boot.config.property.TenantProperties tenantProperties;
 
 
     /**
@@ -121,7 +116,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (CollectionUtil.isEmpty(roles)) {
             return false;
         }
-        Set<String> perms = permissionService.getRolePerms(roles);
+        Set<String> perms = roleMenuService.getRolePermsByRoleCodes(roles);
         if (CollectionUtil.isEmpty(perms)) {
             return false;
         }
@@ -141,10 +136,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public boolean saveUser(UserForm userForm) {
 
         String username = userForm.getUsername();
-        
+
         // 实体转换 form->entity
         User entity = userConverter.toEntity(userForm);
-        
+
         // 获取当前操作员的租户ID（新增用户时，租户ID由 MyMetaObjectHandler 自动填充）
         Long tenantId = TenantContextHolder.getTenantId();
         Assert.notNull(tenantId, "租户ID不能为空");
@@ -164,7 +159,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String defaultEncryptPwd = passwordEncoder.encode(SystemConstants.DEFAULT_PASSWORD);
         entity.setPassword(defaultEncryptPwd);
         entity.setCreateBy(SecurityUtils.getUserId());
-        
+
         // 注意：租户ID由 MyMetaObjectHandler.insertFill() 自动填充，无需手动设置
 
         // 新增用户
@@ -189,16 +184,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public boolean updateUser(Long userId, UserForm userForm) {
 
         String username = userForm.getUsername();
-        
+
         // 获取原用户信息
         User oldUser = this.getById(userId);
         Assert.notNull(oldUser, "用户不存在");
-        
+
         Long oldTenantId = oldUser.getTenantId();
         Long currentTenantId = TenantContextHolder.getTenantId();
-        
+
         // 验证：只能修改当前租户下的用户（防止跨租户修改）
-        Assert.isTrue(oldTenantId != null && oldTenantId.equals(currentTenantId), 
+        Assert.isTrue(oldTenantId != null && oldTenantId.equals(currentTenantId),
                 "只能修改当前租户下的用户");
 
         if (!SystemConstants.DEFAULT_TENANT_ID.equals(currentTenantId)
@@ -245,11 +240,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         List<Long> ids = Arrays.stream(idsStr.split(","))
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
-        
+
         boolean result = this.removeByIds(ids);
-        
+
         // 新设计：用户删除时，tenant_id 字段会随用户记录一起逻辑删除，无需额外处理
-        
+
         return result;
     }
 
@@ -321,28 +316,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
-     * 根据OpenID获取用户认证信息
-     *
-     * @param openId 微信OpenID
-     * @return 用户认证信息
-     */
-    @Override
-    public UserAuthInfo getAuthInfoByOpenId(String openId) {
-        if (StrUtil.isBlank(openId)) {
-            return null;
-        }
-        UserAuthInfo userAuthInfo = this.baseMapper.getAuthInfoByOpenId(openId);
-        if (userAuthInfo != null) {
-            Set<String> roles = userAuthInfo.getRoles();
-            // 获取最大范围的数据权限
-            Integer dataScope = roleService.getMaximumDataScope(roles);
-            userAuthInfo.setDataScope(dataScope);
-            userAuthInfo.setCanSwitchTenant(resolveCanSwitchTenant(roles));
-        }
-        return userAuthInfo;
-    }
-
-    /**
      * 根据手机号获取用户认证信息
      *
      * @param mobile 手机号
@@ -356,143 +329,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         UserAuthInfo userAuthInfo = this.baseMapper.getAuthInfoByMobile(mobile);
         if (userAuthInfo != null) {
             Set<String> roles = userAuthInfo.getRoles();
-            // 获取最大范围的数据权限
-            Integer dataScope = roleService.getMaximumDataScope(roles);
-            userAuthInfo.setDataScope(dataScope);
+            // 获取角色的数据权限列表（支持多角色并集）
+            List<RoleDataScope> dataScopes = roleService.getRoleDataScopes(roles);
+            userAuthInfo.setDataScopes(dataScopes);
             userAuthInfo.setCanSwitchTenant(resolveCanSwitchTenant(roles));
         }
         return userAuthInfo;
-    }
-
-    /**
-     * 注册或绑定微信用户
-     *
-     * @param openId 微信OpenID
-     * @return 是否成功
-     */
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public boolean registerOrBindWechatUser(String openId) {
-        if (StrUtil.isBlank(openId)) {
-            return false;
-        }
-
-        // 查询是否已存在该openId的用户
-        User existUser = this.getOne(
-                new LambdaQueryWrapper<User>()
-                        .eq(User::getOpenid, openId)
-        );
-
-        if (existUser != null) {
-            // 用户已存在，不需要注册
-            return true;
-        }
-
-        // 创建新用户
-        User newUser = new User();
-        newUser.setNickname("微信用户");  // 默认昵称
-        newUser.setUsername(openId);      // TODO 后续替换为手机号
-        newUser.setOpenid(openId);
-        newUser.setGender(0); // 保密
-        newUser.setUpdateBy(SecurityUtils.getUserId());
-        newUser.setPassword(SystemConstants.DEFAULT_PASSWORD);
-        newUser.setCreateTime(LocalDateTime.now());
-        newUser.setUpdateTime(LocalDateTime.now());
-        this.save(newUser);
-        // 为了默认系统管理员角色，这里按需调整，实际情况绑定已存在的系统用户，另一种情况是给默认游客角色，然后由系统管理员设置用户的角色
-        UserRole userRole = new UserRole();
-        userRole.setUserId(newUser.getId());
-        userRole.setRoleId(1L);  // TODO 系统管理员
-        userRoleService.save(userRole);
-        return true;
-    }
-
-    /**
-     * 根据手机号和OpenID注册用户
-     *
-     * @param mobile 手机号
-     * @param openId 微信OpenID
-     * @return 是否成功
-     */
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public boolean registerUserByMobileAndOpenId(String mobile, String openId) {
-        if (StrUtil.isBlank(mobile) || StrUtil.isBlank(openId)) {
-            return false;
-        }
-
-        // 先查询是否已存在手机号对应的用户
-        User existingUser = this.getOne(
-                new LambdaQueryWrapper<User>()
-                        .eq(User::getMobile, mobile)
-        );
-
-        if (existingUser != null) {
-            // 如果存在用户但没绑定openId，则绑定openId
-            if (StrUtil.isBlank(existingUser.getOpenid())) {
-                return bindUserOpenId(existingUser.getId(), openId);
-            }
-            // 如果已经绑定了其他openId，则判断是否需要更新
-            else if (!openId.equals(existingUser.getOpenid())) {
-                return bindUserOpenId(existingUser.getId(), openId);
-            }
-            // 如果已经绑定了相同的openId，则不需要任何操作
-            return true;
-        }
-
-        // 不存在用户，创建新用户
-        User newUser = new User();
-        newUser.setMobile(mobile);
-        newUser.setOpenid(openId);
-        newUser.setUsername(mobile); // 使用手机号作为用户名
-        newUser.setNickname("微信用户_" + mobile.substring(mobile.length() - 4)); // 使用手机号后4位作为昵称
-        newUser.setPassword(SystemConstants.DEFAULT_PASSWORD); // 使用加密的openId作为初始密码
-        newUser.setGender(0); // 保密
-        newUser.setCreateTime(LocalDateTime.now());
-        newUser.setUpdateTime(LocalDateTime.now());
-        this.save(newUser);
-        // 为了默认系统管理员角色，这里按需调整，实际情况绑定已存在的系统用户，另一种情况是给默认游客角色，然后由系统管理员设置用户的角色
-        UserRole userRole = new UserRole();
-        userRole.setUserId(newUser.getId());
-        userRole.setRoleId(1L);  // TODO 系统管理员
-        userRoleService.save(userRole);
-        return true;
-    }
-
-    /**
-     * 绑定用户微信OpenID
-     *
-     * @param userId 用户ID
-     * @param openId 微信OpenID
-     * @return 是否成功
-     */
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public boolean bindUserOpenId(Long userId, String openId) {
-        if (userId == null || StrUtil.isBlank(openId)) {
-            return false;
-        }
-
-        // 检查是否已有其他用户绑定了此openId
-        User existingUser = this.getOne(
-                new LambdaQueryWrapper<User>()
-                        .eq(User::getOpenid, openId)
-                        .ne(User::getId, userId)
-        );
-
-        if (existingUser != null) {
-            log.warn("OpenID {} 已被用户 {} 绑定，无法为用户 {} 绑定", openId, existingUser.getId(), userId);
-            return false;
-        }
-
-        // 更新用户openId
-        boolean updated = this.update(
-                new LambdaUpdateWrapper<User>()
-                        .eq(User::getId, userId)
-                        .set(User::getOpenid, openId)
-                        .set(User::getUpdateTime, LocalDateTime.now())
-        );
-        return updated ;
     }
 
     /**
@@ -585,7 +427,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 try {
                     TenantContextHolder.setIgnoreTenant(false);
                     TenantContextHolder.setTenantId(SystemConstants.PLATFORM_TENANT_ID);
-                    perms = permissionService.getRolePerms(roles);
+                    perms = roleMenuService.getRolePermsByRoleCodes(roles);
                 } finally {
                     TenantContextHolder.setIgnoreTenant(permsOldIgnoreTenant);
                     if (permsOldTenantId != null) {
@@ -593,7 +435,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                     }
                 }
             } else {
-                perms = permissionService.getRolePerms(roles);
+                perms = roleMenuService.getRolePermsByRoleCodes(roles);
             }
             userInfoVO.setPerms(perms);
         }

@@ -55,7 +55,4 @@ public class UserForm {
     @NotEmpty(message = "用户角色不能为空")
     private List<Long> roleIds;
 
-    @Schema(description="微信openId")
-    private String openId;
-
 }

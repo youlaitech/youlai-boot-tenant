@@ -9,6 +9,7 @@ import cn.hutool.http.useragent.UserAgentUtil;
 import cn.hutool.json.JSONUtil;
 import com.aliyun.oss.HttpMethod;
 import com.youlai.boot.common.util.IPUtils;
+import com.youlai.boot.common.tenant.TenantContextHolder;
 import com.youlai.boot.security.util.SecurityUtils;
 import com.youlai.boot.system.model.entity.Log;
 import com.youlai.boot.system.service.LogService;
@@ -61,7 +62,7 @@ public class LogAspect {
     public Object doAround(ProceedingJoinPoint joinPoint, com.youlai.boot.common.annotation.Log logAnnotation) throws Throwable {
         // 在方法执行前获取用户ID，避免在方法执行过程中清除上下文导致获取不到用户ID
         Long userId = SecurityUtils.getUserId();
-        
+
         TimeInterval timer = DateUtil.timer();
         Object result = null;
         Exception exception = null;
@@ -148,7 +149,15 @@ public class LogAspect {
         String methodName = joinPoint.getSignature().getName();
         log.setMethod(methodName);
         // 保存日志到数据库
-        logService.save(log);
+        boolean ignoreTenantBefore = TenantContextHolder.isIgnoreTenant();
+        try {
+            if (TenantContextHolder.getTenantId() == null) {
+                TenantContextHolder.setIgnoreTenant(true);
+            }
+            logService.save(log);
+        } finally {
+            TenantContextHolder.setIgnoreTenant(ignoreTenantBefore);
+        }
     }
 
     /**

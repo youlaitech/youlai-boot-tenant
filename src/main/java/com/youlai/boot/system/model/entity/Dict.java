@@ -38,7 +38,6 @@ public class Dict {
      */
     private String name;
 
-
     /**
      * 状态（1：启用, 0：停用）
      */

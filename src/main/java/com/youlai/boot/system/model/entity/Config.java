@@ -62,8 +62,6 @@ public class Config  {
      */
     private Integer isDeleted;
 
-
-
     /**
      * 创建时间
      */
