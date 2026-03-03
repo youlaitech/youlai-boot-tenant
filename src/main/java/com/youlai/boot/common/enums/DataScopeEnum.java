@@ -13,7 +13,6 @@ import lombok.Getter;
 public enum DataScopeEnum implements IBaseEnum<Integer> {
 
     /**
-     * value 越小，数据权限范围越大
      */
     ALL(1, "所有数据"),
     DEPT_AND_SUB(2, "部门及子部门数据"),
