@@ -151,8 +151,8 @@ const contentConfig: IContentConfig<${entityName}PageQuery> = reactive({
   // 数据解析函数
   parseData(res: any) {
     return {
-      total: res.total,
-      list: res.list,
+      total: res?.page?.total ?? 0,
+      list: res?.data ?? [],
     };
   },
   // 分页配置

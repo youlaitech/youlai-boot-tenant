@@ -27,14 +27,18 @@ public interface CodegenService {
      * 获取预览生成代码
      *
      * @param tableName 表名
+     * @param pageType 页面类型
+     * @param type 前端类型(ts/js)
      * @return
      */
-    List<CodegenPreviewVO> getCodegenPreviewData(String tableName, String pageType);
+    List<CodegenPreviewVO> getCodegenPreviewData(String tableName, String pageType, String type);
 
     /**
      * 下载代码
      * @param tableNames 表名
+     * @param pageType 页面类型
+     * @param type 前端类型(ts/js)
      * @return
      */
-    byte[] downloadCode(String[] tableNames, String pageType);
+    byte[] downloadCode(String[] tableNames, String pageType, String type);
 }
