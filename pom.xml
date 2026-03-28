@@ -6,8 +6,8 @@
 
     <groupId>com.youlai</groupId>
     <artifactId>youlai-boot-tenant</artifactId>
-    <version>4.1.0</version>
-    <description>基于 Java 17 + SpringBoot 4 + Spring Security 构建的权限管理系统。</description>
+    <version>4.2.0</version>
+    <description>基于 Java 17 + SpringBoot 4 + Spring Security 构建的多租户权限管理系统。</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
