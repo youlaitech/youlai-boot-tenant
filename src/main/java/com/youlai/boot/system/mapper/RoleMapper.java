@@ -1,7 +1,7 @@
 package com.youlai.boot.system.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.youlai.boot.security.model.RoleDataScope;
+import com.youlai.boot.framework.security.model.RoleDataScope;
 import com.youlai.boot.system.model.entity.Role;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

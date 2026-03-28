@@ -6,7 +6,7 @@
 <mapper namespace="com.youlai.boot.system.mapper.UserMapper">
 
     <!-- 用户分页列表 mysql版本-->
-    <select id="getUserPage" resultType="com.youlai.boot.system.model.bo.UserBO" databaseId="mysql">
+    <select id="getUserPage" resultType="com.youlai.boot.system.model.vo.UserPageVO" databaseId="mysql">
         SELECT
             u.id,
             u.username,
@@ -80,7 +80,7 @@
         </choose>
     </select>
     <!-- 用户分页列表 dm版本-->
-    <select id="getUserPage" resultType="com.youlai.boot.system.model.bo.UserBO" databaseId="dm">
+    <select id="getUserPage" resultType="com.youlai.boot.system.model.vo.UserPageVO" databaseId="dm">
         SELECT
         u.id,
         u.username,
@@ -300,7 +300,7 @@
     </select>
 
     <!-- 根据用户ID获取用户详情 mysql版本-->
-    <select id="getUserProfile" resultType="com.youlai.boot.system.model.bo.UserBO" databaseId="mysql">
+    <select id="getUserProfile" resultType="com.youlai.boot.system.model.vo.UserProfileVO" databaseId="mysql">
         SELECT
             u.id,
             u.username,
@@ -322,7 +322,7 @@
             u.id = #{userId} AND u.is_deleted = 0
     </select>
     <!-- 根据用户ID获取用户详情 dm版本-->
-    <select id="getUserProfile" resultType="com.youlai.boot.system.model.bo.UserBO" databaseId="dm">
+    <select id="getUserProfile" resultType="com.youlai.boot.system.model.vo.UserProfileVO" databaseId="dm">
         SELECT
             u.id,
             u.username,

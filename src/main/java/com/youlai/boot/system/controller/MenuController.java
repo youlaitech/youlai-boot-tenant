@@ -2,9 +2,10 @@ package com.youlai.boot.system.controller;
 
 import com.youlai.boot.common.annotation.Log;
 import com.youlai.boot.common.annotation.RepeatSubmit;
+import com.youlai.boot.common.enums.ActionTypeEnum;
 import com.youlai.boot.common.enums.LogModuleEnum;
 import com.youlai.boot.common.model.Option;
-import com.youlai.boot.core.web.Result;
+import com.youlai.boot.common.result.Result;
 import com.youlai.boot.system.model.form.MenuForm;
 import com.youlai.boot.system.model.query.MenuQuery;
 import com.youlai.boot.system.model.vo.MenuVO;
@@ -37,7 +38,7 @@ public class MenuController {
 
     @Operation(summary = "菜单列表")
     @GetMapping
-    @Log(value = "菜单列表", module = LogModuleEnum.MENU)
+    @Log(module = LogModuleEnum.MENU, value = ActionTypeEnum.LIST)
     public Result<List<MenuVO>> getMenus(MenuQuery queryParams) {
         List<MenuVO> menuList = menuService.listMenus(queryParams);
         return Result.success(menuList);
@@ -65,6 +66,7 @@ public class MenuController {
     @Operation(summary = "菜单表单数据")
     @GetMapping("/{id}/form")
     @PreAuthorize("@ss.hasPerm('sys:menu:update')")
+    @Log(module = LogModuleEnum.MENU, value = ActionTypeEnum.OTHER)
     public Result<MenuForm> getMenuForm(
             @Parameter(description = "菜单ID") @PathVariable Long id
     ) {
@@ -76,6 +78,7 @@ public class MenuController {
     @PostMapping
     @PreAuthorize("@ss.hasPerm('sys:menu:create')")
     @RepeatSubmit
+    @Log(module = LogModuleEnum.MENU, value = ActionTypeEnum.INSERT)
     public Result<?> addMenu(@RequestBody MenuForm menuForm) {
         boolean result = menuService.saveMenu(menuForm);
         return Result.judge(result);
@@ -84,6 +87,7 @@ public class MenuController {
     @Operation(summary = "修改菜单")
     @PutMapping(value = "/{id}")
     @PreAuthorize("@ss.hasPerm('sys:menu:update')")
+    @Log(module = LogModuleEnum.MENU, value = ActionTypeEnum.UPDATE)
     public Result<?> updateMenu(
             @RequestBody MenuForm menuForm
     ) {
@@ -94,6 +98,7 @@ public class MenuController {
     @Operation(summary = "删除菜单")
     @DeleteMapping("/{id}")
     @PreAuthorize("@ss.hasPerm('sys:menu:delete')")
+    @Log(module = LogModuleEnum.MENU, value = ActionTypeEnum.DELETE)
     public Result<?> deleteMenu(
             @Parameter(description = "菜单ID，多个以英文(,)分割") @PathVariable("id") Long id
     ) {
@@ -104,6 +109,7 @@ public class MenuController {
     @Operation(summary = "修改菜单显示状态")
     @PatchMapping("/{menuId}")
     @PreAuthorize("@ss.hasPerm('sys:menu:update')")
+    @Log(module = LogModuleEnum.MENU, value = ActionTypeEnum.UPDATE)
     public Result<?> updateMenuVisible(
             @Parameter(description = "菜单ID") @PathVariable Long menuId,
             @Parameter(description = "显示状态(1:显示;0:隐藏)") Integer visible
@@ -114,4 +120,3 @@ public class MenuController {
     }
 
 }
-

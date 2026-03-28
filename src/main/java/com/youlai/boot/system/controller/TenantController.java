@@ -1,9 +1,9 @@
 package com.youlai.boot.system.controller;
 
-import com.youlai.boot.common.tenant.TenantContextHolder;
-import com.youlai.boot.core.web.PageResult;
-import com.youlai.boot.core.web.Result;
-import com.youlai.boot.security.util.SecurityUtils;
+import com.youlai.boot.framework.tenant.TenantContextHolder;
+import com.youlai.boot.common.result.PageResult;
+import com.youlai.boot.common.result.Result;
+import com.youlai.boot.framework.security.util.SecurityUtils;
 import com.youlai.boot.system.model.form.TenantCreateForm;
 import com.youlai.boot.system.model.form.TenantForm;
 import com.youlai.boot.system.model.query.TenantQuery;

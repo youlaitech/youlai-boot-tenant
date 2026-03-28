@@ -1,14 +1,12 @@
 package com.youlai.boot.common.annotation;
 
+import com.youlai.boot.common.enums.ActionTypeEnum;
 import com.youlai.boot.common.enums.LogModuleEnum;
 
 import java.lang.annotation.*;
 
 /**
  * 日志注解
- *
- * @author Ray
- * @since 2024/6/25
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
@@ -16,34 +14,23 @@ import java.lang.annotation.*;
 public @interface Log {
 
     /**
-     * 日志描述
-     *
-     * @return 日志描述
+     * 模块
      */
-    String value() default "";
-
-    /**
-     * 日志模块
-     *
-     * @return 日志模块
-     */
-
     LogModuleEnum module();
 
     /**
-     * 是否记录请求参数
-     *
-     * @return 是否记录请求参数
+     * 操作类型
      */
-    boolean params() default true;
+    ActionTypeEnum value();
 
     /**
-     * 是否记录响应结果
-     * <br/>
-     * 响应结果默认不记录，避免日志过大
-     * @return 是否记录响应结果
+     * 操作标题（可选，默认使用枚举描述）
      */
-    boolean result() default false;
+    String title() default "";
 
+    /**
+     * 自定义日志内容（可选，用于记录操作细节）
+     */
+    String content() default "";
 
 }

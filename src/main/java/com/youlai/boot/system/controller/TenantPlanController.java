@@ -2,8 +2,8 @@ package com.youlai.boot.system.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.youlai.boot.common.model.Option;
-import com.youlai.boot.core.web.PageResult;
-import com.youlai.boot.core.web.Result;
+import com.youlai.boot.common.result.PageResult;
+import com.youlai.boot.common.result.Result;
 import com.youlai.boot.system.model.form.TenantPlanForm;
 import com.youlai.boot.system.model.query.TenantPlanQuery;
 import com.youlai.boot.system.model.vo.TenantPlanPageVO;

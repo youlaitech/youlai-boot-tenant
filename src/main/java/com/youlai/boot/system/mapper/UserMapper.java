@@ -2,13 +2,14 @@ package com.youlai.boot.system.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.youlai.boot.system.model.bo.UserBO;
 import com.youlai.boot.system.model.entity.User;
 import com.youlai.boot.system.model.query.UserQuery;
 import com.youlai.boot.system.model.form.UserForm;
 import com.youlai.boot.common.annotation.DataPermission;
-import com.youlai.boot.security.model.UserAuthInfo;
+import com.youlai.boot.framework.security.model.UserAuthInfo;
 import com.youlai.boot.system.model.dto.UserExportDTO;
+import com.youlai.boot.system.model.vo.UserPageVO;
+import com.youlai.boot.system.model.vo.UserProfileVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -31,7 +32,7 @@ public interface UserMapper extends BaseMapper<User> {
      * @return 用户分页列表
      */
     @DataPermission(deptAlias = "u", userAlias = "u")
-    Page<UserBO> getUserPage(Page<UserBO> page, @Param("queryParams") UserQuery queryParams);
+    Page<UserPageVO> getUserPage(Page<UserPageVO> page, @Param("queryParams") UserQuery queryParams);
 
     /**
      * 获取用户表单详情
@@ -80,6 +81,6 @@ public interface UserMapper extends BaseMapper<User> {
      * @param userId 用户ID
      * @return 用户个人中心信息
      */
-    UserBO getUserProfile(Long userId);
+    UserProfileVO getUserProfile(Long userId);
 
 }

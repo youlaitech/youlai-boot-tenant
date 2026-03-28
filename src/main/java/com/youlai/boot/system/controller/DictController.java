@@ -2,8 +2,9 @@ package com.youlai.boot.system.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.youlai.boot.common.model.Option;
-import com.youlai.boot.core.web.PageResult;
-import com.youlai.boot.core.web.Result;
+import com.youlai.boot.common.result.PageResult;
+import com.youlai.boot.common.result.Result;
+import com.youlai.boot.common.enums.ActionTypeEnum;
 import com.youlai.boot.common.enums.LogModuleEnum;
 import com.youlai.boot.system.model.form.DictItemForm;
 import com.youlai.boot.system.model.query.DictItemQuery;
@@ -16,7 +17,7 @@ import com.youlai.boot.system.model.form.DictForm;
 import com.youlai.boot.common.annotation.Log;
 import com.youlai.boot.system.service.DictItemService;
 import com.youlai.boot.system.service.DictService;
-import com.youlai.boot.support.websocket.service.WebSocketService;
+import com.youlai.boot.module.sse.service.SseService;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,14 +43,14 @@ public class DictController {
 
     private final DictService dictService;
     private final DictItemService dictItemService;
-    private final WebSocketService webSocketService;
+    private final SseService sseService;
 
     //---------------------------------------------------
     // 字典相关接口
     //---------------------------------------------------
     @Operation(summary = "字典分页列表")
     @GetMapping
-    @Log(value = "字典分页列表", module = LogModuleEnum.DICT)
+    @Log(module = LogModuleEnum.DICT, value = ActionTypeEnum.LIST)
     public PageResult<DictPageVO> getDictPage(
             DictQuery queryParams
     ) {
@@ -78,11 +79,12 @@ public class DictController {
     @PostMapping
     @PreAuthorize("@ss.hasPerm('sys:dict:create')")
     @RepeatSubmit
+    @Log(module = LogModuleEnum.DICT, value = ActionTypeEnum.INSERT)
     public Result<?> saveDict(@Valid @RequestBody DictForm formData) {
         boolean result = dictService.saveDict(formData);
         // 发送字典更新通知
         if (result) {
-            webSocketService.broadcastDictChange(formData.getDictCode());
+            sseService.sendDictChange(formData.getDictCode());
         }
         return Result.judge(result);
     }
@@ -90,6 +92,7 @@ public class DictController {
     @Operation(summary = "修改字典")
     @PutMapping("/{id}")
     @PreAuthorize("@ss.hasPerm('sys:dict:update')")
+    @Log(module = LogModuleEnum.DICT, value = ActionTypeEnum.UPDATE)
     public Result<?> updateDict(
             @PathVariable Long id,
             @RequestBody DictForm dictForm
@@ -97,7 +100,7 @@ public class DictController {
         boolean status = dictService.updateDict(id, dictForm);
         // 发送字典更新通知
         if (status && dictForm.getDictCode() != null) {
-            webSocketService.broadcastDictChange(dictForm.getDictCode());
+          sseService.sendDictChange(dictForm.getDictCode());
         }
         return Result.judge(status);
     }
@@ -105,6 +108,7 @@ public class DictController {
     @Operation(summary = "删除字典")
     @DeleteMapping("/{ids}")
     @PreAuthorize("@ss.hasPerm('sys:dict:delete')")
+    @Log(module = LogModuleEnum.DICT, value = ActionTypeEnum.DELETE)
     public Result<?> deleteDictionaries(
             @Parameter(description = "字典ID，多个以英文逗号(,)拼接") @PathVariable String ids
     ) {
@@ -115,7 +119,7 @@ public class DictController {
 
         // 发送字典删除通知
         for (String dictCode : dictCodes) {
-            webSocketService.broadcastDictChange(dictCode);
+          sseService.sendDictChange(dictCode);
         }
 
         return Result.success();
@@ -149,18 +153,19 @@ public class DictController {
     @PostMapping("/{dictCode}/items")
     @PreAuthorize("@ss.hasPerm('sys:dict-item:create')")
     @RepeatSubmit
+    @Log(module = LogModuleEnum.DICT, value = ActionTypeEnum.INSERT)
     public Result<Void> saveDictItem(
             @PathVariable String dictCode,
             @Valid @RequestBody DictItemForm formData
     ) {
         formData.setDictCode(dictCode);
         boolean result = dictItemService.saveDictItem(formData);
-        
+
         // 发送字典更新通知
         if (result) {
-          webSocketService.broadcastDictChange(dictCode);
+          sseService.sendDictChange(dictCode);
         }
-        
+
         return Result.judge(result);
     }
 
@@ -178,6 +183,7 @@ public class DictController {
     @PutMapping("/{dictCode}/items/{itemId}")
     @PreAuthorize("@ss.hasPerm('sys:dict-item:update')")
     @RepeatSubmit
+    @Log(module = LogModuleEnum.DICT, value = ActionTypeEnum.UPDATE)
     public Result<?> updateDictItem(
             @PathVariable String dictCode,
             @PathVariable Long itemId,
@@ -186,27 +192,28 @@ public class DictController {
         formData.setId(itemId);
         formData.setDictCode(dictCode);
         boolean status = dictItemService.updateDictItem(formData);
-        
+
         // 发送字典更新通知
         if (status) {
-            webSocketService.broadcastDictChange(dictCode);
+            sseService.sendDictChange(dictCode);
         }
-        
+
         return Result.judge(status);
     }
 
     @Operation(summary = "删除字典项")
     @DeleteMapping("/{dictCode}/items/{itemIds}")
     @PreAuthorize("@ss.hasPerm('sys:dict-item:delete')")
+    @Log(module = LogModuleEnum.DICT, value = ActionTypeEnum.DELETE)
     public Result<Void> deleteDictItems(
             @PathVariable String dictCode,
             @Parameter(description = "字典ID，多个以英文逗号(,)拼接") @PathVariable String itemIds
     ) {
         dictItemService.deleteDictItemByIds(itemIds);
-        
+
         // 发送字典更新通知
-        webSocketService.broadcastDictChange(dictCode);
-        
+        sseService.sendDictChange(dictCode);
+
         return Result.success();
     }
 

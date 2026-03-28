@@ -5,18 +5,18 @@ import cn.hutool.captcha.CaptchaUtil;
 import cn.hutool.captcha.generator.CodeGenerator;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.StrUtil;
-import com.youlai.boot.auth.model.vo.CaptchaVO;
+import com.youlai.boot.framework.captcha.model.CaptchaInfo;
 import com.youlai.boot.auth.service.AuthService;
 import com.youlai.boot.common.constant.RedisConstants;
 import com.youlai.boot.common.enums.CaptchaTypeEnum;
-import com.youlai.boot.config.property.CaptchaProperties;
-import com.youlai.boot.support.sms.enums.SmsTypeEnum;
-import com.youlai.boot.support.sms.service.SmsService;
-import com.youlai.boot.security.model.AuthenticationToken;
-import com.youlai.boot.security.model.SmsAuthenticationToken;
-import com.youlai.boot.security.token.TokenManager;
-import com.youlai.boot.security.util.SecurityUtils;
-import com.youlai.boot.common.tenant.TenantContextHolder;
+import com.youlai.boot.framework.captcha.CaptchaProperties;
+import com.youlai.boot.framework.integration.sms.enums.SmsTypeEnum;
+import com.youlai.boot.framework.integration.sms.service.SmsService;
+import com.youlai.boot.framework.security.model.AuthenticationToken;
+import com.youlai.boot.framework.security.model.SmsAuthenticationToken;
+import com.youlai.boot.framework.security.token.TokenManager;
+import com.youlai.boot.framework.security.util.SecurityUtils;
+import com.youlai.boot.framework.tenant.TenantContextHolder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -153,7 +153,7 @@ public class AuthServiceImpl implements AuthService {
      * @return 验证码
      */
     @Override
-    public CaptchaVO getCaptcha() {
+    public CaptchaInfo getCaptcha() {
 
         String captchaType = captchaProperties.getType();
         int width = captchaProperties.getWidth();
@@ -189,7 +189,7 @@ public class AuthServiceImpl implements AuthService {
                 TimeUnit.SECONDS
         );
 
-        return CaptchaVO.builder()
+        return CaptchaInfo.builder()
                 .captchaId(captchaId)
                 .captchaBase64(imageBase64Data)
                 .build();

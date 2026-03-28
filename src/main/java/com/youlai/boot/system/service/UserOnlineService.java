@@ -1,8 +1,8 @@
 package com.youlai.boot.system.service;
 
-import com.youlai.boot.support.websocket.publisher.WebSocketPublisher;
-import com.youlai.boot.support.websocket.topic.WebSocketTopics;
+import com.youlai.boot.module.sse.service.SseService;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -12,38 +12,28 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
- * 用户在线状态服务
- * 负责维护用户的在线状态和相关统计
- *
- * @author Ray.Hao
- * @since 3.0.0
+ * 用户在线服务
  */
-@Service
 @Slf4j
+@Service
+@RequiredArgsConstructor
 public class UserOnlineService {
 
-    // 在线用户映射表，key为用户名，value为用户在线信息
-    private final Map<String, UserOnlineInfo> onlineUsers = new ConcurrentHashMap<>();
-    
-    private final WebSocketPublisher webSocketPublisher;
+    private final SseService sseService;
 
-    public UserOnlineService(WebSocketPublisher webSocketPublisher) {
-        this.webSocketPublisher = webSocketPublisher;
-    }
+    /** 在线用户信息：用户名 -> 用户在线信息 */
+    private final Map<String, UserOnlineInfo> onlineUsers = new ConcurrentHashMap<>();
 
     /**
      * 用户上线
      *
-     * @param username  用户名
-     * @param sessionId WebSocket会话ID（可选）
+     * @param username 用户名
+     * @param sessionId 会话ID
      */
     public void userConnected(String username, String sessionId) {
-        // 生成会话ID（如果未提供）
-        String actualSessionId = sessionId != null ? sessionId : "session-" + System.nanoTime();
-        UserOnlineInfo info = new UserOnlineInfo(username, actualSessionId, System.currentTimeMillis());
+        UserOnlineInfo info = new UserOnlineInfo(username, sessionId, System.currentTimeMillis());
         onlineUsers.put(username, info);
         log.info("用户[{}]上线，当前在线用户数：{}", username, onlineUsers.size());
-        
         // 通知在线用户状态变更
         notifyOnlineUsersChange();
     }
@@ -56,7 +46,6 @@ public class UserOnlineService {
     public void userDisconnected(String username) {
         onlineUsers.remove(username);
         log.info("用户[{}]下线，当前在线用户数：{}", username, onlineUsers.size());
-        
         // 通知在线用户状态变更
         notifyOnlineUsersChange();
     }
@@ -98,7 +87,7 @@ public class UserOnlineService {
         // 发送简化版数据（仅数量）
         sendOnlineUserCount();
     }
-    
+
     /**
      * 发送在线用户数量（简化版，不包含用户详情）
      */
@@ -106,8 +95,8 @@ public class UserOnlineService {
         try {
             // 直接发送数量，更轻量
             int count = onlineUsers.size();
-            webSocketPublisher.publish(WebSocketTopics.TOPIC_ONLINE_COUNT, count);
-            log.debug("已发送在线用户数量: {}", count);
+            sseService.sendOnlineCount();
+            log.debug("已发送在线用户数: {}", count);
         } catch (Exception e) {
             log.error("发送在线用户数量失败", e);
         }
@@ -142,4 +131,4 @@ public class UserOnlineService {
         private List<UserOnlineDTO> users;
         private long timestamp;
     }
-} 
+}

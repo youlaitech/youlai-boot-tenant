@@ -1,19 +1,20 @@
 package com.youlai.boot.auth.controller;
 
-import com.youlai.boot.auth.model.vo.CaptchaVO;
-import com.youlai.boot.auth.model.dto.LoginRequest;
+import com.youlai.boot.framework.captcha.model.CaptchaInfo;
+import com.youlai.boot.auth.model.LoginReq;
+import com.youlai.boot.common.enums.ActionTypeEnum;
 import com.youlai.boot.common.enums.LogModuleEnum;
-import com.youlai.boot.core.web.Result;
+import com.youlai.boot.common.result.Result;
 import com.youlai.boot.auth.service.AuthService;
 import com.youlai.boot.common.annotation.Log;
-import com.youlai.boot.core.web.ResultCode;
-import com.youlai.boot.security.model.SysUserDetails;
-import com.youlai.boot.security.model.AuthenticationToken;
-import com.youlai.boot.security.token.TokenManager;
+import com.youlai.boot.common.result.ResultCode;
+import com.youlai.boot.framework.security.model.SysUserDetails;
+import com.youlai.boot.framework.security.model.AuthenticationToken;
+import com.youlai.boot.framework.security.token.TokenManager;
 import com.youlai.boot.system.model.entity.User;
 import com.youlai.boot.system.service.TenantService;
 import com.youlai.boot.system.service.UserService;
-import com.youlai.boot.security.model.UserAuthInfo;
+import com.youlai.boot.framework.security.model.UserAuthInfo;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -50,15 +51,15 @@ public class AuthController {
 
     @Operation(summary = "获取验证码")
     @GetMapping("/captcha")
-    public Result<CaptchaVO> getCaptcha() {
-        CaptchaVO captcha = authService.getCaptcha();
+    public Result<CaptchaInfo> getCaptcha() {
+        CaptchaInfo captcha = authService.getCaptcha();
         return Result.success(captcha);
     }
 
     @Operation(summary = "账号密码登录")
     @PostMapping("/login")
-    @Log(value = "登录", module = LogModuleEnum.LOGIN)
-    public Result<?> login(HttpServletRequest httpServletRequest, @RequestBody @Valid LoginRequest request) {
+    @Log(module = LogModuleEnum.LOGIN, value = ActionTypeEnum.LOGIN)
+    public Result<?> login(HttpServletRequest httpServletRequest, @RequestBody @Valid LoginReq request) {
         String username = request.getUsername();
         String password = request.getPassword();
         Long tenantId = request.getTenantId();
@@ -82,7 +83,7 @@ public class AuthController {
         // 多租户模式：未指定租户ID且无法从域名解析，查询该用户名在所有租户下的账户
         List<User> users = userService.listUsersByUsernameAcrossAllTenants(username);
 
-        // 为避免账号枚举与租户信息泄露，此处对外统一返回“账号或密码错误”
+        // 为避免账号枚举与租户信息泄露，此处对外统一返回"账号或密码错误"
         if (users.isEmpty()) {
             return Result.failed("账号或密码错误");
         }
@@ -96,7 +97,7 @@ public class AuthController {
             return Result.failed("账号或密码错误");
         }
 
-        // 关键：只有当密码校验通过后，才允许进入“选择租户”分支，防止租户列表被探测
+        // 关键：只有当密码校验通过后，才允许进入"选择租户"分支，防止租户列表被探测
         List<User> passwordMatchedUsers = activeUsers.stream()
                 .filter(user -> Objects.nonNull(user.getPassword()) && passwordEncoder.matches(password, user.getPassword()))
                 .toList();
@@ -156,9 +157,9 @@ public class AuthController {
 
     @Operation(summary = "短信验证码登录")
     @PostMapping("/login/sms")
-    @Log(value = "短信验证码登录", module = LogModuleEnum.LOGIN)
+    @Log(module = LogModuleEnum.LOGIN, value = ActionTypeEnum.LOGIN)
     public Result<AuthenticationToken> loginBySms(
-            @Parameter(description = "手机号", example = "18812345678") @RequestParam String mobile,
+            @Parameter(description = "手机号", example = "18888888888") @RequestParam String mobile,
             @Parameter(description = "验证码", example = "1234") @RequestParam String code
     ) {
         AuthenticationToken loginResult = authService.loginBySms(mobile, code);
@@ -168,7 +169,7 @@ public class AuthController {
     @Operation(summary = "发送登录短信验证码")
     @PostMapping("/sms/code")
     public Result<Void> sendLoginVerifyCode(
-            @Parameter(description = "手机号", example = "18812345678") @RequestParam String mobile
+            @Parameter(description = "手机号", example = "18888888888") @RequestParam String mobile
     ) {
         authService.sendSmsLoginCode(mobile);
         return Result.success();
@@ -177,7 +178,7 @@ public class AuthController {
 
     @Operation(summary = "退出登录")
     @DeleteMapping("/logout")
-    @Log(value = "退出登录", module = LogModuleEnum.LOGIN)
+    @Log(module = LogModuleEnum.LOGIN, value = ActionTypeEnum.LOGOUT)
     public Result<?> logout() {
         authService.logout();
         return Result.success();

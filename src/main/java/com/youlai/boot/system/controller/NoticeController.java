@@ -1,8 +1,11 @@
 package com.youlai.boot.system.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.youlai.boot.core.web.PageResult;
-import com.youlai.boot.core.web.Result;
+import com.youlai.boot.common.annotation.Log;
+import com.youlai.boot.common.enums.ActionTypeEnum;
+import com.youlai.boot.common.enums.LogModuleEnum;
+import com.youlai.boot.common.result.PageResult;
+import com.youlai.boot.common.result.Result;
 import com.youlai.boot.system.model.form.NoticeForm;
 import com.youlai.boot.system.model.query.NoticeQuery;
 import com.youlai.boot.system.model.vo.NoticeDetailVO;
@@ -45,6 +48,7 @@ public class NoticeController {
     @Operation(summary = "通知公告分页列表")
     @GetMapping
     @PreAuthorize("@ss.hasPerm('sys:notice:list')")
+    @Log(module = LogModuleEnum.NOTICE, value = ActionTypeEnum.LIST)
     public PageResult<NoticePageVO> getNoticePage(NoticeQuery queryParams) {
         IPage<NoticePageVO> result = noticeService.getNoticePage(queryParams);
         return PageResult.success(result);
@@ -53,6 +57,7 @@ public class NoticeController {
     @Operation(summary = "新增通知公告")
     @PostMapping
     @PreAuthorize("@ss.hasPerm('sys:notice:create')")
+    @Log(module = LogModuleEnum.NOTICE, value = ActionTypeEnum.INSERT)
     public Result<?> saveNotice(@RequestBody @Valid NoticeForm formData) {
         boolean result = noticeService.saveNotice(formData);
         return Result.judge(result);
@@ -80,6 +85,7 @@ public class NoticeController {
     @Operation(summary = "修改通知公告")
     @PutMapping(value = "/{id}")
     @PreAuthorize("@ss.hasPerm('sys:notice:update')")
+    @Log(module = LogModuleEnum.NOTICE, value = ActionTypeEnum.UPDATE)
     public Result<Void> updateNotice(
             @Parameter(description = "通知公告ID") @PathVariable Long id,
             @RequestBody @Validated NoticeForm formData
@@ -91,6 +97,7 @@ public class NoticeController {
     @Operation(summary = "发布通知公告")
     @PutMapping("/{id}/publish")
     @PreAuthorize("@ss.hasPerm('sys:notice:publish')")
+    @Log(module = LogModuleEnum.NOTICE, value = ActionTypeEnum.UPDATE)
     public Result<Void> publishNotice(
             @Parameter(description = "通知公告ID") @PathVariable Long id
     ) {
@@ -101,6 +108,7 @@ public class NoticeController {
     @Operation(summary = "撤回通知公告")
     @PutMapping("/{id}/revoke")
     @PreAuthorize("@ss.hasPerm('sys:notice:revoke')")
+    @Log(module = LogModuleEnum.NOTICE, value = ActionTypeEnum.UPDATE)
     public Result<Void> revokeNotice(
             @Parameter(description = "通知公告ID") @PathVariable Long id
     ) {
@@ -111,6 +119,7 @@ public class NoticeController {
     @Operation(summary = "删除通知公告")
     @DeleteMapping("/{ids}")
     @PreAuthorize("@ss.hasPerm('sys:notice:delete')")
+    @Log(module = LogModuleEnum.NOTICE, value = ActionTypeEnum.DELETE)
     public Result<Void> deleteNotices(
             @Parameter(description = "通知公告ID，多个以英文逗号(,)分割") @PathVariable String ids
     ) {

@@ -5,13 +5,12 @@ import cn.idev.excel.ExcelWriter;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.youlai.boot.common.annotation.Log;
 import com.youlai.boot.common.annotation.RepeatSubmit;
+import com.youlai.boot.common.enums.ActionTypeEnum;
 import com.youlai.boot.common.enums.LogModuleEnum;
 import com.youlai.boot.common.model.Option;
-import com.youlai.boot.core.web.ExcelResult;
-import com.youlai.boot.core.web.PageResult;
-import com.youlai.boot.core.web.Result;
+import com.youlai.boot.common.result.PageResult;
+import com.youlai.boot.common.result.Result;
 import com.youlai.boot.common.util.ExcelUtils;
-import com.youlai.boot.security.util.SecurityUtils;
 import com.youlai.boot.system.listener.UserImportListener;
 import com.youlai.boot.system.model.dto.UserExportDTO;
 import com.youlai.boot.system.model.dto.UserImportDTO;
@@ -22,6 +21,7 @@ import com.youlai.boot.system.model.dto.CurrentUserDTO;
 import com.youlai.boot.system.model.vo.UserPageVO;
 import com.youlai.boot.system.model.vo.UserProfileVO;
 import com.youlai.boot.system.service.UserService;
+import com.youlai.boot.framework.security.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -57,7 +57,7 @@ public class UserController {
 
     @Operation(summary = "用户列表")
     @GetMapping
-    @Log(value = "用户列表", module = LogModuleEnum.USER)
+    @Log(module = LogModuleEnum.USER, value = ActionTypeEnum.LIST)
     public PageResult<UserPageVO> getUserList(
             @Valid UserQuery queryParams
     ) {
@@ -68,7 +68,7 @@ public class UserController {
     @PostMapping
     @PreAuthorize("@ss.hasPerm('sys:user:create')")
     @RepeatSubmit
-    @Log(value = "新增用户", module = LogModuleEnum.USER)
+    @Log(module = LogModuleEnum.USER, value = ActionTypeEnum.INSERT)
     public Result<?> saveUser(
             @RequestBody @Valid UserForm userForm
     ) {
@@ -79,7 +79,7 @@ public class UserController {
     @Operation(summary = "获取用户表单数据")
     @GetMapping("/{userId}/form")
     @PreAuthorize("@ss.hasPerm('sys:user:update')")
-    @Log(value = "用户表单数据", module = LogModuleEnum.USER)
+    @Log(module = LogModuleEnum.USER, value = ActionTypeEnum.UPDATE)
     public Result<UserForm> getUserForm(
             @Parameter(description = "用户ID") @PathVariable Long userId
     ) {
@@ -90,7 +90,7 @@ public class UserController {
     @Operation(summary = "修改用户")
     @PutMapping(value = "/{userId}")
     @PreAuthorize("@ss.hasPerm('sys:user:update')")
-    @Log(value = "修改用户", module = LogModuleEnum.USER)
+    @Log(module = LogModuleEnum.USER, value = ActionTypeEnum.UPDATE)
     public Result<Void> updateUser(
             @Parameter(description = "用户ID") @PathVariable Long userId,
             @RequestBody @Valid UserForm userForm
@@ -102,7 +102,7 @@ public class UserController {
     @Operation(summary = "删除用户")
     @DeleteMapping("/{ids}")
     @PreAuthorize("@ss.hasPerm('sys:user:delete')")
-    @Log(value = "删除用户", module = LogModuleEnum.USER)
+    @Log(module = LogModuleEnum.USER, value = ActionTypeEnum.DELETE)
     public Result<Void> deleteUsers(
             @Parameter(description = "用户ID，多个以英文逗号(,)分割") @PathVariable String ids
     ) {
@@ -113,7 +113,7 @@ public class UserController {
     @Operation(summary = "修改用户状态")
     @PatchMapping(value = "/{userId}/status")
     @PreAuthorize("@ss.hasPerm('sys:user:update')")
-    @Log(value = "修改用户状态", module = LogModuleEnum.USER)
+    @Log(module = LogModuleEnum.USER, value = ActionTypeEnum.UPDATE)
     public Result<Void> updateUserStatus(
             @Parameter(description = "用户ID") @PathVariable Long userId,
             @Parameter(description = "用户状态(1:启用;0:禁用)") @RequestParam Integer status
@@ -127,7 +127,7 @@ public class UserController {
 
     @Operation(summary = "获取当前登录用户信息")
     @GetMapping("/me")
-    @Log(value = "获取当前登录用户信息", module = LogModuleEnum.USER)
+    @Log(module = LogModuleEnum.USER, value = ActionTypeEnum.OTHER)
     public Result<CurrentUserDTO> getCurrentUser() {
         CurrentUserDTO currentUserDto = userService.getCurrentUserInfo();
         return Result.success(currentUserDto);
@@ -135,7 +135,7 @@ public class UserController {
 
     @Operation(summary = "用户导入模板下载")
     @GetMapping("/template")
-    @Log(value = "用户导入模板下载", module = LogModuleEnum.USER)
+    @Log(module = LogModuleEnum.USER, value = ActionTypeEnum.OTHER)
     public void downloadTemplate(HttpServletResponse response)  {
         String fileName = "用户导入模板.xlsx";
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
@@ -155,8 +155,8 @@ public class UserController {
     @Operation(summary = "导入用户")
     @PostMapping("/import")
     @PreAuthorize("@ss.hasPerm('sys:user:import')")
-    @Log(value = "导入用户", module = LogModuleEnum.USER)
-    public Result<ExcelResult> importUsers(MultipartFile file) throws IOException {
+    @Log(module = LogModuleEnum.USER, value = ActionTypeEnum.INSERT)
+    public Result<?> importUsers(MultipartFile file) throws IOException {
         UserImportListener listener = new UserImportListener();
         ExcelUtils.importExcel(file.getInputStream(), UserImportDTO.class, listener);
         return Result.success(listener.getExcelResult());
@@ -165,7 +165,7 @@ public class UserController {
     @Operation(summary = "导出用户")
     @GetMapping("/export")
     @PreAuthorize("@ss.hasPerm('sys:user:export')")
-    @Log(value = "导出用户", module = LogModuleEnum.USER)
+    @Log(module = LogModuleEnum.USER, value = ActionTypeEnum.OTHER)
     public void exportUsers(UserQuery queryParams, HttpServletResponse response) throws IOException {
         String fileName = "用户列表.xlsx";
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
@@ -178,7 +178,7 @@ public class UserController {
 
     @Operation(summary = "获取个人中心用户信息")
     @GetMapping("/profile")
-    @Log(value = "获取个人中心用户信息", module = LogModuleEnum.USER)
+    @Log(module = LogModuleEnum.USER, value = ActionTypeEnum.OTHER)
     public Result<UserProfileVO> getUserProfile() {
         Long userId = SecurityUtils.getUserId();
         UserProfileVO userProfile = userService.getUserProfile(userId);
@@ -187,7 +187,7 @@ public class UserController {
 
     @Operation(summary = "个人中心修改用户信息")
     @PutMapping("/profile")
-    @Log(value = "个人中心修改用户信息", module = LogModuleEnum.USER)
+    @Log(module = LogModuleEnum.USER, value = ActionTypeEnum.UPDATE)
     public Result<?> updateUserProfile(@RequestBody UserProfileForm formData) {
         boolean result = userService.updateUserProfile(formData);
         return Result.judge(result);
@@ -274,4 +274,6 @@ public class UserController {
         List<Option<String>> list = userService.listUserOptions();
         return Result.success(list);
     }
+
+
 }

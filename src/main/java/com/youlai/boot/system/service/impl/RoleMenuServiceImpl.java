@@ -3,10 +3,10 @@ package com.youlai.boot.system.service.impl;
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.youlai.boot.common.constant.RedisConstants;
-import com.youlai.boot.common.tenant.TenantContextHolder;
+import com.youlai.boot.framework.tenant.TenantContextHolder;
 import com.youlai.boot.system.mapper.TenantMapper;
 import com.youlai.boot.system.mapper.RoleMenuMapper;
-import com.youlai.boot.system.model.bo.RolePermsBO;
+import com.youlai.boot.system.model.dto.RolePermsDTO;
 import com.youlai.boot.system.model.entity.Tenant;
 import com.youlai.boot.system.model.entity.RoleMenu;
 import com.youlai.boot.system.service.RoleMenuService;
@@ -68,7 +68,7 @@ public class RoleMenuServiceImpl extends ServiceImpl<RoleMenuMapper, RoleMenu> i
             String cacheKey = buildRolePermsCacheKey(tenantId);
             redisTemplate.delete(cacheKey);
 
-            List<RolePermsBO> list = this.baseMapper.getRolePermsList(null);
+            List<RolePermsDTO> list = this.baseMapper.getRolePermsList(null);
             if (CollectionUtil.isEmpty(list)) {
                 continue;
             }
@@ -99,7 +99,7 @@ public class RoleMenuServiceImpl extends ServiceImpl<RoleMenuMapper, RoleMenu> i
 
         redisTemplate.delete(cacheKey);
 
-        List<RolePermsBO> list = this.baseMapper.getRolePermsList(null);
+        List<RolePermsDTO> list = this.baseMapper.getRolePermsList(null);
         if (CollectionUtil.isNotEmpty(list)) {
             list.forEach(item -> {
                 String roleCode = item.getRoleCode();
@@ -127,9 +127,9 @@ public class RoleMenuServiceImpl extends ServiceImpl<RoleMenuMapper, RoleMenu> i
 
         redisTemplate.opsForHash().delete(cacheKey, roleCode);
 
-        List<RolePermsBO> list = this.baseMapper.getRolePermsList(roleCode);
+        List<RolePermsDTO> list = this.baseMapper.getRolePermsList(roleCode);
         if (CollectionUtil.isNotEmpty(list)) {
-            RolePermsBO rolePerms = list.get(0);
+            RolePermsDTO rolePerms = list.get(0);
             if (rolePerms != null) {
                 Set<String> perms = rolePerms.getPerms();
                 if (CollectionUtil.isNotEmpty(perms)) {
@@ -158,9 +158,9 @@ public class RoleMenuServiceImpl extends ServiceImpl<RoleMenuMapper, RoleMenu> i
         redisTemplate.opsForHash().delete(cacheKey, newRoleCode);
 
         // 回源 DB 并更新新角色编码缓存
-        List<RolePermsBO> list = this.baseMapper.getRolePermsList(newRoleCode);
+        List<RolePermsDTO> list = this.baseMapper.getRolePermsList(newRoleCode);
         if (CollectionUtil.isNotEmpty(list)) {
-            RolePermsBO rolePerms = list.get(0);
+            RolePermsDTO rolePerms = list.get(0);
             if (rolePerms != null) {
                 Set<String> perms = rolePerms.getPerms();
                 if (CollectionUtil.isNotEmpty(perms)) {

@@ -10,20 +10,19 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.youlai.boot.common.constant.RedisConstants;
 import com.youlai.boot.common.constant.SystemConstants;
-import com.youlai.boot.core.exception.BusinessException;
+import com.youlai.boot.common.exception.BusinessException;
 import com.youlai.boot.common.model.Option;
-import com.youlai.boot.support.sms.enums.SmsTypeEnum;
-import com.youlai.boot.support.sms.service.SmsService;
-import com.youlai.boot.security.model.RoleDataScope;
-import com.youlai.boot.security.model.UserAuthInfo;
-import com.youlai.boot.security.token.TokenManager;
-import com.youlai.boot.security.util.SecurityUtils;
-import com.youlai.boot.common.tenant.TenantContextHolder;
-import com.youlai.boot.support.mail.service.MailService;
+import com.youlai.boot.framework.integration.sms.enums.SmsTypeEnum;
+import com.youlai.boot.framework.integration.sms.service.SmsService;
+import com.youlai.boot.framework.security.model.RoleDataScope;
+import com.youlai.boot.framework.security.model.UserAuthInfo;
+import com.youlai.boot.framework.security.token.TokenManager;
+import com.youlai.boot.framework.security.util.SecurityUtils;
+import com.youlai.boot.framework.tenant.TenantContextHolder;
+import com.youlai.boot.framework.integration.mail.service.MailService;
 import com.youlai.boot.system.converter.UserConverter;
 import com.youlai.boot.system.enums.DictCodeEnum;
 import com.youlai.boot.system.mapper.UserMapper;
-import com.youlai.boot.system.model.bo.UserBO;
 import com.youlai.boot.system.model.dto.CurrentUserDTO;
 import com.youlai.boot.system.model.dto.UserExportDTO;
 import com.youlai.boot.system.model.entity.DictItem;
@@ -89,16 +88,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 参数构建
         int pageNum = queryParams.getPageNum();
         int pageSize = queryParams.getPageSize();
-        Page<UserBO> page = new Page<>(pageNum, pageSize);
+        Page<UserPageVO> page = new Page<>(pageNum, pageSize);
 
         boolean isRoot = SecurityUtils.isRoot();
         queryParams.setIsRoot(isRoot);
 
         // 查询数据
-        Page<UserBO> userPage = this.baseMapper.getUserPage(page, queryParams);
+        Page<UserPageVO> userPage = this.baseMapper.getUserPage(page, queryParams);
 
-        // 实体转换
-        return userConverter.toPageVo(userPage);
+        return userPage;
     }
 
     /**
@@ -450,8 +448,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public UserProfileVO getUserProfile(Long userId) {
-        UserBO entity = this.baseMapper.getUserProfile(userId);
-        return userConverter.toProfileVo(entity);
+        return this.baseMapper.getUserProfile(userId);
     }
 
     /**

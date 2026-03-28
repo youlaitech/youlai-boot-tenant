@@ -565,7 +565,7 @@ CREATE TABLE `sys_user`  (
 -- ----------------------------
 -- 默认租户（tenant_id=0）的用户
 INSERT INTO `sys_user` VALUES (1, 0, 'root', '平台租户超级管理员', 0, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', NULL, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345677', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0);
-INSERT INTO `sys_user` VALUES (2, 0, 'admin', '平台租户系统管理员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 1, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345678', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0);
+INSERT INTO `sys_user` VALUES (2, 0, 'admin', '平台租户系统管理员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 1, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18888888888', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0);
 INSERT INTO `sys_user` VALUES (3, 0, 'test', '平台租户测试天命人', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 3, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345679', 1, 'youlaitech@163.com', now(), NULL, now(), NULL, 0);
 INSERT INTO `sys_user` VALUES (6, 0, 'dept_manager', '部门主管', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 1, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345680', 1, 'manager@youlaitech.com', now(), NULL, now(), NULL, 0);
 INSERT INTO `sys_user` VALUES (7, 0, 'dept_member', '部门成员', 1, '$2a$10$xVWsNOhHrCxh5UbpCE7/HuJ.PAOKcYAqRxD2CO2nVnJS.IAXkr5aq', 1, 'https://foruda.gitee.com/images/1723603502796844527/03cdca2a_716974.gif', '18812345681', 1, 'member@youlaitech.com', now(), NULL, now(), NULL, 0);
@@ -612,29 +612,31 @@ INSERT INTO `sys_user_role` VALUES (5, 14, 1);
 -- ----------------------------
 DROP TABLE IF EXISTS `sys_log`;
 CREATE TABLE `sys_log` (
-                           `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键',
-                           `tenant_id` bigint DEFAULT 0 COMMENT '租户ID',
-                           `module` varchar(50) NOT NULL COMMENT '日志模块',
-                           `request_method` varchar(64) NOT NULL COMMENT '请求方式',
-                           `request_params` text COMMENT '请求参数(批量请求参数可能会超过text)',
-                           `response_content` mediumtext COMMENT '返回参数',
-                           `content` varchar(255) NOT NULL COMMENT '日志内容',
-                           `request_uri` varchar(255) COMMENT '请求路径',
-                           `method` varchar(255) COMMENT '方法名',
-                           `ip` varchar(45) COMMENT 'IP地址',
-                           `province` varchar(100) COMMENT '省份',
-                           `city` varchar(100) COMMENT '城市',
-                           `execution_time` bigint COMMENT '执行时间(ms)',
-                           `browser` varchar(100) COMMENT '浏览器',
-                           `browser_version` varchar(100) COMMENT '浏览器版本',
-                           `os` varchar(100) COMMENT '终端系统',
-                           `create_by` bigint COMMENT '创建人ID',
-                           `create_time` datetime COMMENT '创建时间',
-                           `is_deleted` tinyint DEFAULT '0' COMMENT '逻辑删除标识(1-已删除 0-未删除)',
-                           PRIMARY KEY (`id`) USING BTREE,
-                           KEY `idx_create_time` (`create_time`),
-                           KEY `idx_tenant_id` (`tenant_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COMMENT='系统操作日志表';
+    `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `tenant_id` BIGINT DEFAULT 0 COMMENT '租户ID',
+    `module` TINYINT NOT NULL COMMENT '模块，数字枚举，参考 LogModule 枚举',
+    `action_type` TINYINT NOT NULL COMMENT '操作类型，数字枚举，参考 ActionType 枚举',
+    `title` VARCHAR(100) NOT NULL COMMENT '前端显示标题',
+    `content` TEXT COMMENT '自定义日志内容',
+    `operator_id` BIGINT NOT NULL COMMENT '操作人ID',
+    `operator_name` VARCHAR(50) COMMENT '操作人名称',
+    `request_uri` VARCHAR(255) COMMENT '请求路径',
+    `request_method` VARCHAR(10) COMMENT '请求方法',
+    `ip` VARCHAR(45) COMMENT 'IP地址',
+    `province` VARCHAR(100) COMMENT '省份',
+    `city` VARCHAR(100) COMMENT '城市',
+    `device` VARCHAR(100) COMMENT '设备',
+    `os` VARCHAR(100) COMMENT '操作系统',
+    `browser` VARCHAR(100) COMMENT '浏览器',
+    `status` TINYINT DEFAULT 1 COMMENT '0失败 1成功',
+    `error_msg` VARCHAR(255) COMMENT '错误信息',
+    `execution_time` INT COMMENT '执行时间(ms)',
+    `create_time` DATETIME COMMENT '操作时间',
+    PRIMARY KEY (`id`) USING BTREE,
+    KEY `idx_tenant_module_action` (`tenant_id`, `module`, `action_type`, `create_time`),
+    KEY `idx_tenant_operator` (`tenant_id`, `operator_id`, `create_time`),
+    KEY `idx_time` (`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统操作日志表';
 
 -- ----------------------------
 -- Table structure for gen_table
@@ -817,7 +819,7 @@ INSERT INTO `sys_tenant` (
   `create_time`,
   `update_time`
 ) VALUES
-  (0, '平台租户', 'PLATFORM', '系统管理员', '18812345678', 'admin@youlai.tech', 'vue.youlai.tech', NULL, NULL, 1, '平台租户', NULL, now(), now()),
+  (0, '平台租户', 'PLATFORM', '系统管理员', '18888888888', 'admin@youlai.tech', 'vue.youlai.tech', NULL, NULL, 1, '平台租户', NULL, now(), now()),
   (1, '演示租户', 'DEMO', '演示用户', '18812345679', 'demo@youlai.tech', 'demo.youlai.tech', NULL, 2, 1, '演示租户', NULL, now(), now());
 
 SET FOREIGN_KEY_CHECKS = 1;
