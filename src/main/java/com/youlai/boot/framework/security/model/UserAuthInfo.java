@@ -35,6 +35,26 @@ public class UserAuthInfo {
     private String nickname;
 
     /**
+     * 头像
+     */
+    private String avatar;
+
+    /**
+     * 手机号
+     */
+    private String mobile;
+
+    /**
+     * 邮箱
+     */
+    private String email;
+
+    /**
+     * 性别
+     */
+    private Integer gender;
+
+    /**
      * 部门ID
      */
     private Long deptId;

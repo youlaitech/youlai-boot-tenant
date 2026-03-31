@@ -1,8 +1,6 @@
 package com.youlai.boot.framework.captcha;
 
 import lombok.Data;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.stereotype.Component;
 
 /**
  * 验证码 属性配置
@@ -10,8 +8,6 @@ import org.springframework.stereotype.Component;
  * @author haoxr
  * @since 2023/11/24
  */
-@Component
-@ConfigurationProperties(prefix = "captcha")
 @Data
 public class CaptchaProperties {
 

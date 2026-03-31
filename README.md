@@ -52,15 +52,15 @@
 youlai-boot-tenant/
 ├─ docker/                    # Docker 编排
 ├─ sql/                       # 数据库脚本
-├─ src/                       # 核心业务源码
-│  ├─ auth/                   # 认证模块
-│  ├─ common/                 # 公共模块
-│  ├─ config/                 # 配置模块
-│  ├─ core/                   # 核心模块
-│  ├─ platform/               # 平台模块
-│  ├─ plugin/                 # 插件模块
-│  ├─ security/               # 安全模块
-│  └─ system/                 # 系统模块
+├─ src/
+│  ├─ auth/                   # 认证授权业务
+│  ├─ codegen/                # 代码生成器
+│  ├─ common/                 # 全局通用（常量、枚举、工具类、统一响应结果）
+│  ├─ framework/              # 底层技术基座（缓存/验证码/安全/Web等）
+│  ├─ message/                # 消息中心
+│  ├─ file/                   # 文件中心
+│  ├─ system/                 # 核心系统模块（用户/角色/菜单/部门）
+│  └─ YouLaiBootApplication.java  # 启动类
 └─ pom.xml                    # Maven 构建配置
 ```
 

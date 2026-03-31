@@ -1,6 +1,6 @@
 package com.youlai.boot.system.service;
 
-import com.youlai.boot.module.sse.service.SseService;
+import com.youlai.boot.message.service.SseService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

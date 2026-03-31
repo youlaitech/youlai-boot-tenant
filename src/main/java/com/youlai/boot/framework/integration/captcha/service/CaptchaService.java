@@ -13,7 +13,6 @@ import com.youlai.boot.framework.integration.captcha.exception.CaptchaException;
 import com.youlai.boot.framework.integration.captcha.model.CaptchaInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Service;
 
 import java.awt.Font;
 import java.util.concurrent.TimeUnit;
@@ -21,7 +20,6 @@ import java.util.concurrent.TimeUnit;
 /**
  * 验证码服务
  */
-@Service
 @RequiredArgsConstructor
 public class CaptchaService {
 

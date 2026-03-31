@@ -5,8 +5,6 @@ import cn.hutool.captcha.generator.MathGenerator;
 import cn.hutool.captcha.generator.RandomGenerator;
 import com.youlai.boot.framework.captcha.CaptchaProperties;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
 import java.awt.*;
 
@@ -16,7 +14,6 @@ import java.awt.*;
  * @author haoxr
  * @since 2023/11/24
  */
-@Configuration
 public class CaptchaConfig {
 
     @Autowired
@@ -27,7 +24,6 @@ public class CaptchaConfig {
      *
      * @return CodeGenerator
      */
-    @Bean
     public CodeGenerator codeGenerator() {
         String codeType = captchaProperties.getCode().getType();
         int codeLength = captchaProperties.getCode().getLength();
@@ -43,7 +39,6 @@ public class CaptchaConfig {
     /**
      * 验证码字体
      */
-    @Bean
     public Font captchaFont() {
         String fontName = captchaProperties.getFont().getName();
         int fontSize = captchaProperties.getFont().getSize();
