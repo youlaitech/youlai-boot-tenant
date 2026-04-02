@@ -2,6 +2,8 @@
  * ${entityName} $!{businessName}类型定义
  */
 
+import type { PageQuery } from "@/api/common";
+
 /** $!{businessName}分页查询参数 */
 export interface ${entityName}PageQuery extends PageQuery {
 #foreach($fieldConfig in $fieldConfigs)
