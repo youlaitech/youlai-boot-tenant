@@ -45,6 +45,9 @@ public class LogAspect {
     @Around("logPointcut() && @annotation(logAnno)")
     public Object doAround(ProceedingJoinPoint joinPoint, Log logAnno) throws Throwable {
         TimeInterval timer = DateUtil.timer();
+        // 在执行业务方法前获取用户信息，防止 logout 等操作清除 SecurityContext 后无法获取
+        Long userId = SecurityUtils.getUserId();
+        String username = SecurityUtils.getUsername();
         Object result = null;
         Exception exception = null;
 
@@ -55,9 +58,16 @@ public class LogAspect {
             throw e;
         } finally {
             long executionTime = timer.interval();
-            Long userId = SecurityUtils.getUserId();
-            String username = SecurityUtils.getUsername();
-            this.saveLog(logAnno, exception, executionTime, userId, username);
+            // fallback：登录等场景在 proceed() 前未认证，需在 proceed() 后获取
+            if (userId == null) {
+                userId = SecurityUtils.getUserId();
+                username = SecurityUtils.getUsername();
+            }
+            try {
+                this.saveLog(logAnno, exception, executionTime, userId, username);
+            } catch (Exception e) {
+                log.error("保存操作日志失败", e);
+            }
         }
         return result;
     }
