@@ -4,14 +4,10 @@ import com.youlai.boot.message.dto.OnlineUserDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.ContextClosedEvent;
 import org.springframework.context.event.EventListener;
-<<<<<<< HEAD
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
-=======
->>>>>>> 9a4fcb5d83e51e15500b20cf9f28ad98af60f0bf
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
