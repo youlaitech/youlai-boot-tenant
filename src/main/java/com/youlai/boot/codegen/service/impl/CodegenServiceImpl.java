@@ -157,9 +157,9 @@ public class CodegenServiceImpl implements CodegenService {
         } else if ("MapperXml".equals(templateName)) {
             return entityName + "Mapper" + extension;
         } else if ("API".equals(templateName)) {
-            return StrUtil.toSymbolCase(entityName, '-') + extension;
+            return "index" + extension;
         } else if ("API_TYPES".equals(templateName)) {
-            return StrUtil.toSymbolCase(entityName, '-') + extension;
+            return "types" + extension;
         } else if ("VIEW".equals(templateName)) {
             return "index.vue";
         }
@@ -178,14 +178,16 @@ public class CodegenServiceImpl implements CodegenService {
         } else if ("API".equals(templateName)) {
             path = (codegenProperties.getFrontendAppName()
                     + File.separator + "src"
-                    + File.separator + subPackageName
+                    + File.separator + "api"
                     + File.separator + moduleName
+                    + File.separator + StrUtil.toSymbolCase(entityName, '-')
             );
         } else if ("API_TYPES".equals(templateName)) {
             path = (codegenProperties.getFrontendAppName()
                     + File.separator + "src"
-                    + File.separator + "types"
                     + File.separator + "api"
+                    + File.separator + moduleName
+                    + File.separator + StrUtil.toSymbolCase(entityName, '-')
             );
         } else if ("VIEW".equals(templateName)) {
             path = (codegenProperties.getFrontendAppName()

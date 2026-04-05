@@ -25,6 +25,7 @@ public class Config  {
     /**
      * 主键
      */
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /**
