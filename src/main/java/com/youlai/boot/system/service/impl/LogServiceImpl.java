@@ -65,7 +65,7 @@ public class LogServiceImpl extends ServiceImpl<LogMapper, SysLog>
 
         // 将统计数据转换为 Map
         Map<String, Integer> pvMap = pvCounts.stream().collect(Collectors.toMap(VisitCountDTO::getDate, VisitCountDTO::getCount));
-        Map<String, Integer> ipMap = ipCounts.stream().collect(Collectors.toMap(VisitCountDTO::getDate, VisitCountDTO::getCount));
+        Map<String, Integer> uvMap = ipCounts.stream().collect(Collectors.toMap(VisitCountDTO::getDate, VisitCountDTO::getCount));
 
         // 匹配日期和访问量/访客数
         List<Integer> pvList = new ArrayList<>();
