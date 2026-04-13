@@ -121,11 +121,9 @@ public class RedisTokenManager implements TokenManager {
 
     @Override
     public void invalidateToken(String token) {
-        Object value = redisTemplate.opsForValue().get(formatTokenKey(token));
-        if (value instanceof OnlineUser onlineUser) {
-            Long userId = onlineUser.getUserId();
-            invalidateUserSessions(userId);
-        }
+        // Only delete the current token, not all user sessions
+        // This ensures single-device logout doesn't affect other devices when allowMultiLogin=true
+        redisTemplate.delete(formatTokenKey(token));
     }
 
     @Override
