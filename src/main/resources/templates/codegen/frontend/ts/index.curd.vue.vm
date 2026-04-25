@@ -39,7 +39,7 @@
     <!-- 新增 -->
     <page-modal ref="addModalRef" :modal-config="addModalConfig" @submit-click="handleSubmitClick">
 #foreach($fieldConfig in $fieldConfigs)
-#if($fieldConfig.isShowInForm == 1 && $fieldConfig.formType != "HIDDEN" && $fieldConfig.dictType && $fieldConfig.dictType.trim() != "")
+#if($fieldConfig.isShowInForm == 1 && $fieldConfig.formType.name() != "HIDDEN" && $fieldConfig.dictType && $fieldConfig.dictType.trim() != "")
       <template #$fieldConfig.fieldName="scope">
         <DictSelect v-model="scope.formData[scope.prop]" code="$fieldConfig.dictType" v-bind="scope.attrs" />
       </template>
@@ -50,7 +50,7 @@
     <!-- 编辑 -->
     <page-modal ref="editModalRef" :modal-config="editModalConfig" @submit-click="handleSubmitClick">
 #foreach($fieldConfig in $fieldConfigs)
-#if($fieldConfig.isShowInForm == 1 && $fieldConfig.formType != "HIDDEN" && $fieldConfig.dictType && $fieldConfig.dictType.trim() != "")
+#if($fieldConfig.isShowInForm == 1 && $fieldConfig.formType.name() != "HIDDEN" && $fieldConfig.dictType && $fieldConfig.dictType.trim() != "")
       <template #$fieldConfig.fieldName="scope">
         <Dict v-model="scope.formData[scope.prop]" code="$fieldConfig.dictType" v-bind="scope.attrs" />
       </template>
@@ -64,7 +64,7 @@
 defineOptions({ name: "$entityName" });
 
 import ${entityName}API from "@/api/${moduleName}/${entityKebab}";
-import type { ${entityName}Form, ${entityName}PageQuery } from "@/api/${moduleName}/${entityKebab}";
+import type { ${entityName}Form, ${entityName}QueryParams } from "@/api/${moduleName}/${entityKebab}";
 import type { IObject, IModalConfig, IContentConfig, ISearchConfig } from "@/components/CURD/types";
 import usePage from "@/components/CURD/usePage";
 
@@ -135,7 +135,7 @@ const searchConfig: ISearchConfig = reactive({
 });
 
 // 列表配置
-const contentConfig: IContentConfig<${entityName}PageQuery> = reactive({
+const contentConfig: IContentConfig<${entityName}QueryParams> = reactive({
   // 权限前缀
   permPrefix: "${moduleName}:${entityKebab}",
   table: {
@@ -210,7 +210,7 @@ const addModalConfig: IModalConfig<${entityName}Form> = reactive({
   // 表单项配置
   formItems: [
 #foreach($fieldConfig in $fieldConfigs)
-#if($fieldConfig.isShowInForm == 1 && $fieldConfig.formType != "HIDDEN")
+#if($fieldConfig.isShowInForm == 1 && $fieldConfig.formType.name() != "HIDDEN")
 #if($fieldConfig.dictType && $fieldConfig.dictType.trim() != "")
     {
       type: "custom",

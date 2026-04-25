@@ -1,10 +1,6 @@
 server:
   port: 8000
 
-# 数据库类型：用于 MyBatis-Plus 分页方言等（仅方言，不负责连接信息）
-app:
-  db-type: mysql # 可选：mysql | postgres
-
 spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
@@ -13,12 +9,6 @@ spring:
     url: jdbc:mysql://www.youlai.tech:3306/youlai_admin_tenant?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&autoReconnect=true&allowMultiQueries=true
     username: youlai
     password: 123456
-
-    # === PostgreSQL 数据源示例（按需启用） ===
-    # driver-class-name: org.postgresql.Driver
-    # url: jdbc:postgresql://127.0.0.1:5432/youlai_admin_tenant
-    # username: postgres
-    # password: 123456
 
   data:
     redis:
@@ -107,6 +97,7 @@ security:
     - /v3/api-docs/**
     - /webjars/**
     - /favicon.ico
+    - /error
 
 # 文件存储配置
 oss:

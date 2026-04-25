@@ -9,15 +9,10 @@ import com.baomidou.mybatisplus.extension.plugins.inner.TenantLineInnerIntercept
 import com.youlai.boot.framework.mybatis.handler.MyMetaObjectHandler;
 import com.youlai.boot.framework.mybatis.interceptor.MyDataPermissionHandler;
 import com.youlai.boot.framework.mybatis.interceptor.MyTenantLineHandler;
-import org.apache.ibatis.mapping.DatabaseIdProvider;
-import org.apache.ibatis.mapping.VendorDatabaseIdProvider;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-
-import java.util.Properties;
 
 /**
  * mybatis-plus 配置类
@@ -28,9 +23,6 @@ import java.util.Properties;
 @Configuration
 @EnableTransactionManagement
 public class MybatisConfig {
-
-    @Value("${app.db-type:mysql}")
-    private String dbType;
 
     @Autowired(required = false)
     private MyTenantLineHandler myTenantLineHandler;
@@ -53,13 +45,8 @@ public class MybatisConfig {
         // 数据权限
         interceptor.addInnerInterceptor(new DataPermissionInterceptor(new MyDataPermissionHandler()));
 
-        // 分页插件，根据配置动态选择数据库类型
-        DbType mpDbType = DbType.MYSQL;
-        String type = dbType == null ? "mysql" : dbType.toLowerCase();
-        if ("postgres".equals(type) || "postgresql".equals(type)) {
-            mpDbType = DbType.POSTGRE_SQL;
-        }
-        interceptor.addInnerInterceptor(new PaginationInnerInterceptor(mpDbType));
+        // 分页插件
+        interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL));
 
         return interceptor;
     }
@@ -72,18 +59,6 @@ public class MybatisConfig {
         GlobalConfig globalConfig = new GlobalConfig();
         globalConfig.setMetaObjectHandler(new MyMetaObjectHandler());
         return globalConfig;
-    }
-
-    /**
-     * 数据库类型自动识别
-     */
-    @Bean
-    public DatabaseIdProvider databaseIdProvider() {
-        DatabaseIdProvider databaseIdProvider = new VendorDatabaseIdProvider();
-        Properties properties = new Properties();
-        properties.setProperty("MySQL", "mysql");
-        databaseIdProvider.setProperties(properties);
-        return databaseIdProvider;
     }
 
 }
