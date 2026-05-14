@@ -28,4 +28,18 @@ public interface TenantMenuService extends IService<TenantMenu> {
      * @param menuIds 菜单ID集合
      */
     void saveTenantMenus(Long tenantId, List<Long> menuIds);
+
+    /**
+     * 新增租户菜单时，将菜单关联到所有租户
+     *
+     * @param menuId 菜单ID
+     */
+    void addMenuToAllTenants(Long menuId);
+
+    /**
+     * 删除菜单时，清理所有租户与该菜单的关联
+     *
+     * @param menuId 菜单ID
+     */
+    void removeByMenuId(Long menuId);
 }

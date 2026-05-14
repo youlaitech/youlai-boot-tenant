@@ -405,6 +405,11 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
             // 编辑刷新角色权限缓存
             if (menuForm.getId() != null) {
                 roleMenuService.refreshRolePermsCache();
+            } else {
+                // 新增租户菜单时，自动关联到所有租户
+                if (MenuScopeEnum.TENANT.getValue().equals(entity.getScope())) {
+                    tenantMenuService.addMenuToAllTenants(entity.getId());
+                }
             }
         }
         // 修改菜单如果有子菜单，则更新子菜单的树路径
@@ -502,9 +507,10 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
                 .or()
                 .apply("CONCAT (',',tree_path,',') LIKE CONCAT('%,',{0},',%')", id));
 
-
-        // 刷新角色权限缓存
         if (result) {
+            // 清理租户菜单关联
+            tenantMenuService.removeByMenuId(id);
+            // 刷新角色权限缓存
             roleMenuService.refreshRolePermsCache();
         }
         return result;
