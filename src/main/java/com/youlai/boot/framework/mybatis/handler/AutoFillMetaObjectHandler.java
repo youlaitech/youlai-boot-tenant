@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
  */
 @Component
 @RequiredArgsConstructor
-public class MyMetaObjectHandler implements MetaObjectHandler {
+public class AutoFillMetaObjectHandler implements MetaObjectHandler {
 
     @Autowired(required = false)
     private TenantProperties tenantProperties;

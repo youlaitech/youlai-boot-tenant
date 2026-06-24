@@ -12,7 +12,7 @@ public interface RedisConstants {
      * 限流相关键
      */
     interface RateLimiter {
-        String IP = "rate_limiter:ip:{}"; // IP限流（示例：rate_limiter:ip:192.168.1.1）
+        String API = "{}rate_limit:{}:{}"; // 接口限流
     }
 
     /**

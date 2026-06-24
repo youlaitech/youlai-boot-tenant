@@ -1,7 +1,7 @@
 package com.youlai.boot.framework.security.handler;
 
 import com.youlai.boot.common.result.ResultCode;
-import com.youlai.boot.common.result.ResponseWriter;
+import com.youlai.boot.framework.web.util.ResponseWriter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;

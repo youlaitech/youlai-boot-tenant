@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 @RequiredArgsConstructor
-public class OnlineUserCountJob {
+public class OnlineUserCountTask {
 
     private final SseSessionRegistry sessionRegistry;
     private final SseService sseService;

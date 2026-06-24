@@ -8,7 +8,7 @@ import cn.hutool.core.util.StrUtil;
 import com.youlai.boot.framework.captcha.model.CaptchaInfo;
 import com.youlai.boot.auth.service.AuthService;
 import com.youlai.boot.common.constant.RedisConstants;
-import com.youlai.boot.common.enums.CaptchaTypeEnum;
+import com.youlai.boot.framework.captcha.enums.CaptchaTypeEnum;
 import com.youlai.boot.framework.captcha.config.CaptchaProperties;
 import com.youlai.boot.framework.integration.sms.enums.SmsTypeEnum;
 import com.youlai.boot.framework.integration.sms.service.SmsService;

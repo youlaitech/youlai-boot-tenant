@@ -56,6 +56,9 @@ public class RouteVO {
 
         @Schema(description = "路由参数")
         private Map<String,String> params;
+
+        @Schema(description = "外链地址")
+        private String externalUrl;
     }
 
     @Schema(description = "子路由列表")

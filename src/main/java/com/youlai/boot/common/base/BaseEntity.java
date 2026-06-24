@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
  * 基础实体类
  *
  * <p>实体类的基类，包含了实体类的公共属性，如创建时间、更新时间、逻辑删除标识等</p>
- * <p>多租户模式下，会自动添加 tenant_id 字段（通过 MyMetaObjectHandler 自动填充）</p>
+ * <p>多租户模式下，会自动添加 tenant_id 字段（通过 AutoFillMetaObjectHandler 自动填充）</p>
  *
  * @author Ray.Hao
  * @since 2024/6/23

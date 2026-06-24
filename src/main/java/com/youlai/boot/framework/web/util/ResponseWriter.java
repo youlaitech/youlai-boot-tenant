@@ -1,4 +1,4 @@
-package com.youlai.boot.common.result;
+package com.youlai.boot.framework.web.util;
 
 import cn.hutool.extra.servlet.JakartaServletUtil;
 import cn.hutool.json.JSONUtil;

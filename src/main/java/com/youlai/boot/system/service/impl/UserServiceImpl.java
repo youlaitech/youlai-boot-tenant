@@ -138,7 +138,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 实体转换 form->entity
         User entity = userConverter.toEntity(userForm);
 
-        // 获取当前操作员的租户ID（新增用户时，租户ID由 MyMetaObjectHandler 自动填充）
+        // 获取当前操作员的租户ID（新增用户时，租户ID由 AutoFillMetaObjectHandler 自动填充）
         Long tenantId = TenantContextHolder.getTenantId();
         Assert.notNull(tenantId, "租户ID不能为空");
 
@@ -158,7 +158,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         entity.setPassword(defaultEncryptPwd);
         entity.setCreateBy(SecurityUtils.getUserId());
 
-        // 注意：租户ID由 MyMetaObjectHandler.insertFill() 自动填充，无需手动设置
+        // 注意：租户ID由 AutoFillMetaObjectHandler.insertFill() 自动填充，无需手动设置
 
         // 新增用户
         boolean result = this.save(entity);
