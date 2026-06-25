@@ -8,10 +8,10 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * 基础分页请求对象
+ * 查询参数基类
  *
  * @author Ray.Hao
- * @since 2021/2/28
+ * @since 0.0.1
  */
 @Data
 @Schema

@@ -21,13 +21,18 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
 import java.util.Objects;
+import java.util.concurrent.Executor;
 
 /**
  * 日志切面
+ *
+ * @author Ray.Hao
+ * @since 2020/11/06
  */
 @Slf4j
 @Aspect
@@ -37,6 +42,9 @@ public class LogAspect {
     private final LogService logService;
     private final HttpServletRequest request;
     private final CacheManager cacheManager;
+
+    @Qualifier("operationLogExecutor")
+    private final Executor operationLogExecutor;
 
     @Pointcut("@annotation(com.youlai.boot.common.annotation.Log)")
     public void logPointcut() {
@@ -64,9 +72,9 @@ public class LogAspect {
                 username = SecurityUtils.getUsername();
             }
             try {
-                this.saveLog(logAnno, exception, executionTime, userId, username);
+                operationLogExecutor.execute(() -> saveLog(logAnno, exception, executionTime, userId, username));
             } catch (Exception e) {
-                log.error("保存操作日志失败", e);
+                log.error("提交操作日志异步任务失败", e);
             }
         }
         return result;

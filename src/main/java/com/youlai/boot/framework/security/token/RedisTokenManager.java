@@ -41,6 +41,9 @@ public class RedisTokenManager implements TokenManager {
         this.redisTemplate = redisTemplate;
     }
 
+    /**
+     * 生成 accessToken + refreshToken
+     */
     @Override
     public AuthenticationToken generateToken(Authentication authentication) {
         SysUserDetails user = (SysUserDetails) authentication.getPrincipal();
@@ -69,6 +72,9 @@ public class RedisTokenManager implements TokenManager {
                 .build();
     }
 
+    /**
+     * 从 token 解析用户认证信息
+     */
     @Override
     public Authentication parseToken(String token) {
         OnlineUser onlineUser = (OnlineUser) redisTemplate.opsForValue().get(formatTokenKey(token));
@@ -86,16 +92,25 @@ public class RedisTokenManager implements TokenManager {
         return new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
     }
 
+    /**
+     * 校验 accessToken 是否有效
+     */
     @Override
     public boolean validateToken(String token) {
         return redisTemplate.hasKey(formatTokenKey(token));
     }
 
+    /**
+     * 校验 refreshToken 是否有效
+     */
     @Override
     public boolean validateRefreshToken(String refreshToken) {
         return redisTemplate.hasKey(formatRefreshTokenKey(refreshToken));
     }
 
+    /**
+     * 用 refreshToken 换发新 accessToken
+     */
     @Override
     public AuthenticationToken refreshToken(String refreshToken) {
         OnlineUser onlineUser = (OnlineUser) redisTemplate.opsForValue()
@@ -119,13 +134,17 @@ public class RedisTokenManager implements TokenManager {
                 .build();
     }
 
+    /**
+     * 使指定 token 失效（删除 Redis 中的 token 记录）
+     */
     @Override
     public void invalidateToken(String token) {
-        // Only delete the current token, not all user sessions
-        // This ensures single-device logout doesn't affect other devices when allowMultiLogin=true
         redisTemplate.delete(formatTokenKey(token));
     }
 
+    /**
+     * 使某用户全部 token 失效
+     */
     @Override
     public void invalidateUserSessions(Long userId) {
         if (userId == null) {
@@ -146,6 +165,9 @@ public class RedisTokenManager implements TokenManager {
         redisTemplate.delete(userRefreshKey);
     }
 
+    /**
+     * 将 accessToken、refreshToken 存入 Redis
+     */
     private void storeTokensInRedis(String accessToken, String refreshToken, OnlineUser onlineUser) {
         setRedisValue(formatTokenKey(accessToken), onlineUser, securityProperties.getSession().getAccessTokenTimeToLive());
         String refreshTokenKey = StrUtil.format(RedisConstants.Auth.REFRESH_TOKEN_USER, refreshToken);
@@ -155,6 +177,9 @@ public class RedisTokenManager implements TokenManager {
                 securityProperties.getSession().getRefreshTokenTimeToLive());
     }
 
+    /**
+     * 单设备登录处理（不允许多设备时踢掉旧 token）
+     */
     private void handleSingleDeviceLogin(Long userId, String accessToken) {
         Boolean allowMultiLogin = securityProperties.getSession().getRedisToken().getAllowMultiLogin();
         String userAccessKey = StrUtil.format(RedisConstants.Auth.USER_ACCESS_TOKEN, userId);
@@ -167,12 +192,18 @@ public class RedisTokenManager implements TokenManager {
         setRedisValue(userAccessKey, accessToken, securityProperties.getSession().getAccessTokenTimeToLive());
     }
 
+    /**
+     * 刷新时更新 accessToken 的 Redis 映射
+     */
     private void storeAccessToken(String newAccessToken, OnlineUser onlineUser) {
         setRedisValue(StrUtil.format(RedisConstants.Auth.ACCESS_TOKEN_USER, newAccessToken), onlineUser, securityProperties.getSession().getAccessTokenTimeToLive());
         String userAccessKey = StrUtil.format(RedisConstants.Auth.USER_ACCESS_TOKEN, onlineUser.getUserId());
         setRedisValue(userAccessKey, newAccessToken, securityProperties.getSession().getAccessTokenTimeToLive());
     }
 
+    /**
+     * 从 OnlineUser 构建 SysUserDetails
+     */
     private SysUserDetails buildUserDetails(OnlineUser onlineUser, Set<SimpleGrantedAuthority> authorities) {
         SysUserDetails userDetails = new SysUserDetails();
         userDetails.setUserId(onlineUser.getUserId());
@@ -189,14 +220,23 @@ public class RedisTokenManager implements TokenManager {
         return userDetails;
     }
 
+    /**
+     * 格式化 accessToken 的 Redis key
+     */
     private String formatTokenKey(String token) {
         return StrUtil.format(RedisConstants.Auth.ACCESS_TOKEN_USER, token);
     }
 
+    /**
+     * 格式化 refreshToken 的 Redis key
+     */
     private String formatRefreshTokenKey(String refreshToken) {
         return StrUtil.format(RedisConstants.Auth.REFRESH_TOKEN_USER, refreshToken);
     }
 
+    /**
+     * 带 TTL 写入 Redis
+     */
     private void setRedisValue(String key, Object value, int ttl) {
         if (ttl != -1) {
             redisTemplate.opsForValue().set(key, value, ttl, TimeUnit.SECONDS);

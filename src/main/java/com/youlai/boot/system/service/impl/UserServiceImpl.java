@@ -12,22 +12,23 @@ import com.youlai.boot.common.constant.RedisConstants;
 import com.youlai.boot.common.constant.SystemConstants;
 import com.youlai.boot.common.exception.BusinessException;
 import com.youlai.boot.common.model.Option;
+import com.youlai.boot.framework.integration.mail.service.MailService;
 import com.youlai.boot.framework.integration.sms.enums.SmsTypeEnum;
 import com.youlai.boot.framework.integration.sms.service.SmsService;
 import com.youlai.boot.framework.security.model.RoleDataScope;
 import com.youlai.boot.framework.security.model.UserAuthInfo;
 import com.youlai.boot.framework.security.token.TokenManager;
 import com.youlai.boot.framework.security.util.SecurityUtils;
-import com.youlai.boot.framework.tenant.TenantContextHolder;
-import com.youlai.boot.framework.integration.mail.service.MailService;
 import com.youlai.boot.system.converter.UserConverter;
 import com.youlai.boot.system.enums.DictCodeEnum;
 import com.youlai.boot.system.mapper.UserMapper;
-import com.youlai.boot.system.model.dto.CurrentUserDTO;
-import com.youlai.boot.system.model.dto.UserExportDTO;
-import com.youlai.boot.system.model.entity.DictItem;
-import com.youlai.boot.system.model.entity.User;
 import com.youlai.boot.system.model.form.*;
+import com.youlai.boot.system.model.vo.CurrentUserVO;
+import com.youlai.boot.system.model.vo.UserExportVO;
+import com.youlai.boot.system.model.entity.Dept;
+import com.youlai.boot.system.model.entity.DictItem;
+import com.youlai.boot.system.model.entity.Role;
+import com.youlai.boot.system.model.entity.SysUser;
 import com.youlai.boot.system.model.query.UserQuery;
 import com.youlai.boot.system.model.vo.UserPageVO;
 import com.youlai.boot.system.model.vo.UserProfileVO;
@@ -38,7 +39,6 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.PatternMatchUtils;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -53,11 +53,13 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements UserService {
 
     private final PasswordEncoder passwordEncoder;
 
     private final UserRoleService userRoleService;
+
+    private final DeptService deptService;
 
     private final RoleService roleService;
 
@@ -94,9 +96,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         queryParams.setIsRoot(isRoot);
 
         // 查询数据
-        Page<UserPageVO> userPage = this.baseMapper.getUserPage(page, queryParams);
-
-        return userPage;
+        return this.baseMapper.getUserPage(page, queryParams);
     }
 
     /**
@@ -108,19 +108,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public UserForm getUserFormData(Long userId) {
         return this.baseMapper.getUserFormData(userId);
-    }
-
-    private boolean resolveCanSwitchTenant(Set<String> roles) {
-        if (CollectionUtil.isEmpty(roles)) {
-            return false;
-        }
-        Set<String> perms = roleMenuService.getRolePermsByRoleCodes(roles);
-        if (CollectionUtil.isEmpty(perms)) {
-            return false;
-        }
-        return perms.stream()
-                .filter(Objects::nonNull)
-                .anyMatch(perm -> PatternMatchUtils.simpleMatch(perm, SystemConstants.TENANT_SWITCH_PERMISSION));
     }
 
     /**
@@ -136,29 +123,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String username = userForm.getUsername();
 
         // 实体转换 form->entity
-        User entity = userConverter.toEntity(userForm);
+        SysUser entity = userConverter.toEntity(userForm);
 
-        // 获取当前操作员的租户ID（新增用户时，租户ID由 AutoFillMetaObjectHandler 自动填充）
-        Long tenantId = TenantContextHolder.getTenantId();
-        Assert.notNull(tenantId, "租户ID不能为空");
-
-        if (!SystemConstants.DEFAULT_TENANT_ID.equals(tenantId)
-                && SystemConstants.PLATFORM_ROOT_USERNAME.equalsIgnoreCase(username)) {
-            throw new BusinessException("该租户不允许创建平台保留用户名");
-        }
-
-        // 检查同一租户下用户名是否已存在（新设计：用户名在租户内唯一）
-        long count = this.count(new LambdaQueryWrapper<User>()
-                .eq(User::getUsername, username)
-                .eq(User::getTenantId, tenantId));
-        Assert.isTrue(count == 0, "该租户下用户名已存在");
+        // 检查用户名是否已存在
+        long count = this.count(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getUsername, username));
+        Assert.isTrue(count == 0, "用户名已存在");
 
         // 设置默认加密密码
         String defaultEncryptPwd = passwordEncoder.encode(SystemConstants.DEFAULT_PASSWORD);
         entity.setPassword(defaultEncryptPwd);
         entity.setCreateBy(SecurityUtils.getUserId());
-
-        // 注意：租户ID由 AutoFillMetaObjectHandler.insertFill() 自动填充，无需手动设置
 
         // 新增用户
         boolean result = this.save(entity);
@@ -184,35 +159,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String username = userForm.getUsername();
 
         // 获取原用户信息
-        User oldUser = this.getById(userId);
+        SysUser oldUser = this.getById(userId);
         Assert.notNull(oldUser, "用户不存在");
 
-        Long oldTenantId = oldUser.getTenantId();
-        Long currentTenantId = TenantContextHolder.getTenantId();
-
-        // 验证：只能修改当前租户下的用户（防止跨租户修改）
-        Assert.isTrue(oldTenantId != null && oldTenantId.equals(currentTenantId),
-                "只能修改当前租户下的用户");
-
-        if (!SystemConstants.DEFAULT_TENANT_ID.equals(currentTenantId)
-                && SystemConstants.PLATFORM_ROOT_USERNAME.equalsIgnoreCase(username)) {
-            throw new BusinessException("该租户不允许使用平台保留用户名");
-        }
-
-        // 检查同一租户下用户名是否已存在（排除当前用户）
-        long count = this.count(new LambdaQueryWrapper<User>()
-                .eq(User::getUsername, username)
-                .eq(User::getTenantId, currentTenantId)
-                .ne(User::getId, userId)
+        // 检查用户名是否已存在（排除当前用户）
+        long count = this.count(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getUsername, username)
+                .ne(SysUser::getId, userId)
         );
-        Assert.isTrue(count == 0, "该租户下用户名已存在");
+        Assert.isTrue(count == 0, "用户名已存在");
 
         // form -> entity
-        User entity = userConverter.toEntity(userForm);
+        SysUser entity = userConverter.toEntity(userForm);
         entity.setUpdateBy(SecurityUtils.getUserId());
-
-        // 保持租户ID不变（不允许跨租户修改用户）
-        entity.setTenantId(oldTenantId);
 
         // 修改用户
         boolean result = this.updateById(entity);
@@ -240,9 +199,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .collect(Collectors.toList());
 
         boolean result = this.removeByIds(ids);
-
-        // 新设计：用户删除时，tenant_id 字段会随用户记录一起逻辑删除，无需额外处理
-
         return result;
     }
 
@@ -257,60 +213,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         UserAuthInfo userAuthInfo = this.baseMapper.getAuthInfoByUsername(username);
         if (userAuthInfo != null) {
             Set<String> roles = userAuthInfo.getRoles();
-            // 获取角色的数据权限列表（支持多角色并集）
+            // 获取数据权限列表（用于并集策略）
             List<RoleDataScope> dataScopes = roleService.getRoleDataScopes(roles);
             userAuthInfo.setDataScopes(dataScopes);
-            userAuthInfo.setCanSwitchTenant(resolveCanSwitchTenant(roles));
         }
         return userAuthInfo;
-    }
-
-    @Override
-    public UserAuthInfo getAuthInfoByUsernameInTenant(String username, Long tenantId) {
-        Long oldTenantId = TenantContextHolder.getTenantId();
-        boolean oldIgnoreTenant = TenantContextHolder.isIgnoreTenant();
-        // 临时忽略租户过滤，查询指定租户下的用户
-        TenantContextHolder.setIgnoreTenant(true);
-        try {
-            // 先查询用户
-            User user = this.getOne(
-                    new LambdaQueryWrapper<User>()
-                            .eq(User::getUsername, username)
-                            .eq(User::getTenantId, tenantId)
-                            .eq(User::getIsDeleted, 0)
-                            .last("LIMIT 1")
-            );
-            if (user == null) {
-                return null;
-            }
-            // 设置租户上下文，然后查询认证信息（这样会包含该租户下的角色）
-            TenantContextHolder.setIgnoreTenant(false);
-            TenantContextHolder.setTenantId(tenantId);
-            return getAuthInfoByUsername(username);
-        } finally {
-            if (oldTenantId != null) {
-                TenantContextHolder.setTenantId(oldTenantId);
-            } else {
-                TenantContextHolder.clear();
-            }
-            TenantContextHolder.setIgnoreTenant(oldIgnoreTenant);
-        }
-    }
-
-    @Override
-    public List<User> listUsersByUsernameAcrossAllTenants(String username) {
-        // 临时忽略租户过滤，查询该用户名在所有租户下的账户记录
-        TenantContextHolder.setIgnoreTenant(true);
-        try {
-            return this.list(
-                    new LambdaQueryWrapper<User>()
-                            .eq(User::getUsername, username)
-                            .eq(User::getIsDeleted, 0)
-                            .orderByAsc(User::getTenantId)
-            );
-        } finally {
-            TenantContextHolder.setIgnoreTenant(false);
-        }
     }
 
     /**
@@ -327,10 +234,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         UserAuthInfo userAuthInfo = this.baseMapper.getAuthInfoByMobile(mobile);
         if (userAuthInfo != null) {
             Set<String> roles = userAuthInfo.getRoles();
-            // 获取角色的数据权限列表（支持多角色并集）
+            // 获取数据权限列表（用于并集策略）
             List<RoleDataScope> dataScopes = roleService.getRoleDataScopes(roles);
             userAuthInfo.setDataScopes(dataScopes);
-            userAuthInfo.setCanSwitchTenant(resolveCanSwitchTenant(roles));
         }
         return userAuthInfo;
     }
@@ -339,15 +245,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * 获取导出用户列表
      *
      * @param queryParams 查询参数
-     * @return {@link List<UserExportDTO>} 导出用户列表
+     * @return {@link List<UserExportVO>} 导出用户列表
      */
     @Override
-    public List<UserExportDTO> listExportUsers(UserQuery queryParams) {
+    public List<UserExportVO> listExportUsers(UserQuery queryParams) {
 
         boolean isRoot = SecurityUtils.isRoot();
         queryParams.setIsRoot(isRoot);
 
-        List<UserExportDTO> exportUsers = this.baseMapper.listExportUsers(queryParams);
+        List<UserExportVO> exportUsers = this.baseMapper.listExportUsers(queryParams);
         if (CollectionUtil.isNotEmpty(exportUsers)) {
             //获取性别的字典项
             Map<String, String> genderMap = dictItemService.list(
@@ -377,67 +283,61 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 获取登录用户信息
      *
-     * @return {@link CurrentUserDTO}   用户信息
+     * @return {@link CurrentUserVO}   用户信息
      */
     @Override
-    public CurrentUserDTO getCurrentUserInfo() {
+    public CurrentUserVO getCurrentUserInfo() {
 
         String username = SecurityUtils.getUsername();
 
-        boolean canSwitchTenant = SecurityUtils.canSwitchTenant();
-        Long oldTenantId = TenantContextHolder.getTenantId();
-        boolean oldIgnoreTenant = TenantContextHolder.isIgnoreTenant();
-        User user;
-        try {
-            if (canSwitchTenant) {
-                TenantContextHolder.setIgnoreTenant(false);
-                TenantContextHolder.setTenantId(SystemConstants.PLATFORM_TENANT_ID);
-            }
-            user = this.getOne(new LambdaQueryWrapper<User>()
-                    .eq(User::getUsername, username)
-                    .select(
-                            User::getId,
-                            User::getUsername,
-                            User::getNickname,
-                            User::getAvatar
-                    )
-            );
-        } finally {
-            TenantContextHolder.setIgnoreTenant(oldIgnoreTenant);
-            if (oldTenantId != null) {
-                TenantContextHolder.setTenantId(oldTenantId);
+        // 获取登录用户基础信息
+        SysUser user = this.getOne(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getUsername, username)
+                .select(
+                        SysUser::getId,
+                        SysUser::getUsername,
+                        SysUser::getNickname,
+                        SysUser::getAvatar,
+                        SysUser::getGender,
+                        SysUser::getDeptId
+                )
+        );
+        // entity->Vo
+        CurrentUserVO userInfoVo = userConverter.toCurrentUserVo(user);
+
+        // 性别
+        userInfoVo.setGender(user.getGender());
+
+        // 部门名称
+        if (user.getDeptId() != null) {
+            Dept dept = deptService.getById(user.getDeptId());
+            if (dept != null) {
+                userInfoVo.setDeptName(dept.getName());
             }
         }
-
-        CurrentUserDTO userInfoVO = userConverter.toCurrentUserDto(user);
-        userInfoVO.setCanSwitchTenant(canSwitchTenant);
 
         // 用户角色集合
         Set<String> roles = SecurityUtils.getRoles();
-        userInfoVO.setRoles(roles);
+        userInfoVo.setRoles(roles);
+
+        // 用户角色名称集合
+        if (CollectionUtil.isNotEmpty(roles)) {
+            Set<String> roleNames = roleService.list(new LambdaQueryWrapper<Role>()
+                            .in(Role::getCode, roles)
+                            .select(Role::getName)
+                    ).stream()
+                    .map(Role::getName)
+                    .filter(StrUtil::isNotBlank)
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
+            userInfoVo.setRoleNames(roleNames);
+        }
 
         // 用户权限集合
         if (CollectionUtil.isNotEmpty(roles)) {
-            Set<String> perms;
-            if (canSwitchTenant) {
-                Long permsOldTenantId = TenantContextHolder.getTenantId();
-                boolean permsOldIgnoreTenant = TenantContextHolder.isIgnoreTenant();
-                try {
-                    TenantContextHolder.setIgnoreTenant(false);
-                    TenantContextHolder.setTenantId(SystemConstants.PLATFORM_TENANT_ID);
-                    perms = roleMenuService.getRolePermsByRoleCodes(roles);
-                } finally {
-                    TenantContextHolder.setIgnoreTenant(permsOldIgnoreTenant);
-                    if (permsOldTenantId != null) {
-                        TenantContextHolder.setTenantId(permsOldTenantId);
-                    }
-                }
-            } else {
-                perms = roleMenuService.getRolePermsByRoleCodes(roles);
-            }
-            userInfoVO.setPerms(perms);
+            Set<String> perms = roleMenuService.getRolePermsByRoleCodes(roles);
+            userInfoVo.setPerms(perms);
         }
-        return userInfoVO;
+        return userInfoVo;
     }
 
     /**
@@ -465,11 +365,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException("请修改至少一个字段");
         }
 
-        return this.update(new LambdaUpdateWrapper<User>()
-                .eq(User::getId, userId)
-                .set(formData.getNickname() != null, User::getNickname, formData.getNickname())
-                .set(formData.getAvatar() != null, User::getAvatar, formData.getAvatar())
-                .set(formData.getGender() != null, User::getGender, formData.getGender())
+        return this.update(new LambdaUpdateWrapper<SysUser>()
+                .eq(SysUser::getId, userId)
+                .set(formData.getNickname() != null, SysUser::getNickname, formData.getNickname())
+                .set(formData.getAvatar() != null, SysUser::getAvatar, formData.getAvatar())
+                .set(formData.getGender() != null, SysUser::getGender, formData.getGender())
         );
     }
 
@@ -483,7 +383,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public boolean changeUserPassword(Long userId, PasswordUpdateForm data) {
 
-        User user = this.getById(userId);
+        SysUser user = this.getById(userId);
         if (user == null) {
             throw new BusinessException("用户不存在");
         }
@@ -505,9 +405,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
 
         String newPassword = data.getNewPassword();
-        boolean result = this.update(new LambdaUpdateWrapper<User>()
-                .eq(User::getId, userId)
-                .set(User::getPassword, passwordEncoder.encode(newPassword))
+        boolean result = this.update(new LambdaUpdateWrapper<SysUser>()
+                .eq(SysUser::getId, userId)
+                .set(SysUser::getPassword, passwordEncoder.encode(newPassword))
         );
 
         if (result) {
@@ -526,9 +426,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public boolean resetUserPassword(Long userId, String password) {
-        boolean result = this.update(new LambdaUpdateWrapper<User>()
-                .eq(User::getId, userId)
-                .set(User::getPassword, passwordEncoder.encode(password))
+        boolean result = this.update(new LambdaUpdateWrapper<SysUser>()
+                .eq(SysUser::getId, userId)
+                .set(SysUser::getPassword, passwordEncoder.encode(password))
         );
         if (result) {
             // 管理员重置用户密码后，使该用户的所有会话失效
@@ -547,17 +447,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public boolean sendMobileCode(String mobile) {
 
         Long currentUserId = SecurityUtils.getUserId();
-        long mobileCount = this.count(new LambdaQueryWrapper<User>()
-                .eq(User::getMobile, mobile)
-                .ne(User::getId, currentUserId)
+        long mobileCount = this.count(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getMobile, mobile)
+                .ne(SysUser::getId, currentUserId)
         );
         if (mobileCount > 0) {
             throw new BusinessException("手机号已被其他账号绑定");
         }
 
         // String code = String.valueOf((int) ((Math.random() * 9 + 1) * 1000));
-        // TODO 为了方便测试，验证码固定为 1234，实际开发中在配置了厂商短信服务后，可以使用上面的随机验证码
-        String code = "1234";
+        // TODO 为了方便测试，验证码固定为 123456，实际开发中在配置了厂商短信服务后，可以使用上面的随机验证码
+        String code = "123456";
 
         Map<String, String> templateParams = new HashMap<>();
         templateParams.put("code", code);
@@ -580,7 +480,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public boolean bindOrChangeMobile(MobileUpdateForm form) {
 
         Long currentUserId = SecurityUtils.getUserId();
-        User currentUser = this.getById(currentUserId);
+        SysUser currentUser = this.getById(currentUserId);
 
         if (currentUser == null) {
             throw new BusinessException("用户不存在");
@@ -605,9 +505,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException("验证码错误");
         }
 
-        long mobileCount = this.count(new LambdaQueryWrapper<User>()
-                .eq(User::getMobile, mobile)
-                .ne(User::getId, currentUserId)
+        long mobileCount = this.count(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getMobile, mobile)
+                .ne(SysUser::getId, currentUserId)
         );
         if (mobileCount > 0) {
             throw new BusinessException("手机号已被其他账号绑定");
@@ -617,9 +517,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 更新手机号码
         return this.update(
-                new LambdaUpdateWrapper<User>()
-                        .eq(User::getId, currentUserId)
-                        .set(User::getMobile, mobile)
+                new LambdaUpdateWrapper<SysUser>()
+                        .eq(SysUser::getId, currentUserId)
+                        .set(SysUser::getMobile, mobile)
         );
     }
 
@@ -632,17 +532,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public void sendEmailCode(String email) {
 
         Long currentUserId = SecurityUtils.getUserId();
-        long emailCount = this.count(new LambdaQueryWrapper<User>()
-                .eq(User::getEmail, email)
-                .ne(User::getId, currentUserId)
+        long emailCount = this.count(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getEmail, email)
+                .ne(SysUser::getId, currentUserId)
         );
         if (emailCount > 0) {
             throw new BusinessException("邮箱已被其他账号绑定");
         }
 
         // String code = String.valueOf((int) ((Math.random() * 9 + 1) * 1000));
-        // TODO 为了方便测试，验证码固定为 1234，实际开发中在配置了邮箱服务后，可以使用上面的随机验证码
-        String code = "1234";
+        // TODO 为了方便测试，验证码固定为 123456，实际开发中在配置了邮箱服务后，可以使用上面的随机验证码
+        String code = "123456";
 
         mailService.sendMail(email, "邮箱验证码", "您的验证码为：" + code + "，请在5分钟内使用");
         // 缓存验证码，5分钟有效，用于更换邮箱校验
@@ -661,7 +561,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         Long currentUserId = SecurityUtils.getUserId();
 
-        User currentUser = this.getById(currentUserId);
+        SysUser currentUser = this.getById(currentUserId);
         if (currentUser == null) {
             throw new BusinessException("用户不存在");
         }
@@ -686,9 +586,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException("验证码错误");
         }
 
-        long emailCount = this.count(new LambdaQueryWrapper<User>()
-                .eq(User::getEmail, email)
-                .ne(User::getId, currentUserId)
+        long emailCount = this.count(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getEmail, email)
+                .ne(SysUser::getId, currentUserId)
         );
         if (emailCount > 0) {
             throw new BusinessException("邮箱已被其他账号绑定");
@@ -698,17 +598,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         // 更新邮箱地址
         return this.update(
-                new LambdaUpdateWrapper<User>()
-                        .eq(User::getId, currentUserId)
-                        .set(User::getEmail, email)
+                new LambdaUpdateWrapper<SysUser>()
+                        .eq(SysUser::getId, currentUserId)
+                        .set(SysUser::getEmail, email)
         );
     }
 
+    /**
+     * 解绑手机号
+     *
+     * @param form 表单数据
+     * @return true|false
+     */
     @Override
     public boolean unbindMobile(PasswordVerifyForm form) {
 
         Long currentUserId = SecurityUtils.getUserId();
-        User currentUser = this.getById(currentUserId);
+        SysUser currentUser = this.getById(currentUserId);
 
         if (currentUser == null) {
             throw new BusinessException("用户不存在");
@@ -722,17 +628,23 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException("当前密码错误");
         }
 
-        return this.update(new LambdaUpdateWrapper<User>()
-                .eq(User::getId, currentUserId)
-                .set(User::getMobile, null)
+        return this.update(new LambdaUpdateWrapper<SysUser>()
+                .eq(SysUser::getId, currentUserId)
+                .set(SysUser::getMobile, null)
         );
     }
 
+    /**
+     * 解绑邮箱
+     *
+     * @param form 表单数据
+     * @return true|false
+     */
     @Override
     public boolean unbindEmail(PasswordVerifyForm form) {
 
         Long currentUserId = SecurityUtils.getUserId();
-        User currentUser = this.getById(currentUserId);
+        SysUser currentUser = this.getById(currentUserId);
 
         if (currentUser == null) {
             throw new BusinessException("用户不存在");
@@ -746,9 +658,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException("当前密码错误");
         }
 
-        return this.update(new LambdaUpdateWrapper<User>()
-                .eq(User::getId, currentUserId)
-                .set(User::getEmail, null)
+        return this.update(new LambdaUpdateWrapper<SysUser>()
+                .eq(SysUser::getId, currentUserId)
+                .set(SysUser::getEmail, null)
         );
     }
 
@@ -759,8 +671,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     public List<Option<String>> listUserOptions() {
-        List<User> list = this.list(new LambdaQueryWrapper<User>()
-                .eq(User::getStatus, 1)
+        List<SysUser> list = this.list(new LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getStatus, 1)
         );
         return userConverter.toOptions(list);
     }

@@ -1,20 +1,22 @@
 package com.youlai.boot.framework.security.config;
 
-import com.youlai.boot.framework.captcha.service.CaptchaService;
+import cn.binarywang.wx.miniapp.api.WxMaService;
 import cn.hutool.core.util.ArrayUtil;
+import com.youlai.boot.framework.captcha.service.CaptchaService;
 import com.youlai.boot.framework.security.filter.CaptchaValidationFilter;
 import com.youlai.boot.framework.security.filter.TokenAuthenticationFilter;
 import com.youlai.boot.framework.security.handler.MyAccessDeniedHandler;
 import com.youlai.boot.framework.security.handler.MyAuthenticationEntryPoint;
 import com.youlai.boot.framework.security.provider.SmsAuthenticationProvider;
+import com.youlai.boot.framework.security.provider.WxMaAuthenticationProvider;
 import com.youlai.boot.framework.security.token.TokenManager;
 import com.youlai.boot.framework.security.service.SysUserDetailsService;
-import com.youlai.boot.system.service.ConfigService;
 import com.youlai.boot.system.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.redis.core.RedisTemplate;
+
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -49,7 +51,6 @@ public class SecurityConfig {
     private final SysUserDetailsService userDetailsService;
 
     private final CaptchaService captchaService;
-    private final ConfigService configService;
     private final SecurityProperties securityProperties;
 
     /**
@@ -57,10 +58,9 @@ public class SecurityConfig {
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-
         return http
                 .authorizeHttpRequests(requestMatcherRegistry -> {
-                            // 配置无需登录即可访问的公开接口
+                            // 配置无需登录即可访问的公开接口（配置文件方式）
                             String[] ignoreUrls = securityProperties.getIgnoreUrls();
                             if (ArrayUtil.isNotEmpty(ignoreUrls)) {
                                 requestMatcherRegistry.requestMatchers(ignoreUrls).permitAll();
@@ -125,16 +125,30 @@ public class SecurityConfig {
     }
 
     /**
+     * 微信小程序认证 Provider
+     */
+    @Bean
+    public WxMaAuthenticationProvider wechatMiniAuthenticationProvider(
+            WxMaService wxMaService,
+            SysUserDetailsService sysUserDetailsService
+    ) {
+        return new WxMaAuthenticationProvider(wxMaService, sysUserDetailsService);
+    }
+
+    /**
      * 认证管理器
      */
     @Bean
     public AuthenticationManager authenticationManager(
             DaoAuthenticationProvider daoAuthenticationProvider,
-            SmsAuthenticationProvider smsAuthenticationProvider
+            SmsAuthenticationProvider smsAuthenticationProvider,
+            WxMaAuthenticationProvider wxMaAuthenticationProvider
     ) {
         return new ProviderManager(
                 daoAuthenticationProvider,
-                smsAuthenticationProvider
+                smsAuthenticationProvider,
+            wxMaAuthenticationProvider
         );
     }
+
 }

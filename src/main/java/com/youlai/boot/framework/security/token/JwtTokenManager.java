@@ -47,6 +47,7 @@ public class JwtTokenManager implements TokenManager {
 
     private final SecurityProperties securityProperties;
     private final RedisTemplate<String, Object> redisTemplate;
+    // JWT 签名密钥
     private final byte[] secretKey;
 
     public JwtTokenManager(SecurityProperties securityProperties, RedisTemplate<String, Object> redisTemplate) {
@@ -55,6 +56,9 @@ public class JwtTokenManager implements TokenManager {
         this.secretKey = securityProperties.getSession().getJwt().getSecretKey().getBytes();
     }
 
+    /**
+     * 生成 accessToken + refreshToken
+     */
     @Override
     public AuthenticationToken generateToken(Authentication authentication) {
         int accessTokenTimeToLive = securityProperties.getSession().getAccessTokenTimeToLive();
@@ -71,6 +75,9 @@ public class JwtTokenManager implements TokenManager {
                 .build();
     }
 
+    /**
+     * 从 token 解析用户认证信息
+     */
     @Override
     public Authentication parseToken(String token) {
         JWT jwt = JWTUtil.parseToken(token);
@@ -108,16 +115,25 @@ public class JwtTokenManager implements TokenManager {
         return new UsernamePasswordAuthenticationToken(userDetails, "", authorities);
     }
 
+    /**
+     * 校验 accessToken 是否有效
+     */
     @Override
     public boolean validateToken(String token) {
         return validateToken(token, false);
     }
 
+    /**
+     * 校验 refreshToken 是否有效
+     */
     @Override
     public boolean validateRefreshToken(String refreshToken) {
         return validateToken(refreshToken, true);
     }
 
+    /**
+     * 通用 token 校验：签名 + token_version 版本号 + 撤销列表
+     */
     private boolean validateToken(String token, boolean validateRefreshToken) {
         JWT jwt = JWTUtil.parseToken(token);
         boolean isValid = jwt.setKey(secretKey).validate(0);
@@ -148,6 +164,9 @@ public class JwtTokenManager implements TokenManager {
         return isValid;
     }
 
+    /**
+     * 使指定 token 失效（加入撤销列表）
+     */
     @Override
     public void invalidateToken(String token) {
         if (StringUtils.isBlank(token)) {
@@ -163,6 +182,9 @@ public class JwtTokenManager implements TokenManager {
         revokeTokenByJti(jti, expirationAt);
     }
 
+    /**
+     * 检查 jti 是否已被撤销
+     */
     private boolean isTokenRevoked(String jti) {
         if (StringUtils.isBlank(jti)) {
             return false;
@@ -170,6 +192,9 @@ public class JwtTokenManager implements TokenManager {
         return Boolean.TRUE.equals(redisTemplate.hasKey(StrUtil.format(RedisConstants.Auth.REVOKED_JTI, jti)));
     }
 
+    /**
+     * 将 jti 写入 redis 撤销列表，TTL 跟随 token 剩余有效期
+     */
     private void revokeTokenByJti(String jti, Integer expirationAt) {
         if (StringUtils.isBlank(jti)) {
             return;
@@ -187,6 +212,9 @@ public class JwtTokenManager implements TokenManager {
         }
     }
 
+    /**
+     * 使某用户全部 token 失效（递增 redis 版本号）
+     */
     @Override
     public void invalidateUserSessions(Long userId) {
         if (userId == null) {
@@ -196,6 +224,9 @@ public class JwtTokenManager implements TokenManager {
         redisTemplate.opsForValue().increment(versionKey);
     }
 
+    /**
+     * 用 refreshToken 换发新 accessToken
+     */
     @Override
     public AuthenticationToken refreshToken(String refreshToken) {
         boolean isValid = validateRefreshToken(refreshToken);
@@ -217,6 +248,9 @@ public class JwtTokenManager implements TokenManager {
         return generateToken(authentication, ttl, false);
     }
 
+    /**
+     * 构建 JWT payload 并签名生成 token
+     */
     private String generateToken(Authentication authentication, int ttl, boolean isRefreshToken) {
         SysUserDetails userDetails = (SysUserDetails) authentication.getPrincipal();
         Map<String, Object> payload = new HashMap<>();

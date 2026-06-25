@@ -7,22 +7,22 @@ import com.youlai.boot.common.annotation.Log;
 import com.youlai.boot.common.annotation.RepeatSubmit;
 import com.youlai.boot.common.enums.ActionTypeEnum;
 import com.youlai.boot.common.enums.LogModuleEnum;
+import com.youlai.boot.framework.security.util.SecurityUtils;
 import com.youlai.boot.common.model.Option;
+import com.youlai.boot.common.result.ExcelResult;
 import com.youlai.boot.common.result.PageResult;
 import com.youlai.boot.common.result.Result;
 import com.youlai.boot.common.util.ExcelUtils;
 import com.youlai.boot.system.listener.UserImportListener;
-import com.youlai.boot.system.model.dto.UserExportDTO;
-import com.youlai.boot.system.model.dto.UserImportDTO;
-import com.youlai.boot.system.model.entity.User;
 import com.youlai.boot.system.model.form.*;
+import com.youlai.boot.system.model.vo.UserExportVO;
+import com.youlai.boot.system.model.entity.SysUser;
 import com.youlai.boot.system.model.query.UserQuery;
-import com.youlai.boot.system.model.dto.CurrentUserDTO;
+import com.youlai.boot.system.model.vo.CurrentUserVO;
 import com.youlai.boot.system.model.vo.UserPageVO;
 import com.youlai.boot.system.model.vo.UserProfileVO;
 import com.youlai.boot.system.service.UserService;
 import com.youlai.boot.framework.security.token.TokenManager;
-import com.youlai.boot.framework.security.util.SecurityUtils;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -82,7 +82,6 @@ public class UserController {
     @Operation(summary = "获取用户表单数据")
     @GetMapping("/{userId}/form")
     @PreAuthorize("@ss.hasPerm('sys:user:update')")
-    @Log(module = LogModuleEnum.USER, value = ActionTypeEnum.UPDATE)
     public Result<UserForm> getUserForm(
             @Parameter(description = "用户ID") @PathVariable Long userId
     ) {
@@ -121,9 +120,9 @@ public class UserController {
             @Parameter(description = "用户ID") @PathVariable Long userId,
             @Parameter(description = "用户状态(1:启用;0:禁用)") @RequestParam Integer status
     ) {
-        boolean result = userService.update(new LambdaUpdateWrapper<User>()
-                .eq(User::getId, userId)
-                .set(User::getStatus, status)
+        boolean result = userService.update(new LambdaUpdateWrapper<SysUser>()
+                .eq(SysUser::getId, userId)
+                .set(SysUser::getStatus, status)
         );
         // 用户禁用时立即失效其会话
         if (result && status == 0) {
@@ -132,17 +131,27 @@ public class UserController {
         return Result.judge(result);
     }
 
+    @Operation(summary = "重置指定用户密码")
+    @PutMapping(value = "/{userId}/password/reset")
+    @PreAuthorize("@ss.hasPerm('sys:user:reset-password')")
+    @Log(module = LogModuleEnum.USER, value = ActionTypeEnum.RESET_PASSWORD)
+    public Result<?> resetUserPassword(
+            @Parameter(description = "用户ID") @PathVariable Long userId,
+            @RequestParam String password
+    ) {
+        boolean result = userService.resetUserPassword(userId, password);
+        return Result.judge(result);
+    }
+
     @Operation(summary = "获取当前登录用户信息")
     @GetMapping("/me")
-    @Log(module = LogModuleEnum.USER, value = ActionTypeEnum.OTHER)
-    public Result<CurrentUserDTO> getCurrentUser() {
-        CurrentUserDTO currentUserDto = userService.getCurrentUserInfo();
-        return Result.success(currentUserDto);
+    public Result<CurrentUserVO> getCurrentUser() {
+        CurrentUserVO currentUserVo = userService.getCurrentUserInfo();
+        return Result.success(currentUserVo);
     }
 
     @Operation(summary = "用户导入模板下载")
     @GetMapping("/template")
-    @Log(module = LogModuleEnum.USER, value = ActionTypeEnum.OTHER)
     public void downloadTemplate(HttpServletResponse response)  {
         String fileName = "用户导入模板.xlsx";
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
@@ -162,30 +171,36 @@ public class UserController {
     @Operation(summary = "导入用户")
     @PostMapping("/import")
     @PreAuthorize("@ss.hasPerm('sys:user:import')")
-    @Log(module = LogModuleEnum.USER, value = ActionTypeEnum.INSERT)
-    public Result<?> importUsers(MultipartFile file) throws IOException {
+    @Log(module = LogModuleEnum.USER, value = ActionTypeEnum.IMPORT)
+    public Result<ExcelResult> importUsers(MultipartFile file) throws IOException {
         UserImportListener listener = new UserImportListener();
-        ExcelUtils.importExcel(file.getInputStream(), UserImportDTO.class, listener);
+        ExcelUtils.importExcel(file.getInputStream(), UserImportForm.class, listener);
         return Result.success(listener.getExcelResult());
     }
 
     @Operation(summary = "导出用户")
     @GetMapping("/export")
     @PreAuthorize("@ss.hasPerm('sys:user:export')")
-    @Log(module = LogModuleEnum.USER, value = ActionTypeEnum.OTHER)
+    @Log(module = LogModuleEnum.USER, value = ActionTypeEnum.EXPORT)
     public void exportUsers(UserQuery queryParams, HttpServletResponse response) throws IOException {
         String fileName = "用户列表.xlsx";
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(fileName, StandardCharsets.UTF_8));
 
-        List<UserExportDTO> exportUserList = userService.listExportUsers(queryParams);
-        EasyExcel.write(response.getOutputStream(), UserExportDTO.class).sheet("用户列表")
+        List<UserExportVO> exportUserList = userService.listExportUsers(queryParams);
+        EasyExcel.write(response.getOutputStream(), UserExportVO.class).sheet("用户列表")
                 .doWrite(exportUserList);
+    }
+
+    @Operation(summary = "获取用户下拉选项")
+    @GetMapping("/options")
+    public Result<List<Option<String>>> listUserOptions() {
+        List<Option<String>> list = userService.listUserOptions();
+        return Result.success(list);
     }
 
     @Operation(summary = "获取个人中心用户信息")
     @GetMapping("/profile")
-    @Log(module = LogModuleEnum.USER, value = ActionTypeEnum.OTHER)
     public Result<UserProfileVO> getUserProfile() {
         Long userId = SecurityUtils.getUserId();
         UserProfileVO userProfile = userService.getUserProfile(userId);
@@ -200,19 +215,10 @@ public class UserController {
         return Result.judge(result);
     }
 
-    @Operation(summary = "重置指定用户密码")
-    @PutMapping(value = "/{userId}/password/reset")
-    @PreAuthorize("@ss.hasPerm('sys:user:reset-password')")
-    public Result<?> resetUserPassword(
-            @Parameter(description = "用户ID") @PathVariable Long userId,
-            @RequestParam String password
-    ) {
-        boolean result = userService.resetUserPassword(userId, password);
-        return Result.judge(result);
-    }
 
     @Operation(summary = "当前用户修改密码")
     @PutMapping(value = "/password")
+    @Log(module = LogModuleEnum.USER, value = ActionTypeEnum.CHANGE_PASSWORD)
     public Result<?> changeCurrentUserPassword(
             @RequestBody PasswordUpdateForm data
     ) {
@@ -274,13 +280,5 @@ public class UserController {
         boolean result = userService.unbindEmail(data);
         return Result.judge(result);
     }
-
-    @Operation(summary = "获取用户下拉选项")
-    @GetMapping("/options")
-    public Result<List<Option<String>>> listUserOptions() {
-        List<Option<String>> list = userService.listUserOptions();
-        return Result.success(list);
-    }
-
 
 }
