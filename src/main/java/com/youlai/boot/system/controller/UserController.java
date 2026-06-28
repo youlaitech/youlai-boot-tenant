@@ -15,8 +15,9 @@ import com.youlai.boot.common.result.Result;
 import com.youlai.boot.common.util.ExcelUtils;
 import com.youlai.boot.system.listener.UserImportListener;
 import com.youlai.boot.system.model.form.*;
+import com.youlai.boot.system.model.form.UserImportForm;
 import com.youlai.boot.system.model.vo.UserExportVO;
-import com.youlai.boot.system.model.entity.SysUser;
+import com.youlai.boot.system.model.entity.User;
 import com.youlai.boot.system.model.query.UserQuery;
 import com.youlai.boot.system.model.vo.CurrentUserVO;
 import com.youlai.boot.system.model.vo.UserPageVO;
@@ -120,9 +121,9 @@ public class UserController {
             @Parameter(description = "用户ID") @PathVariable Long userId,
             @Parameter(description = "用户状态(1:启用;0:禁用)") @RequestParam Integer status
     ) {
-        boolean result = userService.update(new LambdaUpdateWrapper<SysUser>()
-                .eq(SysUser::getId, userId)
-                .set(SysUser::getStatus, status)
+        boolean result = userService.update(new LambdaUpdateWrapper<User>()
+                .eq(User::getId, userId)
+                .set(User::getStatus, status)
         );
         // 用户禁用时立即失效其会话
         if (result && status == 0) {

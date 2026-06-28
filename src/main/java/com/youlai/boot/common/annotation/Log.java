@@ -7,6 +7,9 @@ import java.lang.annotation.*;
 
 /**
  * 日志注解
+ *
+ * @author Ray.Hao
+ * @since 3.0.0
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)

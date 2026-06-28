@@ -9,7 +9,7 @@ import com.baomidou.mybatisplus.extension.plugins.inner.TenantLineInnerIntercept
 import com.youlai.boot.framework.mybatis.handler.AutoFillMetaObjectHandler;
 import com.youlai.boot.framework.mybatis.interceptor.MyDataPermissionHandler;
 import com.youlai.boot.framework.mybatis.interceptor.MyTenantLineHandler;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -22,25 +22,19 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
  */
 @Configuration
 @EnableTransactionManagement
+@RequiredArgsConstructor
 public class MybatisConfig {
 
-    @Autowired(required = false)
-    private MyTenantLineHandler myTenantLineHandler;
+    private final MyTenantLineHandler myTenantLineHandler;
 
     /**
-     * 分页插件和数据权限插件
-     * <p>
-     * 如果启用了多租户，则添加多租户插件（必须在最前面）
-     * </p>
+     * 分页插件、数据权限插件、多租户插件
      */
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor() {
         MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
 
-        // 多租户插件（强制启用，必须在最前面）
-        if (myTenantLineHandler != null) {
-            interceptor.addInnerInterceptor(new TenantLineInnerInterceptor(myTenantLineHandler));
-        }
+        interceptor.addInnerInterceptor(new TenantLineInnerInterceptor(myTenantLineHandler));
 
         // 数据权限
         interceptor.addInnerInterceptor(new DataPermissionInterceptor(new MyDataPermissionHandler()));
@@ -52,7 +46,7 @@ public class MybatisConfig {
     }
 
     /**
-     * 自动填充数据库创建人、创建时间、更新人、更新时间
+     * 自动填充创建时间和更新时间
      */
     @Bean
     public GlobalConfig globalConfig() {

@@ -1,4 +1,4 @@
-package com.youlai.boot.common.config;
+package com.youlai.boot.framework.web.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,7 +11,7 @@ import java.util.concurrent.ThreadPoolExecutor;
  * 操作日志线程池
  *
  * @author Ray.Hao
- * @since 2020/11/06
+ * @since 3.0.0
  */
 @Configuration
 public class OperationLogExecutorConfig {

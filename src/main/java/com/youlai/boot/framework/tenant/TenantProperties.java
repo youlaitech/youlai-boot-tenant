@@ -29,6 +29,5 @@ public class TenantProperties {
      * 系统表、租户表等不需要租户隔离的表
      */
     private List<String> ignoreTables = new ArrayList<>();
-
 }
 

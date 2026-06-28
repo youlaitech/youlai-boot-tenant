@@ -2,6 +2,8 @@ package com.youlai.boot.framework.web.util;
 
 import cn.hutool.extra.servlet.JakartaServletUtil;
 import cn.hutool.json.JSONUtil;
+import com.youlai.boot.common.result.Result;
+import com.youlai.boot.common.result.ResultCode;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;

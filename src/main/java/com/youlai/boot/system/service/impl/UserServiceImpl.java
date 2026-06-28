@@ -28,7 +28,7 @@ import com.youlai.boot.system.model.vo.UserExportVO;
 import com.youlai.boot.system.model.entity.Dept;
 import com.youlai.boot.system.model.entity.DictItem;
 import com.youlai.boot.system.model.entity.Role;
-import com.youlai.boot.system.model.entity.SysUser;
+import com.youlai.boot.system.model.entity.User;
 import com.youlai.boot.system.model.query.UserQuery;
 import com.youlai.boot.system.model.vo.UserPageVO;
 import com.youlai.boot.system.model.vo.UserProfileVO;
@@ -53,7 +53,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements UserService {
+public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
     private final PasswordEncoder passwordEncoder;
 
@@ -99,6 +99,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         return this.baseMapper.getUserPage(page, queryParams);
     }
 
+    @Override
+    public List<User> listUsersByUsernameAcrossAllTenants(String username) {
+        return this.list(new LambdaQueryWrapper<User>().eq(User::getUsername, username));
+    }
+
+    @Override
+    public UserAuthInfo getAuthInfoByUsernameInTenant(String username, Long tenantId) {
+        return this.baseMapper.getAuthInfoByUsername(username);
+    }
+
     /**
      * 获取用户表单数据
      *
@@ -123,11 +133,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         String username = userForm.getUsername();
 
         // 实体转换 form->entity
-        SysUser entity = userConverter.toEntity(userForm);
+        User entity = userConverter.toEntity(userForm);
 
         // 检查用户名是否已存在
-        long count = this.count(new LambdaQueryWrapper<SysUser>()
-                .eq(SysUser::getUsername, username));
+        long count = this.count(new LambdaQueryWrapper<User>()
+                .eq(User::getUsername, username));
         Assert.isTrue(count == 0, "用户名已存在");
 
         // 设置默认加密密码
@@ -159,18 +169,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         String username = userForm.getUsername();
 
         // 获取原用户信息
-        SysUser oldUser = this.getById(userId);
+        User oldUser = this.getById(userId);
         Assert.notNull(oldUser, "用户不存在");
 
         // 检查用户名是否已存在（排除当前用户）
-        long count = this.count(new LambdaQueryWrapper<SysUser>()
-                .eq(SysUser::getUsername, username)
-                .ne(SysUser::getId, userId)
+        long count = this.count(new LambdaQueryWrapper<User>()
+                .eq(User::getUsername, username)
+                .ne(User::getId, userId)
         );
         Assert.isTrue(count == 0, "用户名已存在");
 
         // form -> entity
-        SysUser entity = userConverter.toEntity(userForm);
+        User entity = userConverter.toEntity(userForm);
         entity.setUpdateBy(SecurityUtils.getUserId());
 
         // 修改用户
@@ -291,19 +301,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         String username = SecurityUtils.getUsername();
 
         // 获取登录用户基础信息
-        SysUser user = this.getOne(new LambdaQueryWrapper<SysUser>()
-                .eq(SysUser::getUsername, username)
+        User user = this.getOne(new LambdaQueryWrapper<User>()
+                .eq(User::getUsername, username)
                 .select(
-                        SysUser::getId,
-                        SysUser::getUsername,
-                        SysUser::getNickname,
-                        SysUser::getAvatar,
-                        SysUser::getGender,
-                        SysUser::getDeptId
+                        User::getId,
+                        User::getUsername,
+                        User::getNickname,
+                        User::getAvatar,
+                        User::getGender,
+                        User::getDeptId
                 )
         );
         // entity->Vo
-        CurrentUserVO userInfoVo = userConverter.toCurrentUserVo(user);
+        CurrentUserVO userInfoVo = userConverter.toCurrentUserDto(user);
 
         // 性别
         userInfoVo.setGender(user.getGender());
@@ -365,11 +375,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
             throw new BusinessException("请修改至少一个字段");
         }
 
-        return this.update(new LambdaUpdateWrapper<SysUser>()
-                .eq(SysUser::getId, userId)
-                .set(formData.getNickname() != null, SysUser::getNickname, formData.getNickname())
-                .set(formData.getAvatar() != null, SysUser::getAvatar, formData.getAvatar())
-                .set(formData.getGender() != null, SysUser::getGender, formData.getGender())
+        return this.update(new LambdaUpdateWrapper<User>()
+                .eq(User::getId, userId)
+                .set(formData.getNickname() != null, User::getNickname, formData.getNickname())
+                .set(formData.getAvatar() != null, User::getAvatar, formData.getAvatar())
+                .set(formData.getGender() != null, User::getGender, formData.getGender())
         );
     }
 
@@ -383,7 +393,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
     @Override
     public boolean changeUserPassword(Long userId, PasswordUpdateForm data) {
 
-        SysUser user = this.getById(userId);
+        User user = this.getById(userId);
         if (user == null) {
             throw new BusinessException("用户不存在");
         }
@@ -405,9 +415,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
         }
 
         String newPassword = data.getNewPassword();
-        boolean result = this.update(new LambdaUpdateWrapper<SysUser>()
-                .eq(SysUser::getId, userId)
-                .set(SysUser::getPassword, passwordEncoder.encode(newPassword))
+        boolean result = this.update(new LambdaUpdateWrapper<User>()
+                .eq(User::getId, userId)
+                .set(User::getPassword, passwordEncoder.encode(newPassword))
         );
 
         if (result) {
@@ -426,9 +436,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
      */
     @Override
     public boolean resetUserPassword(Long userId, String password) {
-        boolean result = this.update(new LambdaUpdateWrapper<SysUser>()
-                .eq(SysUser::getId, userId)
-                .set(SysUser::getPassword, passwordEncoder.encode(password))
+        boolean result = this.update(new LambdaUpdateWrapper<User>()
+                .eq(User::getId, userId)
+                .set(User::getPassword, passwordEncoder.encode(password))
         );
         if (result) {
             // 管理员重置用户密码后，使该用户的所有会话失效
@@ -447,9 +457,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
     public boolean sendMobileCode(String mobile) {
 
         Long currentUserId = SecurityUtils.getUserId();
-        long mobileCount = this.count(new LambdaQueryWrapper<SysUser>()
-                .eq(SysUser::getMobile, mobile)
-                .ne(SysUser::getId, currentUserId)
+        long mobileCount = this.count(new LambdaQueryWrapper<User>()
+                .eq(User::getMobile, mobile)
+                .ne(User::getId, currentUserId)
         );
         if (mobileCount > 0) {
             throw new BusinessException("手机号已被其他账号绑定");
@@ -480,7 +490,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
     public boolean bindOrChangeMobile(MobileUpdateForm form) {
 
         Long currentUserId = SecurityUtils.getUserId();
-        SysUser currentUser = this.getById(currentUserId);
+        User currentUser = this.getById(currentUserId);
 
         if (currentUser == null) {
             throw new BusinessException("用户不存在");
@@ -505,9 +515,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
             throw new BusinessException("验证码错误");
         }
 
-        long mobileCount = this.count(new LambdaQueryWrapper<SysUser>()
-                .eq(SysUser::getMobile, mobile)
-                .ne(SysUser::getId, currentUserId)
+        long mobileCount = this.count(new LambdaQueryWrapper<User>()
+                .eq(User::getMobile, mobile)
+                .ne(User::getId, currentUserId)
         );
         if (mobileCount > 0) {
             throw new BusinessException("手机号已被其他账号绑定");
@@ -517,9 +527,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
 
         // 更新手机号码
         return this.update(
-                new LambdaUpdateWrapper<SysUser>()
-                        .eq(SysUser::getId, currentUserId)
-                        .set(SysUser::getMobile, mobile)
+                new LambdaUpdateWrapper<User>()
+                        .eq(User::getId, currentUserId)
+                        .set(User::getMobile, mobile)
         );
     }
 
@@ -532,9 +542,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
     public void sendEmailCode(String email) {
 
         Long currentUserId = SecurityUtils.getUserId();
-        long emailCount = this.count(new LambdaQueryWrapper<SysUser>()
-                .eq(SysUser::getEmail, email)
-                .ne(SysUser::getId, currentUserId)
+        long emailCount = this.count(new LambdaQueryWrapper<User>()
+                .eq(User::getEmail, email)
+                .ne(User::getId, currentUserId)
         );
         if (emailCount > 0) {
             throw new BusinessException("邮箱已被其他账号绑定");
@@ -561,7 +571,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
 
         Long currentUserId = SecurityUtils.getUserId();
 
-        SysUser currentUser = this.getById(currentUserId);
+        User currentUser = this.getById(currentUserId);
         if (currentUser == null) {
             throw new BusinessException("用户不存在");
         }
@@ -586,9 +596,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
             throw new BusinessException("验证码错误");
         }
 
-        long emailCount = this.count(new LambdaQueryWrapper<SysUser>()
-                .eq(SysUser::getEmail, email)
-                .ne(SysUser::getId, currentUserId)
+        long emailCount = this.count(new LambdaQueryWrapper<User>()
+                .eq(User::getEmail, email)
+                .ne(User::getId, currentUserId)
         );
         if (emailCount > 0) {
             throw new BusinessException("邮箱已被其他账号绑定");
@@ -598,9 +608,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
 
         // 更新邮箱地址
         return this.update(
-                new LambdaUpdateWrapper<SysUser>()
-                        .eq(SysUser::getId, currentUserId)
-                        .set(SysUser::getEmail, email)
+                new LambdaUpdateWrapper<User>()
+                        .eq(User::getId, currentUserId)
+                        .set(User::getEmail, email)
         );
     }
 
@@ -614,7 +624,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
     public boolean unbindMobile(PasswordVerifyForm form) {
 
         Long currentUserId = SecurityUtils.getUserId();
-        SysUser currentUser = this.getById(currentUserId);
+        User currentUser = this.getById(currentUserId);
 
         if (currentUser == null) {
             throw new BusinessException("用户不存在");
@@ -628,9 +638,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
             throw new BusinessException("当前密码错误");
         }
 
-        return this.update(new LambdaUpdateWrapper<SysUser>()
-                .eq(SysUser::getId, currentUserId)
-                .set(SysUser::getMobile, null)
+        return this.update(new LambdaUpdateWrapper<User>()
+                .eq(User::getId, currentUserId)
+                .set(User::getMobile, null)
         );
     }
 
@@ -644,7 +654,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
     public boolean unbindEmail(PasswordVerifyForm form) {
 
         Long currentUserId = SecurityUtils.getUserId();
-        SysUser currentUser = this.getById(currentUserId);
+        User currentUser = this.getById(currentUserId);
 
         if (currentUser == null) {
             throw new BusinessException("用户不存在");
@@ -658,9 +668,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
             throw new BusinessException("当前密码错误");
         }
 
-        return this.update(new LambdaUpdateWrapper<SysUser>()
-                .eq(SysUser::getId, currentUserId)
-                .set(SysUser::getEmail, null)
+        return this.update(new LambdaUpdateWrapper<User>()
+                .eq(User::getId, currentUserId)
+                .set(User::getEmail, null)
         );
     }
 
@@ -671,8 +681,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, SysUser> implements
      */
     @Override
     public List<Option<String>> listUserOptions() {
-        List<SysUser> list = this.list(new LambdaQueryWrapper<SysUser>()
-                .eq(SysUser::getStatus, 1)
+        List<User> list = this.list(new LambdaQueryWrapper<User>()
+                .eq(User::getStatus, 1)
         );
         return userConverter.toOptions(list);
     }

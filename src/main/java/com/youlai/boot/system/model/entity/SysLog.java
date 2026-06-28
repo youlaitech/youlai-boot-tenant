@@ -115,6 +115,11 @@ public class SysLog implements Serializable {
     /**
      * 操作时间
      */
+    /**
+     * 租户ID
+     */
+    private Long tenantId;
+
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
 

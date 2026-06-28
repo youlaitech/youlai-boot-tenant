@@ -95,9 +95,9 @@ public class UserAuthInfo {
     private String captcha;
 
     /**
-     * 验证码Key
+     * 验证码ID
      */
-    private String captchaKey;
+    private String captchaId;
 
     /**
      * 角色集合

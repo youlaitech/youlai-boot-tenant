@@ -53,9 +53,15 @@ public class LogAspect {
     @Around("logPointcut() && @annotation(logAnno)")
     public Object doAround(ProceedingJoinPoint joinPoint, Log logAnno) throws Throwable {
         TimeInterval timer = DateUtil.timer();
-        // 在执行业务方法前获取用户信息，防止 logout 等操作清除 SecurityContext 后无法获取
         Long userId = SecurityUtils.getUserId();
         String username = SecurityUtils.getUsername();
+
+        String requestUri = request.getRequestURI();
+        String requestMethod = request.getMethod();
+        String ipAddr = IPUtils.getIpAddr(request);
+        String region = StrUtil.isNotBlank(ipAddr) ? IPUtils.getRegion(ipAddr) : null;
+        String userAgentHeader = request.getHeader("User-Agent");
+
         Object result = null;
         Exception exception = null;
 
@@ -66,13 +72,17 @@ public class LogAspect {
             throw e;
         } finally {
             long executionTime = timer.interval();
-            // fallback：登录等场景在 proceed() 前未认证，需在 proceed() 后获取
             if (userId == null) {
                 userId = SecurityUtils.getUserId();
                 username = SecurityUtils.getUsername();
             }
+            final Long finalUserId = userId;
+            final String finalUsername = username;
+            final Exception finalException = exception;
+            final long finalExecutionTime = executionTime;
             try {
-                operationLogExecutor.execute(() -> saveLog(logAnno, exception, executionTime, userId, username));
+                operationLogExecutor.execute(() -> saveLog(logAnno, finalException, finalExecutionTime,
+                        finalUserId, finalUsername, requestUri, requestMethod, ipAddr, region, userAgentHeader));
             } catch (Exception e) {
                 log.error("提交操作日志异步任务失败", e);
             }
@@ -80,7 +90,8 @@ public class LogAspect {
         return result;
     }
 
-    private void saveLog(Log logAnno, Exception exception, long executionTime, Long userId, String username) {
+    private void saveLog(Log logAnno, Exception exception, long executionTime, Long userId, String username,
+                         String requestUri, String requestMethod, String ipAddr, String region, String userAgentHeader) {
         SysLog sysLog = new SysLog();
 
         LogModuleEnum module = logAnno.module();
@@ -98,24 +109,21 @@ public class LogAspect {
         sysLog.setStatus(exception == null ? 1 : 0);
         sysLog.setErrorMsg(exception != null ? exception.getMessage() : null);
         sysLog.setExecutionTime((int) executionTime);
-        sysLog.setRequestUri(request.getRequestURI());
-        sysLog.setRequestMethod(request.getMethod());
+        sysLog.setRequestUri(requestUri);
+        sysLog.setRequestMethod(requestMethod);
 
-        String ipAddr = IPUtils.getIpAddr(request);
         if (StrUtil.isNotBlank(ipAddr)) {
             sysLog.setIp(ipAddr);
-            String region = IPUtils.getRegion(ipAddr);
             if (StrUtil.isNotBlank(region)) {
                 String[] regionArray = region.split("\\|");
-                if (regionArray.length > 2) {
+                if (regionArray.length > 3) {
                     sysLog.setProvince(regionArray[2]);
                     sysLog.setCity(regionArray[3]);
                 }
             }
         }
 
-        String userAgentString = request.getHeader("User-Agent");
-        UserAgent userAgent = resolveUserAgent(userAgentString);
+        UserAgent userAgent = resolveUserAgent(userAgentHeader);
         if (Objects.nonNull(userAgent)) {
             sysLog.setOs(userAgent.getOs().getName());
             sysLog.setBrowser(userAgent.getBrowser().getName());
@@ -133,17 +141,17 @@ public class LogAspect {
         }
     }
 
-    public UserAgent resolveUserAgent(String userAgentString) {
+    private UserAgent resolveUserAgent(String userAgentString) {
         if (StrUtil.isBlank(userAgentString)) {
             return null;
         }
-        String userAgentStringMD5 = DigestUtil.md5Hex(userAgentString);
-        UserAgent userAgent = Objects.requireNonNull(cacheManager.getCache("userAgent")).get(userAgentStringMD5, UserAgent.class);
+        String userAgentHash = DigestUtil.md5Hex(userAgentString);
+        UserAgent userAgent = Objects.requireNonNull(cacheManager.getCache("userAgent")).get(userAgentHash, UserAgent.class);
         if (userAgent != null) {
             return userAgent;
         }
         userAgent = UserAgentUtil.parse(userAgentString);
-        Objects.requireNonNull(cacheManager.getCache("userAgent")).put(userAgentStringMD5, userAgent);
+        Objects.requireNonNull(cacheManager.getCache("userAgent")).put(userAgentHash, userAgent);
         return userAgent;
     }
 

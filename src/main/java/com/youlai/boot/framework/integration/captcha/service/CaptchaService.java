@@ -69,6 +69,7 @@ public class CaptchaService {
         return CaptchaInfo.builder()
                 .captchaId(captchaId)
                 .captchaBase64(imageBase64Data)
+                
                 .build();
     }
 

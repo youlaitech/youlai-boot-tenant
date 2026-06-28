@@ -7,7 +7,7 @@ import com.youlai.boot.system.model.query.UserQuery;
 import com.youlai.boot.system.model.form.UserForm;
 import com.youlai.boot.common.annotation.DataPermission;
 import com.youlai.boot.framework.security.model.UserAuthInfo;
-import com.youlai.boot.system.model.dto.UserExportDTO;
+import com.youlai.boot.system.model.vo.UserExportVO;
 import com.youlai.boot.system.model.vo.UserPageVO;
 import com.youlai.boot.system.model.vo.UserProfileVO;
 import org.apache.ibatis.annotations.Mapper;
@@ -73,7 +73,7 @@ public interface UserMapper extends BaseMapper<User> {
      * @return 导出用户列表
      */
     @DataPermission(deptAlias = "u", userAlias = "u")
-    List<UserExportDTO> listExportUsers(UserQuery queryParams);
+    List<UserExportVO> listExportUsers(UserQuery queryParams);
 
     /**
      * 获取用户个人中心信息

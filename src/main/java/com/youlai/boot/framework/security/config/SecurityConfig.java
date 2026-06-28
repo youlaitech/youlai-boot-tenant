@@ -1,6 +1,5 @@
 package com.youlai.boot.framework.security.config;
 
-import cn.binarywang.wx.miniapp.api.WxMaService;
 import cn.hutool.core.util.ArrayUtil;
 import com.youlai.boot.framework.captcha.service.CaptchaService;
 import com.youlai.boot.framework.security.filter.CaptchaValidationFilter;
@@ -8,7 +7,6 @@ import com.youlai.boot.framework.security.filter.TokenAuthenticationFilter;
 import com.youlai.boot.framework.security.handler.MyAccessDeniedHandler;
 import com.youlai.boot.framework.security.handler.MyAuthenticationEntryPoint;
 import com.youlai.boot.framework.security.provider.SmsAuthenticationProvider;
-import com.youlai.boot.framework.security.provider.WxMaAuthenticationProvider;
 import com.youlai.boot.framework.security.token.TokenManager;
 import com.youlai.boot.framework.security.service.SysUserDetailsService;
 import com.youlai.boot.system.service.UserService;
@@ -125,29 +123,16 @@ public class SecurityConfig {
     }
 
     /**
-     * 微信小程序认证 Provider
-     */
-    @Bean
-    public WxMaAuthenticationProvider wechatMiniAuthenticationProvider(
-            WxMaService wxMaService,
-            SysUserDetailsService sysUserDetailsService
-    ) {
-        return new WxMaAuthenticationProvider(wxMaService, sysUserDetailsService);
-    }
-
-    /**
      * 认证管理器
      */
     @Bean
     public AuthenticationManager authenticationManager(
             DaoAuthenticationProvider daoAuthenticationProvider,
-            SmsAuthenticationProvider smsAuthenticationProvider,
-            WxMaAuthenticationProvider wxMaAuthenticationProvider
+            SmsAuthenticationProvider smsAuthenticationProvider
     ) {
         return new ProviderManager(
                 daoAuthenticationProvider,
-                smsAuthenticationProvider,
-            wxMaAuthenticationProvider
+                smsAuthenticationProvider
         );
     }
 

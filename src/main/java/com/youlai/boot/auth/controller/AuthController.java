@@ -4,6 +4,7 @@ import com.youlai.boot.framework.captcha.model.CaptchaInfo;
 import com.youlai.boot.auth.model.LoginReq;
 import com.youlai.boot.common.enums.ActionTypeEnum;
 import com.youlai.boot.common.enums.LogModuleEnum;
+import com.youlai.boot.common.enums.StatusEnum;
 import com.youlai.boot.common.result.Result;
 import com.youlai.boot.auth.service.AuthService;
 import com.youlai.boot.common.annotation.Log;
@@ -15,6 +16,7 @@ import com.youlai.boot.system.model.entity.User;
 import com.youlai.boot.system.service.TenantService;
 import com.youlai.boot.system.service.UserService;
 import com.youlai.boot.framework.security.model.UserAuthInfo;
+import com.youlai.boot.framework.tenant.TenantContextHolder;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,9 +28,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
-import java.util.Objects;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 认证控制层
@@ -59,19 +68,18 @@ public class AuthController {
     @Operation(summary = "账号密码登录")
     @PostMapping("/login")
     @Log(module = LogModuleEnum.LOGIN, value = ActionTypeEnum.LOGIN)
-    public Result<?> login(HttpServletRequest httpServletRequest, @RequestBody @Valid LoginReq request) {
-        String username = request.getUsername();
-        String password = request.getPassword();
-        Long tenantId = request.getTenantId();
+    public Result<?> login(HttpServletRequest request, @RequestBody @Valid LoginReq loginReq) {
+        String username = loginReq.getUsername();
+        String password = loginReq.getPassword();
+        Long tenantId = loginReq.getTenantId();
 
-        // 多租户模式：如果指定了租户ID，直接验证该租户下的密码
         if (tenantId != null) {
             AuthenticationToken authenticationToken = authService.login(username, password, tenantId);
             return Result.success(authenticationToken);
         }
 
-        // 多租户模式：未指定租户ID，优先从域名解析租户并直接登录（子域名场景）
-        String domain = httpServletRequest != null ? httpServletRequest.getServerName() : null;
+        // 未指定租户ID，优先从域名解析租户
+        String domain = request.getServerName();
         if (domain != null) {
             Long tenantIdFromDomain = tenantService.getTenantIdByDomain(domain);
             if (tenantIdFromDomain != null) {
@@ -80,24 +88,28 @@ public class AuthController {
             }
         }
 
-        // 多租户模式：未指定租户ID且无法从域名解析，查询该用户名在所有租户下的账户
-        List<User> users = userService.listUsersByUsernameAcrossAllTenants(username);
+        // 查询该用户名在所有租户下的账户
+        TenantContextHolder.setIgnoreTenant(true);
+        List<User> users;
+        try {
+            users = userService.listUsersByUsernameAcrossAllTenants(username);
+        } finally {
+            TenantContextHolder.clear();
+        }
 
-        // 为避免账号枚举与租户信息泄露，此处对外统一返回"账号或密码错误"
         if (users.isEmpty()) {
             return Result.failed("账号或密码错误");
         }
 
-        // 过滤出正常状态的用户
         List<User> activeUsers = users.stream()
-                .filter(user -> user.getStatus() != null && user.getStatus() == 1)
+                .filter(user -> user.getStatus() != null && StatusEnum.ENABLE.getValue().equals(user.getStatus()))
                 .toList();
 
         if (activeUsers.isEmpty()) {
             return Result.failed("账号或密码错误");
         }
 
-        // 关键：只有当密码校验通过后，才允许进入"选择租户"分支，防止租户列表被探测
+        // 密码校验通过后，才允许进入"选择租户"分支
         List<User> passwordMatchedUsers = activeUsers.stream()
                 .filter(user -> Objects.nonNull(user.getPassword()) && passwordEncoder.matches(password, user.getPassword()))
                 .toList();
@@ -106,9 +118,15 @@ public class AuthController {
             return Result.failed("账号或密码错误");
         }
 
-        // 优先可切换租户账号登录：具备租户切换权限的账号可登录后显式切换租户
+        // 有租户切换权限的账号，登录后可切换租户
         for (User candidate : passwordMatchedUsers) {
-            UserAuthInfo authInfo = userService.getAuthInfoByUsernameInTenant(username, candidate.getTenantId());
+            TenantContextHolder.setTenantId(candidate.getTenantId());
+            UserAuthInfo authInfo;
+            try {
+                authInfo = userService.getAuthInfoByUsernameInTenant(username, candidate.getTenantId());
+            } finally {
+                TenantContextHolder.clear();
+            }
             if (authInfo != null && Boolean.TRUE.equals(authInfo.getCanSwitchTenant())) {
                 AuthenticationToken authenticationToken = authService.login(username, password, candidate.getTenantId());
                 return Result.success(authenticationToken);
@@ -174,7 +192,6 @@ public class AuthController {
         authService.sendSmsLoginCode(mobile);
         return Result.success();
     }
-
 
     @Operation(summary = "退出登录")
     @DeleteMapping("/logout")

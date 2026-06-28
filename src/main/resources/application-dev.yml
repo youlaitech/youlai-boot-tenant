@@ -4,7 +4,6 @@ server:
 spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
-    # === MySQL 数据源（默认启用） ===
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://www.youlai.tech:3306/youlai_admin_tenant?zeroDateTimeBehavior=convertToNull&useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&autoReconnect=true&allowMultiQueries=true
     username: youlai
@@ -119,7 +118,7 @@ oss:
   aliyun:
     # 服务Endpoint
     endpoint: oss-cn-hangzhou.aliyuncs.com
-    # 访问凭据`
+    # 访问凭据
     access-key-id: your-access-key-id
     # 凭据密钥
     access-key-secret: your-access-key-secret
@@ -160,16 +159,16 @@ springdoc:
       packages-to-scan:
         - com.youlai.boot.auth.controller
         - com.youlai.boot.system.controller
-        - com.youlai.boot.platform.file.controller
-        - com.youlai.boot.platform.codegen.controller
+        - com.youlai.boot.file.controller
+        - com.youlai.boot.codegen.controller
   default-flat-param-object: true
 
 # knife4j 接口文档配置
 knife4j:
   # 是否开启 Knife4j 增强功能
-  enable: true # 设置为 true 表示开启增强功能
-  # 生产环境配置
-  production: false # 设置为 true 表示在生产环境中不显示文档，为 false 表示显示文档（通常在开发环境中使用）
+  enable: true
+  # 生产环境设置为 true 关闭文档
+  production: false
   setting:
     language: zh_cn
 
@@ -220,7 +219,7 @@ captcha:
   # 验证码有效期(秒)
   expire-seconds: 120
 
-# 微信小程配置
+# 微信小程序配置
 wx:
   miniapp:
     app-id: xxxxxx
@@ -241,4 +240,3 @@ tenant:
     - sys_config # 系统配置表（通常共享）
     - gen_table # 代码生成表（平台共用）
     - gen_table_column # 代码生成字段表（平台共用）
-# ============================================

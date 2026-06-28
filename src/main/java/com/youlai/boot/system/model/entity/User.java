@@ -29,6 +29,11 @@ public class User extends BaseEntity {
     private Integer gender;
 
     /**
+     * 租户ID
+     */
+    private Long tenantId;
+
+    /**
      * 密码
      */
     private String password;

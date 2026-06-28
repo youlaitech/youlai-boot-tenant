@@ -187,7 +187,7 @@
     </select>
 
     <!-- 获取用户导出列表 -->
-    <select id="listExportUsers" resultType="com.youlai.boot.system.model.dto.UserExportDTO">
+    <select id="listExportUsers" resultType="com.youlai.boot.system.model.vo.UserExportVO">
         SELECT
             u.username,
             u.nickname,

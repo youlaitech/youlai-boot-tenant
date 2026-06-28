@@ -11,15 +11,22 @@ import com.youlai.boot.system.model.vo.TenantCreateResultVO;
 import com.youlai.boot.system.model.vo.TenantPageVO;
 import com.youlai.boot.system.model.vo.TenantVO;
 import com.youlai.boot.system.service.TenantService;
+import com.youlai.boot.common.enums.StatusEnum;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -36,25 +43,15 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/tenants")
 @RequiredArgsConstructor
-@Slf4j
 public class TenantController {
 
     private final TenantService tenantService;
 
-    /**
-     * 获取当前用户的租户列表
-     * <p>
-     * 根据当前登录用户查询其所属的所有租户
-     * </p>
-     *
-     * @return 租户列表
-     */
     @Operation(summary = "获取当前用户可访问的租户列表")
     @GetMapping("/options")
     public Result<List<TenantVO>> getAccessibleTenants() {
         Long userId = SecurityUtils.getUserId();
         List<TenantVO> tenantList = tenantService.getAccessibleTenants(userId);
-        log.debug("用户 {} 可访问 {} 个租户", userId, tenantList.size());
         return Result.success(tenantList);
     }
 
@@ -153,48 +150,26 @@ public class TenantController {
         return Result.success();
     }
 
-    /**
-     * 切换租户
-     * <p>
-     * 切换当前用户的租户上下文，需要验证用户是否有权限访问该租户
-     * </p>
-     *
-     * @param tenantId 目标租户ID
-     * @return 切换结果
-     */
     @Operation(summary = "切换租户")
     @PostMapping("/{tenantId}/switch")
     public Result<TenantVO> switchTenant(
-            @Parameter(description = "租户ID") @PathVariable Long tenantId,
-            HttpServletRequest request
+            @Parameter(description = "租户ID") @PathVariable Long tenantId
     ) {
         Long userId = SecurityUtils.getUserId();
-        Long fromTenantId = TenantContextHolder.getTenantId();
-        
-        log.info("用户 {} 请求切换租户：{} -> {}", userId, fromTenantId, tenantId);
 
-        // 验证用户是否可以访问该租户
         if (!tenantService.canAccessTenant(userId, tenantId)) {
-            log.warn("用户 {} 无权访问租户 {}", userId, tenantId);
             return Result.failed("无权访问该租户");
         }
 
-        // 验证租户是否存在且正常
         TenantVO tenant = tenantService.getTenantById(tenantId);
         if (tenant == null) {
-            log.warn("用户 {} 尝试切换到不存在的租户 {}", userId, tenantId);
             return Result.failed("租户不存在");
         }
-        if (tenant.getStatus() == null || tenant.getStatus() != 1) {
-            log.warn("用户 {} 尝试切换到已禁用的租户 {}", userId, tenantId);
+        if (tenant.getStatus() == null || !StatusEnum.ENABLE.getValue().equals(tenant.getStatus())) {
             return Result.failed("租户已禁用");
         }
 
-        // 设置新的租户上下文
         TenantContextHolder.setTenantId(tenantId);
-        
-        log.info("用户 {} 成功切换租户：{} -> {}", userId, fromTenantId, tenantId);
-
         return Result.success(tenant);
     }
 }

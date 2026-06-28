@@ -2,22 +2,31 @@ package com.youlai.boot.system.model.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
-import com.youlai.boot.common.base.BaseEntity;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 /**
- * 菜单实体
+ * 菜单实体（系统共享表，不继承 BaseEntity）
  *
  * @author Ray.Hao
  * @since 2023/3/6
  */
 @TableName(value = "sys_menu", autoResultMap = true)
 @Data
-@EqualsAndHashCode(callSuper = true)
-public class Menu extends BaseEntity {
+public class Menu implements Serializable {
+
+    @TableId(type = IdType.AUTO)
+    private Long id;
+
+    @TableField(fill = FieldFill.INSERT)
+    private LocalDateTime createTime;
+
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    private LocalDateTime updateTime;
+
     /**
      * 父菜单ID
      */

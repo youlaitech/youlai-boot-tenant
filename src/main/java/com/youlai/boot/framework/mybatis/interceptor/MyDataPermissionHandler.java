@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringPool;
 import com.baomidou.mybatisplus.extension.plugins.handler.DataPermissionHandler;
 import com.youlai.boot.common.annotation.DataPermission;
 import com.youlai.boot.common.enums.DataScopeEnum;
+import com.youlai.boot.common.exception.BusinessException;
 import com.youlai.boot.framework.security.model.RoleDataScope;
 import com.youlai.boot.framework.security.util.SecurityUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -114,7 +115,7 @@ public class MyDataPermissionHandler implements DataPermissionHandler {
         try {
             return CCJSqlParserUtil.parseCondExpression(sql);
         } catch (JSQLParserException e) {
-            throw new RuntimeException(e);
+            throw new BusinessException("SQL条件表达式解析失败: " + e.getMessage(), e);
         }
     }
 

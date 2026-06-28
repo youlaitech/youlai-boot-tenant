@@ -2,7 +2,6 @@ package com.youlai.boot.common.aspect;
 
 import com.youlai.boot.common.annotation.IgnoreTenant;
 import com.youlai.boot.framework.tenant.TenantContextHolder;
-import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -10,10 +9,7 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 /**
- * 多租户切面
- * <p>
- * 处理 @IgnoreTenant 注解，临时跳过租户过滤
- * </p>
+ * 多租户切面，处理 @IgnoreTenant 注解
  *
  * @author Ray.Hao
  * @since 3.0.0
@@ -21,22 +17,14 @@ import org.springframework.stereotype.Component;
 @Aspect
 @Component
 @Order(1)
-@Slf4j
 public class TenantAspect {
 
-    /**
-     * 环绕通知：处理 @IgnoreTenant 注解
-     */
     @Around("@annotation(ignoreTenant) || @within(ignoreTenant)")
     public Object around(ProceedingJoinPoint joinPoint, IgnoreTenant ignoreTenant) throws Throwable {
         try {
-            // 设置忽略租户标志
             TenantContextHolder.setIgnoreTenant(true);
-            log.debug("方法 {} 忽略多租户过滤", joinPoint.getSignature().getName());
-            // 执行原方法
             return joinPoint.proceed();
         } finally {
-            // 恢复租户过滤
             TenantContextHolder.setIgnoreTenant(false);
         }
     }
