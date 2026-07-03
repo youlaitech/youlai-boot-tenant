@@ -1,9 +1,14 @@
 package com.youlai.boot.codegen.model.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.youlai.boot.common.base.BaseEntity;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.io.Serial;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 
 /**
  * 代码生成表配置
@@ -14,7 +19,23 @@ import lombok.Setter;
 @TableName(value = "gen_table")
 @Getter
 @Setter
-public class GenTable extends BaseEntity {
+public class GenTable implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
+
+    @TableId(type = IdType.AUTO)
+    private Long id;
+
+    @TableField(fill = FieldFill.INSERT)
+    @JsonInclude(value = JsonInclude.Include.NON_NULL)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createTime;
+
+    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @JsonInclude(value = JsonInclude.Include.NON_NULL)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime updateTime;
 
     /**
      * 表名

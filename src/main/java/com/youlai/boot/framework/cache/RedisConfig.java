@@ -27,7 +27,8 @@ public class RedisConfig {
      * @return {@link RedisTemplate}
      */
     @Bean
-    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory) {
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory redisConnectionFactory,
+                                                        JsonMapper jsonMapper) {
 
         RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
         redisTemplate.setConnectionFactory(redisConnectionFactory);
@@ -37,10 +38,6 @@ public class RedisConfig {
         redisTemplate.setHashKeySerializer(RedisSerializer.string());
 
         // Value 使用自定义 JSON 序列化（不写入类型信息，避免 HashSet 等集合被序列化成带 @class 的结构）
-        JsonMapper jsonMapper = JsonMapper.builder()
-                .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .build();
-
         JacksonJsonRedisSerializer<Object> jsonSerializer = new JacksonJsonRedisSerializer<>(jsonMapper, Object.class);
 
         redisTemplate.setValueSerializer(jsonSerializer);
@@ -48,6 +45,19 @@ public class RedisConfig {
 
         redisTemplate.afterPropertiesSet();
         return redisTemplate;
+    }
+
+    /**
+     * 统一的 JsonMapper Bean
+     * <p>
+     * 禁止将日期序列化为时间戳；不写入类型信息，保证 Redis 存储的 JSON 纯净可读。
+     * 需要反序列化到特定类型时，调用方应使用 {@link JsonMapper#convertValue(Object, Class)} 显式转换。
+     */
+    @Bean
+    public JsonMapper jsonMapper() {
+        return JsonMapper.builder()
+                .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
+                .build();
     }
 
 }

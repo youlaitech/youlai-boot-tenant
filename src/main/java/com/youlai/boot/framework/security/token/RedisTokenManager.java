@@ -18,6 +18,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
+import tools.jackson.databind.json.JsonMapper;
+
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -35,10 +37,14 @@ public class RedisTokenManager implements TokenManager {
 
     private final SecurityProperties securityProperties;
     private final RedisTemplate<String, Object> redisTemplate;
+    private final JsonMapper jsonMapper;
 
-    public RedisTokenManager(SecurityProperties securityProperties, RedisTemplate<String, Object> redisTemplate) {
+    public RedisTokenManager(SecurityProperties securityProperties,
+                             RedisTemplate<String, Object> redisTemplate,
+                             JsonMapper jsonMapper) {
         this.securityProperties = securityProperties;
         this.redisTemplate = redisTemplate;
+        this.jsonMapper = jsonMapper;
     }
 
     /**
@@ -77,8 +83,9 @@ public class RedisTokenManager implements TokenManager {
      */
     @Override
     public Authentication parseToken(String token) {
-        OnlineUser onlineUser = (OnlineUser) redisTemplate.opsForValue().get(formatTokenKey(token));
-        if (onlineUser == null) return null;
+        Object raw = redisTemplate.opsForValue().get(formatTokenKey(token));
+        if (raw == null) return null;
+        OnlineUser onlineUser = jsonMapper.convertValue(raw, OnlineUser.class);
 
         Set<SimpleGrantedAuthority> authorities = null;
         Set<String> roles = onlineUser.getRoles();
@@ -113,11 +120,12 @@ public class RedisTokenManager implements TokenManager {
      */
     @Override
     public AuthenticationToken refreshToken(String refreshToken) {
-        OnlineUser onlineUser = (OnlineUser) redisTemplate.opsForValue()
+        Object raw = redisTemplate.opsForValue()
                 .get(StrUtil.format(RedisConstants.Auth.REFRESH_TOKEN_USER, refreshToken));
-        if (onlineUser == null) {
+        if (raw == null) {
             throw new BusinessException(ResultCode.REFRESH_TOKEN_INVALID);
         }
+        OnlineUser onlineUser = jsonMapper.convertValue(raw, OnlineUser.class);
         Object oldAccessTokenValue = redisTemplate.opsForValue().get(StrUtil.format(RedisConstants.Auth.USER_ACCESS_TOKEN, onlineUser.getUserId()));
         Optional.of(oldAccessTokenValue)
                 .map(String.class::cast)
