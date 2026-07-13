@@ -1,8 +1,8 @@
 <div align="center">
 
-<img alt="youlai-boot" width="80" src="./docs/images/logo/logo.png">
+# <img alt="youlai-boot" width="28" src="./docs/images/logo/logo.png" align="center"> youlai-boot-tenant
 
-# youlai-boot-tenant
+[English](./README.en.md) · [简体中文](./README.md)
 
 **Spring Boot 4 多租户企业级权限管理系统后端**
 
@@ -151,10 +151,11 @@ youlai-boot-tenant/
 | [youlai-django](https://gitee.com/youlaiorg/youlai-django) | Django + DRF | Python |
 | [youlai-thinkphp](https://gitee.com/youlaiorg/youlai-thinkphp) | ThinkPHP 8 | PHP |
 | [youlai-aspnet](https://gitee.com/youlaiorg/youlai-aspnet) | ASP.NET Core | C# |
+| [youlai-rust](https://gitee.com/youlaiorg/youlai-rust) | Axum + SeaORM | Rust |
 
 > **youlai-boot** 还提供以下变种和分支版本：[多租户](https://gitee.com/youlaiorg/youlai-boot-tenant)（Spring Boot 4）· [MyBatis-Flex](https://gitee.com/youlaiorg/youlai-boot-flex)（Spring Boot 4）· [Spring Boot 3](https://gitee.com/youlaiorg/youlai-boot/tree/spring-boot-3) · [PostgreSQL](https://gitee.com/youlaiorg/youlai-boot/tree/db-pg) · [多模块](https://gitee.com/youlaiorg/youlai-boot/tree/multi-module)
 >
-> 六种后端共享同一套 **RESTful API 规范** 和 **数据库结构**，前端可无缝切换。
+> 七种后端共享同一套 **RESTful API 规范** 和 **数据库结构**，前端可无缝切换。
 
 ## 文档资源
 
@@ -179,9 +180,9 @@ youlai-boot-tenant/
 ---
 
 <p align="center">
-  <img src="./docs/images/qr/wechat-offical.png" height="180" alt="有来技术公众号">
+  <img src="./docs/images/qrcode/wechat-official.png" height="180" alt="有来技术公众号">
   &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="./docs/images/qr/wechat-personal.png" height="180" alt="个人微信">
+  <img src="./docs/images/qrcode/wechat-personal.png" height="180" alt="个人微信">
 </p>
 <p align="center">
   <sub>公众号「有来技术」</sub>
