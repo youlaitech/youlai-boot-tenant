@@ -17,7 +17,7 @@ import java.util.Set;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserAuthInfo {
+public class SecurityUser {
 
     /**
      * 用户ID

@@ -9,13 +9,13 @@ import com.youlai.boot.common.result.Result;
 import com.youlai.boot.auth.service.AuthService;
 import com.youlai.boot.common.annotation.Log;
 import com.youlai.boot.common.result.ResultCode;
-import com.youlai.boot.framework.security.model.SysUserDetails;
+import com.youlai.boot.framework.security.model.SecurityUserDetails;
 import com.youlai.boot.framework.security.model.AuthenticationToken;
 import com.youlai.boot.framework.security.token.TokenManager;
 import com.youlai.boot.system.model.entity.User;
 import com.youlai.boot.system.service.TenantService;
 import com.youlai.boot.system.service.UserService;
-import com.youlai.boot.framework.security.model.UserAuthInfo;
+import com.youlai.boot.framework.security.model.SecurityUser;
 import com.youlai.boot.framework.tenant.TenantContextHolder;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -121,7 +121,7 @@ public class AuthController {
         // 有租户切换权限的账号，登录后可切换租户
         for (User candidate : passwordMatchedUsers) {
             TenantContextHolder.setTenantId(candidate.getTenantId());
-            UserAuthInfo authInfo;
+            SecurityUser authInfo;
             try {
                 authInfo = userService.getAuthInfoByUsernameInTenant(username, candidate.getTenantId());
             } finally {
@@ -151,7 +151,7 @@ public class AuthController {
         }
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !(authentication.getPrincipal() instanceof SysUserDetails details)) {
+        if (authentication == null || !(authentication.getPrincipal() instanceof SecurityUserDetails details)) {
             return Result.failed(ResultCode.ACCESS_TOKEN_INVALID);
         }
 
@@ -160,7 +160,7 @@ public class AuthController {
             return Result.failed("无权限");
         }
 
-        SysUserDetails newDetails = new SysUserDetails();
+        SecurityUserDetails newDetails = new SecurityUserDetails();
         newDetails.setUserId(details.getUserId());
         newDetails.setUsername(details.getUsername());
         newDetails.setDeptId(details.getDeptId());

@@ -1,15 +1,17 @@
-package com.youlai.boot.framework.security.config;
+package com.youlai.boot.auth.security.config;
 
 import cn.hutool.core.util.ArrayUtil;
 import com.youlai.boot.framework.captcha.service.CaptchaService;
-import com.youlai.boot.framework.security.filter.CaptchaValidationFilter;
+import com.youlai.boot.auth.security.filter.CaptchaValidationFilter;
 import com.youlai.boot.framework.security.filter.TokenAuthenticationFilter;
-import com.youlai.boot.framework.security.handler.MyAccessDeniedHandler;
-import com.youlai.boot.framework.security.handler.MyAuthenticationEntryPoint;
-import com.youlai.boot.framework.security.provider.SmsAuthenticationProvider;
+import com.youlai.boot.auth.security.handler.JsonAccessDeniedHandler;
+import com.youlai.boot.auth.security.handler.JsonAuthenticationEntryPoint;
+import com.youlai.boot.auth.security.provider.SmsAuthenticationProvider;
 import com.youlai.boot.framework.security.token.TokenManager;
-import com.youlai.boot.framework.security.service.SysUserDetailsService;
-import com.youlai.boot.system.service.UserService;
+import com.youlai.boot.framework.security.config.SecurityProperties;
+import com.youlai.boot.framework.security.service.SecurityUserDetailsService;
+import com.youlai.boot.framework.security.port.UserAuthenticationPort;
+import com.youlai.boot.system.service.UserSocialService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.context.annotation.Bean;
@@ -45,8 +47,7 @@ public class SecurityConfig {
     private final PasswordEncoder passwordEncoder;
 
     private final TokenManager tokenManager;
-    private final UserService userService;
-    private final SysUserDetailsService userDetailsService;
+        private final SecurityUserDetailsService userDetailsService;
 
     private final CaptchaService captchaService;
     private final SecurityProperties securityProperties;
@@ -69,8 +70,8 @@ public class SecurityConfig {
                 )
                 .exceptionHandling(configurer ->
                         configurer
-                                .authenticationEntryPoint(new MyAuthenticationEntryPoint()) // 未认证异常处理器
-                                .accessDeniedHandler(new MyAccessDeniedHandler()) // 无权限访问异常处理器
+                                .authenticationEntryPoint(new JsonAuthenticationEntryPoint()) // 未认证异常处理器
+                                .accessDeniedHandler(new JsonAccessDeniedHandler()) // 无权限访问异常处理器
                 )
 
                 // 禁用默认的 Spring Security 特性，适用于前后端分离架构
@@ -118,8 +119,8 @@ public class SecurityConfig {
      * 短信验证码认证 Provider
      */
     @Bean
-    public SmsAuthenticationProvider smsAuthenticationProvider() {
-        return new SmsAuthenticationProvider(userService, redisTemplate);
+    public SmsAuthenticationProvider smsAuthenticationProvider(UserAuthenticationPort userAuthPort) {
+        return new SmsAuthenticationProvider(userAuthPort, redisTemplate);
     }
 
     /**

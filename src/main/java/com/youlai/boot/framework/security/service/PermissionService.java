@@ -3,7 +3,7 @@ package com.youlai.boot.framework.security.service;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.StrUtil;
 import com.youlai.boot.framework.security.util.SecurityUtils;
-import com.youlai.boot.system.service.RoleMenuService;
+import com.youlai.boot.framework.security.port.PermissionPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -26,7 +26,7 @@ import java.util.Set;
 @Slf4j
 public class PermissionService {
 
-    private final RoleMenuService roleMenuService;
+    private final PermissionPort permissionPort;
 
     /**
      * 判断当前登录用户是否拥有操作权限
@@ -53,7 +53,7 @@ public class PermissionService {
         }
 
         // 获取当前登录用户的所有角色的权限列表（从缓存读取）
-        Set<String> rolePerms = roleMenuService.getRolePermsByRoleCodes(roleCodes);
+        Set<String> rolePerms = permissionPort.getRolePerms(roleCodes);
         if (CollectionUtil.isEmpty(rolePerms)) {
             return false;
         }

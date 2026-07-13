@@ -6,7 +6,7 @@ import com.youlai.boot.system.model.entity.User;
 import com.youlai.boot.system.model.query.UserQuery;
 import com.youlai.boot.system.model.form.UserForm;
 import com.youlai.boot.common.annotation.DataPermission;
-import com.youlai.boot.framework.security.model.UserAuthInfo;
+import com.youlai.boot.framework.security.model.SecurityUser;
 import com.youlai.boot.system.model.vo.UserExportVO;
 import com.youlai.boot.system.model.vo.UserPageVO;
 import com.youlai.boot.system.model.vo.UserProfileVO;
@@ -48,7 +48,7 @@ public interface UserMapper extends BaseMapper<User> {
      * @param username 用户名
      * @return 认证信息
      */
-    UserAuthInfo getAuthInfoByUsername(String username);
+    SecurityUser getAuthInfoByUsername(String username);
 
     /**
      * 根据微信openid获取用户认证信息
@@ -56,7 +56,7 @@ public interface UserMapper extends BaseMapper<User> {
      * @param openid 微信openid
      * @return 认证信息
      */
-    UserAuthInfo getAuthInfoByOpenId(String openid);
+    SecurityUser getAuthInfoByOpenId(String openid);
 
     /**
      * 根据手机号获取用户认证信息
@@ -64,7 +64,7 @@ public interface UserMapper extends BaseMapper<User> {
      * @param mobile 手机号
      * @return 认证信息
      */
-    UserAuthInfo getAuthInfoByMobile(String mobile);
+    SecurityUser getAuthInfoByMobile(String mobile);
 
     /**
      * 获取导出用户列表

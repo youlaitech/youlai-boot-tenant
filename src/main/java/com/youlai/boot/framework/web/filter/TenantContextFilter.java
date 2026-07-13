@@ -2,7 +2,7 @@ package com.youlai.boot.framework.web.filter;
 
 import com.youlai.boot.common.constant.SecurityConstants;
 import com.youlai.boot.framework.tenant.TenantContextHolder;
-import com.youlai.boot.framework.security.model.SysUserDetails;
+import com.youlai.boot.framework.security.model.SecurityUserDetails;
 import com.youlai.boot.framework.security.token.TokenManager;
 import com.youlai.boot.system.service.TenantService;
 import jakarta.servlet.FilterChain;
@@ -79,7 +79,7 @@ public class TenantContextFilter extends OncePerRequestFilter {
             return null;
         }
         Object principal = authentication.getPrincipal();
-        if (principal instanceof SysUserDetails details) {
+        if (principal instanceof SecurityUserDetails details) {
             return details.getTenantId();
         }
         return null;

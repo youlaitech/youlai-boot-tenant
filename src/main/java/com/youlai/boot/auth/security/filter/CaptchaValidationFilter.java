@@ -1,4 +1,4 @@
-package com.youlai.boot.framework.security.filter;
+package com.youlai.boot.auth.security.filter;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;

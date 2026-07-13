@@ -1,8 +1,8 @@
 package com.youlai.boot.framework.security.service;
 
-import com.youlai.boot.framework.security.model.SysUserDetails;
-import com.youlai.boot.framework.security.model.UserAuthInfo;
-import com.youlai.boot.system.service.UserService;
+import com.youlai.boot.framework.security.model.SecurityUserDetails;
+import com.youlai.boot.framework.security.model.SecurityUser;
+import com.youlai.boot.framework.security.port.UserAuthenticationPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,9 +19,9 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class SysUserDetailsService implements UserDetailsService {
+public class SecurityUserDetailsService implements UserDetailsService {
 
-    private final UserService userService;
+    private final UserAuthenticationPort userAuthPort;
 
     /**
      * 根据用户名获取用户信息
@@ -33,11 +33,11 @@ public class SysUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         try {
-            UserAuthInfo userAuthInfo = userService.getAuthInfoByUsername(username);
+            SecurityUser userAuthInfo = userAuthPort.getAuthInfoByUsername(username);
             if (userAuthInfo == null) {
                 throw new UsernameNotFoundException(username);
             }
-            return new SysUserDetails(userAuthInfo);
+            return new SecurityUserDetails(userAuthInfo);
         } catch (Exception e) {
             // 记录异常日志
             log.error("认证异常:{}", e.getMessage());
@@ -52,8 +52,8 @@ public class SysUserDetailsService implements UserDetailsService {
      * @param username 用户名
      * @return 用户详情
      */
-    public SysUserDetails getUserDetails(String username) {
-        return (SysUserDetails) loadUserByUsername(username);
+    public SecurityUserDetails getUserDetails(String username) {
+        return (SecurityUserDetails) loadUserByUsername(username);
     }
 
 }

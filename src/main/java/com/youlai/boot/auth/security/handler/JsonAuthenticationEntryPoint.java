@@ -1,4 +1,4 @@
-package com.youlai.boot.framework.security.handler;
+package com.youlai.boot.auth.security.handler;
 
 import com.youlai.boot.common.result.ResultCode;
 import com.youlai.boot.framework.web.util.ResponseWriter;
@@ -18,7 +18,7 @@ import java.io.IOException;
  */
 @Slf4j
 @Component
-public class MyAuthenticationEntryPoint implements AuthenticationEntryPoint {
+public class JsonAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {

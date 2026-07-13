@@ -5,7 +5,7 @@ import cn.hutool.core.util.StrUtil;
 import com.youlai.boot.common.constant.SecurityConstants;
 import com.youlai.boot.common.constant.SystemConstants;
 import com.youlai.boot.framework.security.model.RoleDataScope;
-import com.youlai.boot.framework.security.model.SysUserDetails;
+import com.youlai.boot.framework.security.model.SecurityUserDetails;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
@@ -26,12 +26,12 @@ import java.util.stream.Collectors;
 public class SecurityUtils {
 
     /** 获取当前登录用户 */
-    public static Optional<SysUserDetails> getUser() {
+    public static Optional<SecurityUserDetails> getUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null) {
             Object principal = authentication.getPrincipal();
-            if (principal instanceof SysUserDetails) {
-                return Optional.of((SysUserDetails) principal);
+            if (principal instanceof SecurityUserDetails) {
+                return Optional.of((SecurityUserDetails) principal);
             }
         }
         return Optional.empty();
@@ -39,22 +39,22 @@ public class SecurityUtils {
 
     /** 获取当前用户ID */
     public static Long getUserId() {
-        return getUser().map(SysUserDetails::getUserId).orElse(null);
+        return getUser().map(SecurityUserDetails::getUserId).orElse(null);
     }
 
     /** 获取当前用户名 */
     public static String getUsername() {
-        return getUser().map(SysUserDetails::getUsername).orElse(null);
+        return getUser().map(SecurityUserDetails::getUsername).orElse(null);
     }
 
     /** 获取当前用户部门ID */
     public static Long getDeptId() {
-        return getUser().map(SysUserDetails::getDeptId).orElse(null);
+        return getUser().map(SecurityUserDetails::getDeptId).orElse(null);
     }
 
     /** 获取当前用户数据权限范围 */
     public static List<RoleDataScope> getDataScopes() {
-        return getUser().map(SysUserDetails::getDataScopes).orElse(Collections.emptyList());
+        return getUser().map(SecurityUserDetails::getDataScopes).orElse(Collections.emptyList());
     }
 
     /**
@@ -65,7 +65,7 @@ public class SecurityUtils {
      * </p>
      */
     public static boolean canSwitchTenant() {
-        return getUser().map(SysUserDetails::getCanSwitchTenant).orElse(false);
+        return getUser().map(SecurityUserDetails::getCanSwitchTenant).orElse(false);
     }
 
     /** 获取当前用户角色编码集合（去掉 ROLE_ 前缀） */

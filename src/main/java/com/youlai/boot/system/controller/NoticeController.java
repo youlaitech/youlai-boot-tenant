@@ -142,4 +142,11 @@ public class NoticeController {
         IPage<UserNoticePageVO> result = noticeService.getMyNoticePage(queryParams);
         return PageResult.success(result);
     }
+
+    @Operation(summary = "获取未读通知数量")
+    @GetMapping("/unread-count")
+    public Result<Long> getUnreadCount() {
+        long count = userNoticeService.getUnreadCount();
+        return Result.success(count);
+    }
 }

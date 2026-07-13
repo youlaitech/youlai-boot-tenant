@@ -1,5 +1,6 @@
 package com.youlai.boot.system.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -55,6 +56,20 @@ public class UserNoticeServiceImpl extends ServiceImpl<UserNoticeMapper, UserNot
         return this.getBaseMapper().getMyNoticePage(
                 new Page<>(queryParams.getPageNum(), queryParams.getPageSize()),
                 queryParams
+        );
+    }
+
+    /**
+     * 获取当前用户未读通知数量
+     *
+     * @return 未读通知数量
+     */
+    @Override
+    public long getUnreadCount() {
+        Long userId = SecurityUtils.getUserId();
+        return this.count(new LambdaQueryWrapper<UserNotice>()
+                .eq(UserNotice::getUserId, userId)
+                .eq(UserNotice::getIsRead, 0)
         );
     }
 }

@@ -176,6 +176,14 @@ INSERT INTO `sys_menu` (`id`, `parent_id`, `tree_path`, `name`, `type`, `route_n
 INSERT INTO `sys_menu` (`id`, `parent_id`, `tree_path`, `name`, `type`, `route_name`, `route_path`, `component`, `perm`, `always_show`, `keep_alive`, `visible`, `sort`, `icon`, `redirect`, `create_time`, `update_time`, `params`) VALUES (1204, 120, '0,1,120', '套餐删除', 'B', NULL, '', NULL, 'sys:tenant-plan:delete', NULL, NULL, 1, 4, '', NULL, now(), now(), NULL);
 INSERT INTO `sys_menu` (`id`, `parent_id`, `tree_path`, `name`, `type`, `route_name`, `route_path`, `component`, `perm`, `always_show`, `keep_alive`, `visible`, `sort`, `icon`, `redirect`, `create_time`, `update_time`, `params`) VALUES (1205, 120, '0,1,120', '套餐菜单配置', 'B', NULL, '', NULL, 'sys:tenant-plan:assign', NULL, NULL, 1, 5, '', NULL, now(), now(), NULL);
 
+-- 应用管理（平台方）
+INSERT INTO `sys_menu` (`id`, `parent_id`, `tree_path`, `name`, `type`, `route_name`, `route_path`, `component`, `perm`, `always_show`, `keep_alive`, `visible`, `sort`, `icon`, `redirect`, `create_time`, `update_time`, `params`) VALUES (130, 1, '0,1', '应用管理', 'M', 'App', 'app', 'system/app/index', NULL, NULL, 1, 1, 3, 'el-icon-Mobile', NULL, now(), now(), NULL);
+INSERT INTO `sys_menu` (`id`, `parent_id`, `tree_path`, `name`, `type`, `route_name`, `route_path`, `component`, `perm`, `always_show`, `keep_alive`, `visible`, `sort`, `icon`, `redirect`, `create_time`, `update_time`, `params`) VALUES (1301, 130, '0,1,130', '应用查询', 'B', NULL, '', NULL, 'sys:app:list', NULL, NULL, 1, 1, '', NULL, now(), now(), NULL);
+INSERT INTO `sys_menu` (`id`, `parent_id`, `tree_path`, `name`, `type`, `route_name`, `route_path`, `component`, `perm`, `always_show`, `keep_alive`, `visible`, `sort`, `icon`, `redirect`, `create_time`, `update_time`, `params`) VALUES (1302, 130, '0,1,130', '应用新增', 'B', NULL, '', NULL, 'sys:app:create', NULL, NULL, 1, 2, '', NULL, now(), now(), NULL);
+INSERT INTO `sys_menu` (`id`, `parent_id`, `tree_path`, `name`, `type`, `route_name`, `route_path`, `component`, `perm`, `always_show`, `keep_alive`, `visible`, `sort`, `icon`, `redirect`, `create_time`, `update_time`, `params`) VALUES (1303, 130, '0,1,130', '应用编辑', 'B', NULL, '', NULL, 'sys:app:update', NULL, NULL, 1, 3, '', NULL, now(), now(), NULL);
+INSERT INTO `sys_menu` (`id`, `parent_id`, `tree_path`, `name`, `type`, `route_name`, `route_path`, `component`, `perm`, `always_show`, `keep_alive`, `visible`, `sort`, `icon`, `redirect`, `create_time`, `update_time`, `params`) VALUES (1304, 130, '0,1,130', '应用删除', 'B', NULL, '', NULL, 'sys:app:delete', NULL, NULL, 1, 4, '', NULL, now(), now(), NULL);
+INSERT INTO `sys_menu` (`id`, `parent_id`, `tree_path`, `name`, `type`, `route_name`, `route_path`, `component`, `perm`, `always_show`, `keep_alive`, `visible`, `sort`, `icon`, `redirect`, `create_time`, `update_time`, `params`) VALUES (1305, 130, '0,1,130', '应用启用/禁用', 'B', NULL, '', NULL, 'sys:app:change-status', NULL, NULL, 1, 5, '', NULL, now(), now(), NULL);
+
 -- 系统管理（租户侧）
 INSERT INTO `sys_menu` (`id`, `parent_id`, `tree_path`, `name`, `type`, `route_name`, `route_path`, `component`, `perm`, `always_show`, `keep_alive`, `visible`, `sort`, `icon`, `redirect`, `create_time`, `update_time`, `params`) VALUES (210, 2, '0,2', '用户管理', 'M', 'User', 'user', 'system/user/index', NULL, NULL, 1, 1, 1, 'el-icon-User', NULL, now(), now(), NULL);
 INSERT INTO `sys_menu` (`id`, `parent_id`, `tree_path`, `name`, `type`, `route_name`, `route_path`, `component`, `perm`, `always_show`, `keep_alive`, `visible`, `sort`, `icon`, `redirect`, `create_time`, `update_time`, `params`) VALUES (2101, 210, '0,2,210', '用户查询', 'B', NULL, '', NULL, 'sys:user:list', NULL, NULL, 1, 1, '', NULL, now(), now(), NULL);
@@ -461,6 +469,8 @@ INSERT INTO `sys_role_menu` VALUES (1, 701, 0), (1, 702, 0), (1, 703, 0), (1, 70
 INSERT INTO `sys_role_menu` VALUES (1, 801, 0), (1, 802, 0), (1, 803, 0), (1, 804, 0), (1, 910, 0), (1, 911, 0), (1, 912, 0), (1, 913, 0);
 -- 路由参数
 INSERT INTO `sys_role_menu` VALUES (1, 1001, 0), (1, 1002, 0);
+-- 应用管理（平台级）
+INSERT INTO `sys_role_menu` VALUES (1, 130, 0), (1, 1301, 0), (1, 1302, 0), (1, 1303, 0), (1, 1304, 0), (1, 1305, 0);
 
 -- ============================================
 -- 系统管理员角色菜单权限（role_id=2）
@@ -492,6 +502,8 @@ INSERT INTO `sys_role_menu` VALUES (2, 701, 0), (2, 702, 0), (2, 703, 0), (2, 70
 INSERT INTO `sys_role_menu` VALUES (2, 801, 0), (2, 802, 0), (2, 803, 0), (2, 804, 0), (2, 910, 0), (2, 911, 0), (2, 912, 0), (2, 913, 0);
 -- 路由参数
 INSERT INTO `sys_role_menu` VALUES (2, 1001, 0), (2, 1002, 0);
+-- 应用管理（平台级）
+INSERT INTO `sys_role_menu` VALUES (2, 130, 0), (2, 1301, 0), (2, 1302, 0), (2, 1303, 0), (2, 1304, 0), (2, 1305, 0);
 
 -- ============================================
 -- 数据权限测试角色（tenant_id=0）- 最小可用菜单
@@ -821,6 +833,33 @@ INSERT INTO `sys_tenant` (
   `update_time`
 ) VALUES
   (0, '平台租户', 'PLATFORM', '系统管理员', '18888888888', 'admin@youlai.tech', 'vue.youlai.tech', NULL, NULL, 1, '平台租户', NULL, now(), now()),
-  (1, '演示租户', 'DEMO', '演示用户', '18812345679', 'demo@youlai.tech', 'demo.youlai.tech', NULL, 2, 1, '演示租户', NULL, now(), now());
+  (1, '演示租户', 'DEMO', '演示用户', '18812345679', 'demo.youlai.tech', 'demo.youlai.tech', NULL, 2, 1, '演示租户', NULL, now(), now());
+
+-- ----------------------------
+-- 应用管理表（平台级，记录各渠道小程序的 AppId/密钥与归属租户）
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_app`;
+CREATE TABLE `sys_app`  (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `app_name` varchar(100) NOT NULL COMMENT '应用名称',
+  `app_code` varchar(100) NOT NULL COMMENT '应用编码',
+  `platform` varchar(20) NOT NULL COMMENT '平台(wechat-mp/wechat-oa/alipay-mp)',
+  `app_id` varchar(64) NOT NULL COMMENT '微信/支付宝分配的 AppId',
+  `app_secret` varchar(256) DEFAULT NULL COMMENT '应用密钥',
+  `merchant_id` varchar(64) DEFAULT NULL COMMENT '商户号',
+  `merchant_key` varchar(512) DEFAULT NULL COMMENT '商户密钥',
+  `status` tinyint DEFAULT 1 COMMENT '状态(1-启用 0-停用)',
+  `remark` varchar(255) DEFAULT NULL COMMENT '备注',
+  `tenant_id` bigint DEFAULT 0 COMMENT '归属租户ID(0 表示平台级)',
+  `create_by` bigint DEFAULT NULL COMMENT '创建人',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_by` bigint DEFAULT NULL COMMENT '更新人',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
+  `is_deleted` tinyint DEFAULT 0 COMMENT '逻辑删除(0-否 1-是)',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_app_code` (`app_code`),
+  UNIQUE KEY `uk_app_id` (`app_id`),
+  KEY `idx_tenant_id` (`tenant_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='应用管理表';
 
 SET FOREIGN_KEY_CHECKS = 1;

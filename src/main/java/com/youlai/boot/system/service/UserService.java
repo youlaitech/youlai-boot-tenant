@@ -3,7 +3,7 @@ package com.youlai.boot.system.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.youlai.boot.common.model.Option;
-import com.youlai.boot.framework.security.model.UserAuthInfo;
+import com.youlai.boot.framework.security.model.SecurityUser;
 import com.youlai.boot.system.model.vo.CurrentUserVO;
 import com.youlai.boot.system.model.vo.UserExportVO;
 import com.youlai.boot.system.model.entity.User;
@@ -69,18 +69,18 @@ public interface UserService extends IService<User> {
      * 获取用户认证信息
      *
      * @param username 用户名
-     * @return {@link UserAuthInfo}
+     * @return {@link SecurityUser}
      */
-    UserAuthInfo getAuthInfoByUsername(String username);
+    SecurityUser getAuthInfoByUsername(String username);
 
     /**
      * 根据用户名和租户ID获取认证信息（用于多租户登录）
      *
      * @param username 用户名
      * @param tenantId 租户ID
-     * @return {@link UserAuthInfo}
+     * @return {@link SecurityUser}
      */
-    UserAuthInfo getAuthInfoByUsernameInTenant(String username, Long tenantId);
+    SecurityUser getAuthInfoByUsernameInTenant(String username, Long tenantId);
 
     /**
      * 跨租户查询用户账户列表
@@ -189,8 +189,8 @@ public interface UserService extends IService<User> {
      * 根据手机号获取用户认证信息
      *
      * @param mobile 手机号
-     * @return {@link UserAuthInfo}
+     * @return {@link SecurityUser}
      */
-    UserAuthInfo getAuthInfoByMobile(String mobile);
+    SecurityUser getAuthInfoByMobile(String mobile);
 
 }

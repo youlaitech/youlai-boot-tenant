@@ -30,4 +30,11 @@ public interface UserNoticeService extends IService<UserNotice> {
      * @return 我的通知公告分页列表
      */
     IPage<UserNoticePageVO> getMyNoticePage(Page<NoticePageVO> page, NoticeQuery queryParams);
+
+    /**
+     * 获取当前用户未读通知数量
+     *
+     * @return 未读通知数量
+     */
+    long getUnreadCount();
 }

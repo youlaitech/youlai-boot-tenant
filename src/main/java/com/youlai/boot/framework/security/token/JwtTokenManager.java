@@ -17,7 +17,7 @@ import com.youlai.boot.common.result.ResultCode;
 import com.youlai.boot.framework.security.config.SecurityProperties;
 import com.youlai.boot.framework.security.model.AuthenticationToken;
 import com.youlai.boot.framework.security.model.RoleDataScope;
-import com.youlai.boot.framework.security.model.SysUserDetails;
+import com.youlai.boot.framework.security.model.SecurityUserDetails;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -82,7 +82,7 @@ public class JwtTokenManager implements TokenManager {
     public Authentication parseToken(String token) {
         JWT jwt = JWTUtil.parseToken(token);
         JSONObject payloads = jwt.getPayloads();
-        SysUserDetails userDetails = new SysUserDetails();
+        SecurityUserDetails userDetails = new SecurityUserDetails();
         userDetails.setUserId(payloads.getLong(JwtClaimConstants.USER_ID));
         userDetails.setDeptId(payloads.getLong(JwtClaimConstants.DEPT_ID));
         userDetails.setTenantId(payloads.getLong(JwtClaimConstants.TENANT_ID));
@@ -252,7 +252,7 @@ public class JwtTokenManager implements TokenManager {
      * 构建 JWT payload 并签名生成 token
      */
     private String generateToken(Authentication authentication, int ttl, boolean isRefreshToken) {
-        SysUserDetails userDetails = (SysUserDetails) authentication.getPrincipal();
+        SecurityUserDetails userDetails = (SecurityUserDetails) authentication.getPrincipal();
         Map<String, Object> payload = new HashMap<>();
         payload.put(JwtClaimConstants.USER_ID, userDetails.getUserId());
         payload.put(JwtClaimConstants.DEPT_ID, userDetails.getDeptId());

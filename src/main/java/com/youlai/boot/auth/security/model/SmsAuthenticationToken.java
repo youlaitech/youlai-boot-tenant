@@ -1,4 +1,4 @@
-package com.youlai.boot.framework.security.model;
+package com.youlai.boot.auth.security.model;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -28,7 +28,7 @@ public class SmsAuthenticationToken extends AbstractAuthenticationToken {
      * 认证信息
      * <ul>
      *   <li>未认证时：手机号</li>
-     *   <li>已认证时：SysUserDetails 用户详情</li>
+     *   <li>已认证时：SecurityUserDetails 用户详情</li>
      * </ul>
      */
     private final Object principal;
@@ -58,7 +58,7 @@ public class SmsAuthenticationToken extends AbstractAuthenticationToken {
     /**
      * 创建已认证的 Token
      *
-     * @param principal   用户详情（SysUserDetails）
+     * @param principal   用户详情（SecurityUserDetails）
      * @param authorities 授权信息
      */
     public SmsAuthenticationToken(Object principal, Collection<? extends GrantedAuthority> authorities) {
@@ -71,7 +71,7 @@ public class SmsAuthenticationToken extends AbstractAuthenticationToken {
     /**
      * 创建已认证的 Token（静态工厂方法）
      *
-     * @param principal   用户详情（SysUserDetails）
+     * @param principal   用户详情（SecurityUserDetails）
      * @param authorities 授权信息
      * @return 已认证的 SmsAuthenticationToken
      */

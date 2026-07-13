@@ -9,7 +9,7 @@ import com.youlai.boot.common.result.ResultCode;
 import com.youlai.boot.framework.security.config.SecurityProperties;
 import com.youlai.boot.framework.security.model.AuthenticationToken;
 import com.youlai.boot.framework.security.model.OnlineUser;
-import com.youlai.boot.framework.security.model.SysUserDetails;
+import com.youlai.boot.framework.security.model.SecurityUserDetails;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -52,7 +52,7 @@ public class RedisTokenManager implements TokenManager {
      */
     @Override
     public AuthenticationToken generateToken(Authentication authentication) {
-        SysUserDetails user = (SysUserDetails) authentication.getPrincipal();
+        SecurityUserDetails user = (SecurityUserDetails) authentication.getPrincipal();
         String accessToken = IdUtil.fastSimpleUUID();
         String refreshToken = IdUtil.fastSimpleUUID();
 
@@ -95,7 +95,7 @@ public class RedisTokenManager implements TokenManager {
                     .collect(Collectors.toSet());
         }
 
-        SysUserDetails userDetails = buildUserDetails(onlineUser, authorities);
+        SecurityUserDetails userDetails = buildUserDetails(onlineUser, authorities);
         return new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
     }
 
@@ -210,10 +210,10 @@ public class RedisTokenManager implements TokenManager {
     }
 
     /**
-     * 从 OnlineUser 构建 SysUserDetails
+     * 从 OnlineUser 构建 SecurityUserDetails
      */
-    private SysUserDetails buildUserDetails(OnlineUser onlineUser, Set<SimpleGrantedAuthority> authorities) {
-        SysUserDetails userDetails = new SysUserDetails();
+    private SecurityUserDetails buildUserDetails(OnlineUser onlineUser, Set<SimpleGrantedAuthority> authorities) {
+        SecurityUserDetails userDetails = new SecurityUserDetails();
         userDetails.setUserId(onlineUser.getUserId());
         userDetails.setUsername(onlineUser.getUsername());
         userDetails.setDeptId(onlineUser.getDeptId());

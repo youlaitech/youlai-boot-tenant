@@ -1,4 +1,4 @@
-package com.youlai.boot.framework.security.model;
+package com.youlai.boot.auth.security.model;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -21,7 +21,7 @@ public class WxMaAuthenticationToken extends AbstractAuthenticationToken {
     /**
      * 认证信息
      * 未认证时：微信code
-     * 已认证时：SysUserDetails 用户详情
+     * 已认证时：SecurityUserDetails 用户详情
      */
     private final Object principal;
 
@@ -47,7 +47,7 @@ public class WxMaAuthenticationToken extends AbstractAuthenticationToken {
     /**
      * 创建已认证的 Token
      *
-     * @param principal   用户详情（SysUserDetails）
+     * @param principal   用户详情（SecurityUserDetails）
      * @param authorities 授权信息
      */
     public WxMaAuthenticationToken(Object principal, Collection<? extends GrantedAuthority> authorities) {

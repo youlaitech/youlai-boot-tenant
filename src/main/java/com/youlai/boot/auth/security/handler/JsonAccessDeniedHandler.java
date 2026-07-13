@@ -1,4 +1,4 @@
-package com.youlai.boot.framework.security.handler;
+package com.youlai.boot.auth.security.handler;
 
 import com.youlai.boot.common.result.ResultCode;
 import com.youlai.boot.framework.web.util.ResponseWriter;
@@ -18,7 +18,7 @@ import java.io.IOException;
  */
 @Slf4j
 @Component
-public class MyAccessDeniedHandler implements AccessDeniedHandler {
+public class JsonAccessDeniedHandler implements AccessDeniedHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException {

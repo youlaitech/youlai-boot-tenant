@@ -1,5 +1,7 @@
 package com.youlai.boot.system.model.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.youlai.boot.common.base.BaseEntity;
 import lombok.Getter;
@@ -36,6 +38,7 @@ public class User extends BaseEntity {
     /**
      * 密码
      */
+    @TableField(updateStrategy = FieldStrategy.NOT_NULL)
     private String password;
 
     /**

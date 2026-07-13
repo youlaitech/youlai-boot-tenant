@@ -16,7 +16,7 @@ import com.youlai.boot.framework.integration.mail.service.MailService;
 import com.youlai.boot.framework.integration.sms.enums.SmsTypeEnum;
 import com.youlai.boot.framework.integration.sms.service.SmsService;
 import com.youlai.boot.framework.security.model.RoleDataScope;
-import com.youlai.boot.framework.security.model.UserAuthInfo;
+import com.youlai.boot.framework.security.model.SecurityUser;
 import com.youlai.boot.framework.security.token.TokenManager;
 import com.youlai.boot.framework.security.util.SecurityUtils;
 import com.youlai.boot.system.converter.UserConverter;
@@ -105,7 +105,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public UserAuthInfo getAuthInfoByUsernameInTenant(String username, Long tenantId) {
+    public SecurityUser getAuthInfoByUsernameInTenant(String username, Long tenantId) {
         return this.baseMapper.getAuthInfoByUsername(username);
     }
 
@@ -216,11 +216,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * 根据用户名获取认证凭证信息
      *
      * @param username 用户名
-     * @return 用户认证凭证信息 {@link UserAuthInfo}
+     * @return 用户认证凭证信息 {@link SecurityUser}
      */
     @Override
-    public UserAuthInfo getAuthInfoByUsername(String username) {
-        UserAuthInfo userAuthInfo = this.baseMapper.getAuthInfoByUsername(username);
+    public SecurityUser getAuthInfoByUsername(String username) {
+        SecurityUser userAuthInfo = this.baseMapper.getAuthInfoByUsername(username);
         if (userAuthInfo != null) {
             Set<String> roles = userAuthInfo.getRoles();
             // 获取数据权限列表（用于并集策略）
@@ -237,11 +237,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return 用户认证信息
      */
     @Override
-    public UserAuthInfo getAuthInfoByMobile(String mobile) {
+    public SecurityUser getAuthInfoByMobile(String mobile) {
         if (StrUtil.isBlank(mobile)) {
             return null;
         }
-        UserAuthInfo userAuthInfo = this.baseMapper.getAuthInfoByMobile(mobile);
+        SecurityUser userAuthInfo = this.baseMapper.getAuthInfoByMobile(mobile);
         if (userAuthInfo != null) {
             Set<String> roles = userAuthInfo.getRoles();
             // 获取数据权限列表（用于并集策略）

@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Collectors;
 
 /**
  * 用户详情
@@ -19,7 +20,7 @@ import java.util.stream.Collectors;
  */
 @Data
 @NoArgsConstructor
-public class SysUserDetails implements UserDetails {
+public class SecurityUserDetails implements UserDetails {
 
     private static final long serialVersionUID = 1L;
 
@@ -98,7 +99,7 @@ public class SysUserDetails implements UserDetails {
      *
      * @param user 用户认证信息对象
      */
-    public SysUserDetails(UserAuthInfo user) {
+    public SecurityUserDetails(SecurityUser user) {
         this.userId = user.getUserId();
         this.username = user.getUsername();
         this.password = user.getPassword();
@@ -124,7 +125,7 @@ public class SysUserDetails implements UserDetails {
     /**
      * 角色权限集合
      */
-    private Collection<SimpleGrantedAuthority> authorities;
+    private Set<GrantedAuthority> authorities;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
