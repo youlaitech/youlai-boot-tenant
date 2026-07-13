@@ -190,6 +190,15 @@ xxl:
       logpath: /data/applogs/xxl-job/jobhandler # 任务运行日志文件存储磁盘路径
       logretentiondays: 30 # 日志保存天数，值大于3时生效
 
+# 限流配置
+rate-limit:
+  default-limit: 5           # @RateLimit 注解未指定时的默认阈值
+  default-window-seconds: 60 # @RateLimit 注解未指定时的默认窗口(秒)
+  ip:
+    enabled: true            # 是否启用 IP 全局限流
+    limit: 1000              # 窗口内最大请求数
+    window-seconds: 60       # 滑动窗口大小(秒)
+
 # 验证码配置
 captcha:
   # 验证码类型 circle-圆圈干扰验证码|gif-Gif验证码|line-干扰线验证码|shear-扭曲干扰验证码
@@ -233,6 +242,7 @@ tenant:
   ignore-tables:
     - sys_tenant # 租户表本身
     - sys_tenant_plan # 租户套餐表
+    - sys_app # 应用管理表（平台级，微信登录时按 appId 解析租户）
     - sys_tenant_plan_menu # 租户套餐菜单关联表
     - sys_menu # 菜单表（功能入口定义，所有租户共享）
     - sys_dict # 字典表（通常共享）

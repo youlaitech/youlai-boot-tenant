@@ -2,6 +2,7 @@ package com.youlai.boot.common.aspect;
 
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.crypto.digest.DigestUtil;
+import cn.hutool.json.JSONUtil;
 import com.youlai.boot.common.annotation.RepeatSubmit;
 import com.youlai.boot.common.constant.RedisConstants;
 import com.youlai.boot.common.constant.SecurityConstants;
@@ -44,7 +45,7 @@ public class RepeatSubmitAspect {
 
     @Around(value = "repeatSubmitPointCut(repeatSubmit)", argNames = "pjp,repeatSubmit")
     public Object handleRepeatSubmit(ProceedingJoinPoint pjp, RepeatSubmit repeatSubmit) throws Throwable {
-        String lockKey = buildLockKey();
+        String lockKey = buildLockKey(pjp);
 
         int expire = repeatSubmit.expire();
         RLock lock = redissonClient.getLock(lockKey);
@@ -56,11 +57,12 @@ public class RepeatSubmitAspect {
         return pjp.proceed();
     }
 
-    private String buildLockKey() {
+    private String buildLockKey(ProceedingJoinPoint pjp) {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         String userIdentifier = getUserIdentifier(request);
         String requestIdentifier = StrUtil.join(":", request.getMethod(), request.getRequestURI());
-        return StrUtil.format(RedisConstants.Lock.RESUBMIT, userIdentifier, requestIdentifier);
+        String bodyHash = DigestUtil.sha256Hex(JSONUtil.toJsonStr(pjp.getArgs()));
+        return StrUtil.format(RedisConstants.Lock.RESUBMIT, userIdentifier, requestIdentifier + ":" + bodyHash);
     }
 
     private String getUserIdentifier(HttpServletRequest request) {
