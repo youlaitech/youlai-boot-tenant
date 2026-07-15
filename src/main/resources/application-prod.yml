@@ -1,6 +1,10 @@
 server:
   port: 8989
 
+quality:
+  scope-access:
+    file: ${QUALITY_SCOPE_ACCESS_FILE}
+
 spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource

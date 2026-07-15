@@ -1,0 +1,8 @@
+# Mount a deployment-specific copy of this file and set QUALITY_SCOPE_ACCESS_FILE to its path.
+user_ids:
+  "10001":
+    - brand:1001
+roles:
+  ROLE_QUALITY_READER:
+    - brand:1001
+    - brand:1002

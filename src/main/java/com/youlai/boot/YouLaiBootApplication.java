@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author Ray.Hao
  * @since 0.0.1
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {"com.youlai.boot", "com.oneid.qualityboard"})
 public class YouLaiBootApplication {
 
     public static void main(String[] args) {

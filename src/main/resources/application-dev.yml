@@ -1,6 +1,10 @@
 server:
   port: 8000
 
+quality:
+  scope-access:
+    file: ${QUALITY_SCOPE_ACCESS_FILE}
+
 # 数据库类型：用于 MyBatis-Plus 分页方言等（仅方言，不负责连接信息）
 app:
   db-type: mysql # 可选：mysql | postgres
