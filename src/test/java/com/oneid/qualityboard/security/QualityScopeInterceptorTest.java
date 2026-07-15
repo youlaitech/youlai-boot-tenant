@@ -5,6 +5,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,6 +17,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -60,6 +63,16 @@ class QualityScopeInterceptorTest {
         assertThat(response.getStatus()).isEqualTo(400);
     }
 
+    @ParameterizedTest
+    @MethodSource("malformedScopeParameters")
+    void rejectsMalformedScopeParameters(String scope, String scopeId) throws Exception {
+        authenticateAs(10001L);
+
+        MockHttpServletResponse response = invoke(requestWithScope(scope, scopeId));
+
+        assertThat(response.getStatus()).isEqualTo(400);
+    }
+
     @Test
     void rejectsARequestedScopeThatIsNotGranted() throws Exception {
         authenticateAs(10001L);
@@ -88,6 +101,14 @@ class QualityScopeInterceptorTest {
         request.setParameter("scope", scope);
         request.setParameter("scope_id", scopeId);
         return request;
+    }
+
+    private static Stream<String[]> malformedScopeParameters() {
+        return Stream.of(
+                new String[]{"brand:region", "1001"},
+                new String[]{"", "1001"},
+                new String[]{" brand", "1001"}
+        );
     }
 
     private void authenticateAs(Long userId) {

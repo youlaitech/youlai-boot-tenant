@@ -2,6 +2,8 @@ package com.oneid.qualityboard.security;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -41,6 +43,14 @@ class QualityScopeAccessServiceTest {
                 """);
 
         assertThat(service.allowedScopes(99999L, Set.of())).isEmpty();
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"", "version: 1\n"})
+    void emptyOrSectionlessRulesFailClosed(String yaml) throws IOException {
+        QualityScopeAccessService service = serviceFor(yaml);
+
+        assertThat(service.allowedScopes(10001L, Set.of("QUALITY_READER"))).isEmpty();
     }
 
     @Test
