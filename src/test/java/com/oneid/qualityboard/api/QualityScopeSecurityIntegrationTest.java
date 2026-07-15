@@ -7,6 +7,7 @@ import com.youlai.boot.framework.security.config.SecurityProperties;
 import com.youlai.boot.framework.security.model.SysUserDetails;
 import com.youlai.boot.framework.security.service.SysUserDetailsService;
 import com.youlai.boot.framework.security.token.TokenManager;
+import com.youlai.boot.auth.controller.AuthController;
 import com.youlai.boot.system.service.ConfigService;
 import com.youlai.boot.system.service.UserService;
 import jakarta.servlet.Filter;
@@ -35,6 +36,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -86,6 +88,14 @@ class QualityScopeSecurityIntegrationTest {
                 .andExpect(jsonPath("$.data[0].scope").value("brand"));
     }
 
+    @Test
+    void letsTheDashboardLoginRequestReachItsControllerWithoutCaptcha() throws Exception {
+        mockMvc.perform(post("/api/v1/quality-auth/login")
+                        .contentType("application/json")
+                        .content("{\"username\":\"admin\",\"password\":\"123456\"}"))
+                .andExpect(status().isOk());
+    }
+
     @Configuration
     @EnableWebMvc
     @Import(SecurityConfig.class)
@@ -99,6 +109,16 @@ class QualityScopeSecurityIntegrationTest {
         @Bean
         QualityScopeController qualityScopeController(QualityScopeAccessService service) {
             return new QualityScopeController(service);
+        }
+
+        @Bean
+        QualityDashboardAuthController qualityDashboardAuthController(AuthController authController) {
+            return new QualityDashboardAuthController(authController);
+        }
+
+        @Bean
+        AuthController authController() {
+            return mock(AuthController.class);
         }
 
         @Bean

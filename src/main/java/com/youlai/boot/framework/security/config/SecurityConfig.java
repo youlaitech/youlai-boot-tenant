@@ -13,9 +13,11 @@ import com.youlai.boot.framework.security.service.SysUserDetailsService;
 import com.youlai.boot.system.service.ConfigService;
 import com.youlai.boot.system.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.annotation.Order;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -29,6 +31,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 
 /**
  * Spring Security 配置类
@@ -52,6 +55,25 @@ public class SecurityConfig {
     private final CaptchaService captchaService;
     private final ConfigService configService;
     private final SecurityProperties securityProperties;
+
+    /**
+     * Keeps the dashboard's password-only login separate from the admin console's captcha login.
+     */
+    @Bean
+    @Order(1)
+    public SecurityFilterChain qualityDashboardLoginSecurityFilterChain(HttpSecurity http) throws Exception {
+        return http
+                .securityMatcher(PathPatternRequestMatcher.withDefaults()
+                        .matcher(HttpMethod.POST, "/api/v1/quality-auth/login"))
+                .authorizeHttpRequests(requests -> requests.anyRequest().permitAll())
+                .sessionManagement(configurer ->
+                        configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .csrf(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .addFilterBefore(new RateLimiterFilter(redisTemplate, configService), UsernamePasswordAuthenticationFilter.class)
+                .build();
+    }
 
     /**
      * 配置安全过滤链 SecurityFilterChain
