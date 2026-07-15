@@ -2,6 +2,8 @@ package com.youlai.boot.system.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.youlai.boot.common.constant.RedisConstants;
 import com.youlai.boot.framework.tenant.TenantContextHolder;
 import com.youlai.boot.system.mapper.TenantMapper;
@@ -28,6 +30,8 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 public class RoleMenuServiceImpl extends ServiceImpl<RoleMenuMapper, RoleMenu> implements RoleMenuService {
+
+    private static final ObjectMapper CACHE_OBJECT_MAPPER = new ObjectMapper();
 
     private final RedisTemplate<String, Object> redisTemplate;
     private final TenantMapper tenantMapper;
@@ -206,15 +210,7 @@ public class RoleMenuServiceImpl extends ServiceImpl<RoleMenuMapper, RoleMenu> i
                 continue;
             }
 
-            // Redis JSON 序列化后，Set 会以 Collection 形式反序列化
-            if (cachedPerms instanceof Collection<?> collection) {
-                collection.stream()
-                        .filter(Objects::nonNull)
-                        .map(Object::toString)
-                        .forEach(perms::add);
-            } else {
-                perms.add(cachedPerms.toString());
-            }
+            appendCachedPermissions(perms, cachedPerms);
         }
 
         // 2. 回源 DB 并同步到缓存
@@ -231,6 +227,47 @@ public class RoleMenuServiceImpl extends ServiceImpl<RoleMenuMapper, RoleMenu> i
         }
 
         return perms;
+    }
+
+    static void appendCachedPermissions(Set<String> permissions, Object cachedPerms) {
+        if (cachedPerms instanceof Collection<?> collection) {
+            if (collection.size() == 2
+                    && collection.iterator().next() instanceof String typeName
+                    && typeName.startsWith("java.util.")) {
+                Object values = collection.stream().skip(1).findFirst().orElse(null);
+                if (values != null) {
+                    appendCachedPermissions(permissions, values);
+                }
+                return;
+            }
+            collection.stream()
+                    .filter(Objects::nonNull)
+                    .map(Object::toString)
+                    .forEach(permissions::add);
+            return;
+        }
+        if (!(cachedPerms instanceof String serializedPerms)) {
+            permissions.add(cachedPerms.toString());
+            return;
+        }
+
+        try {
+            JsonNode root = CACHE_OBJECT_MAPPER.readTree(serializedPerms);
+            JsonNode values = root.isArray() && root.size() == 2 && root.get(0).isTextual() && root.get(1).isArray()
+                    ? root.get(1)
+                    : root;
+            if (values.isArray()) {
+                values.forEach(value -> {
+                    if (value.isTextual()) {
+                        permissions.add(value.asText());
+                    }
+                });
+                return;
+            }
+        } catch (Exception ignored) {
+            // A normal string is also a valid cache value.
+        }
+        permissions.add(serializedPerms);
     }
 
     /**
