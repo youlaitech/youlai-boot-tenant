@@ -7,7 +7,7 @@
     <groupId>com.youlai</groupId>
     <artifactId>youlai-boot-tenant</artifactId>
     <version>4.2.0</version>
-    <description>基于 Java 17 + SpringBoot 4 + Spring Security 构建的多租户权限管理系统。</description>
+    <description>基于 Java 25 + SpringBoot 4 + Spring Security 构建的多租户权限管理系统。</description>
 
     <parent>
         <groupId>org.springframework.boot</groupId>
@@ -17,8 +17,10 @@
     </parent>
 
     <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
+        <java.version>25</java.version>
+        <maven.compiler.source>25</maven.compiler.source>
+        <maven.compiler.target>25</maven.compiler.target>
+        <maven.compiler.proc>full</maven.compiler.proc>
 
         <hutool.version>5.8.41</hutool.version>
 

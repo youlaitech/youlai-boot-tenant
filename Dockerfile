@@ -1,5 +1,5 @@
 # 基础镜像
-FROM openjdk:17
+FROM eclipse-temurin:25-jre
 
 # 维护者信息
 LABEL maintainer="youlai <youlaitech@163.com>"

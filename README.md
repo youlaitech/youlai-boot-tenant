@@ -1,7 +1,7 @@
 <div align="center">
    <img alt="logo" width="100" height="100" src="https://foruda.gitee.com/images/1733417239320800627/3c5290fe_716974.png">
    <h2>youlai-boot-tenant</h2>
-   <img alt="Java" src="https://img.shields.io/badge/Java-17-brightgreen.svg"/>
+   <img alt="Java" src="https://img.shields.io/badge/Java-25-brightgreen.svg"/>
    <img alt="Spring Boot" src="https://img.shields.io/badge/Spring Boot-3.x-green.svg"/>
    <img alt="Multi-tenancy" src="https://img.shields.io/badge/Multi--tenancy-SaaS-blue.svg"/>
    <a href="https://gitee.com/youlaiorg/youlai-boot-tenant" target="_blank">
@@ -25,7 +25,7 @@
 `youlai-boot-tenant` 是 `youlai-boot` 的多租户版本，基于 Spring Boot 3, Spring Security, Mybatis-Plus, JWT, Redis 构建，专为 SaaS 应用提供后端支持。
 
 - **🏢 多租户架构**: 基于 Mybatis-Plus 的单库多租户方案，通过租户 ID 实现数据隔离。
-- **🚀 最新技术栈**: 采用 Spring Boot 3 和 JDK 17，享受最新的性能优化和语言特性。
+- **🚀 最新技术栈**: 采用 Spring Boot 3 和 JDK 25，享受最新的性能优化和语言特性。
 - **🔐 企业级安全**: 深度整合 Spring Security，提供 JWT 无状态认证和 Redis 会话管理双重机制。
 - **🔑 精细化权限**: 内置经典的 RBAC 模型，权限控制可精确到菜单、按钮及后端 API 接口。
 
@@ -72,7 +72,7 @@ youlai-boot-tenant/
 
 | 要求       | 说明        |
 | ---------- | ----------- |
-| **JDK 17** | 17+ LTS     |
+| **JDK 25** | 25+ LTS     |
 | **MySQL**  | 5.7+ 或 8.x |
 | **Redis**  | 7.x 稳定版  |
 
