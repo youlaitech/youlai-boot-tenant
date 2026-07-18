@@ -22,7 +22,7 @@
 
 </div>
 
-## 简介
+## 项目简介
 
 **youlai-boot-tenant** 是 [youlai-boot](https://gitee.com/youlaiorg/youlai-boot) 的多租户版本，基于 Spring Boot 4，采用 MyBatis-Plus 单库多租户方案，通过租户 ID 实现数据隔离，专为 SaaS 应用提供后端支持。配套前端 [vue3-element-admin](https://gitee.com/youlaiorg/vue3-element-admin)，共享同一套 API 规范。
 
@@ -92,21 +92,6 @@
 - **预置账号**: 平台租户 (`root`/`admin`) 和演示租户 (`admin`)，默认密码 `123456`。
 - **本地测试**: 修改本地 `hosts` 文件，添加 `127.0.0.1 vue.youlai.tech` 和 `127.0.0.1 demo.youlai.tech`，通过不同域名访问即可自动切换租户。
 
-## 技术栈
-
-| 技术 | 版本 | 说明 |
-|:-----|:-----|:-----|
-| Spring Boot | 4.0.5 | 核心框架 |
-| Spring Security | 6.x | 认证授权 |
-| MyBatis-Plus | 3.5.15 | ORM 框架 |
-| Druid | 1.2.24 | 数据库连接池 |
-| Redis + Redisson | 6.0+ / 4.1.0 | 缓存 · 会话 · 分布式锁 |
-| Caffeine | 2.9.3 | 本地缓存 |
-| XXL-Job | 3.2.0 | 分布式定时任务 |
-| Knife4j | 4.5.0 | API 文档 |
-| MapStruct | 1.6.3 | 对象映射 |
-| MinIO | 8.5.10 | 对象存储 |
-
 ## 目录结构
 
 ```
@@ -157,25 +142,11 @@ youlai-boot-tenant/
 >
 > 七种后端共享同一套 **RESTful API 规范** 和 **数据库结构**，前端可无缝切换。
 
-## 文档资源
+## 交流合作
 
-| 资源 | 地址 |
-|:-----|:-----|
-| 📖 完整文档站 | [www.youlai.tech](https://www.youlai.tech/) |
-| 🖥️ PC 端在线预览 | [vue.youlai.tech](https://vue.youlai.tech) |
-| � 移动端在线预览 | [app.youlai.tech](https://app.youlai.tech) |
-| 🔗 Apifox 接口文档 | [apifox.com](https://www.apifox.cn/apidoc/shared-195e783f-4d85-4235-a038-eec696de4ea5) |
-| 🔗 本地接口文档 | [localhost:8000/doc.html](http://localhost:8000/doc.html) |
+欢迎在 [Issue](https://gitee.com/youlaiorg/youlai-boot-tenant/issues) 提交问题或反馈，也欢迎提交 Pull Request，支持与合作见[支持指南](https://www.youlai.tech/faq/help)。
 
-## 参与贡献
-
-欢迎提交 Issue 和 Pull Request！详见 [贡献指南](https://www.youlai.tech/faq/help)。
-
-[![Contributors](https://contrib.rocks/image?repo=haoxianrui/youlai-boot)](https://github.com/haoxianrui/youlai-boot/graphs/contributors)
-
-## 开源协议
-
-本项目基于 [Apache License 2.0](LICENSE) 开源，可免费用于商业项目。
+本项目基于 [Apache License 2.0](LICENSE) 开源，可免费用于商业项目。如需商务合作、二次开发、项目定制或部署支持，可联系作者微信（见下方二维码）。
 
 ---
 
