@@ -7,7 +7,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-
+/**
+ * 租户创建表单
+ */
 @Schema(description = "新增租户表单")
 @Data
 public class TenantCreateForm {

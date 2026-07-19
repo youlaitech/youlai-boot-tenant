@@ -223,7 +223,7 @@ public class SseSessionRegistry {
     }
 
     /**
-     * 容器关闭时主动断开所有 SSE 连接，避免阻塞应用停止
+     * 容器关闭时主动断开所有 SSE 连接
      */
     @Order(Ordered.HIGHEST_PRECEDENCE)
     @EventListener(ContextClosedEvent.class)

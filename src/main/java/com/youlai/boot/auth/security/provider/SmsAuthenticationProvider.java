@@ -15,7 +15,9 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-
+/**
+ * 短信认证提供者
+ */
 @Slf4j
 public class SmsAuthenticationProvider implements AuthenticationProvider {
 
@@ -26,6 +28,9 @@ public class SmsAuthenticationProvider implements AuthenticationProvider {
         this.userAuthPort = userAuthPort;
         this.redisTemplate = redisTemplate;
     }
+/**
+ * 短信验证码认证
+ */
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -44,6 +49,9 @@ public class SmsAuthenticationProvider implements AuthenticationProvider {
         SecurityUserDetails userDetails = new SecurityUserDetails(securityUser);
         return SmsAuthenticationToken.authenticated(userDetails, userDetails.getAuthorities());
     }
+/**
+ * 是否支持短信认证令牌
+ */
 
     @Override
     public boolean supports(Class<?> authentication) {

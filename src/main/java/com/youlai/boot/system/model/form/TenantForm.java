@@ -8,7 +8,9 @@ import lombok.Data;
 import org.hibernate.validator.constraints.Range;
 
 import java.time.LocalDateTime;
-
+/**
+ * 租户表单
+ */
 @Schema(description = "租户表单对象")
 @Data
 public class TenantForm {

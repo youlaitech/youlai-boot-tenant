@@ -17,6 +17,9 @@ import java.time.LocalDateTime;
 @Component
 @RequiredArgsConstructor
 public class AutoFillMetaObjectHandler implements MetaObjectHandler {
+/**
+ * 插入时自动填充 createBy/createTime 等
+ */
 
     @Override
     public void insertFill(MetaObject metaObject) {
@@ -28,6 +31,9 @@ public class AutoFillMetaObjectHandler implements MetaObjectHandler {
             this.strictInsertFill(metaObject, "tenantId", () -> tenantId, Long.class);
         }
     }
+/**
+ * 更新时自动填充 updateBy/updateTime 等
+ */
 
     @Override
     public void updateFill(MetaObject metaObject) {

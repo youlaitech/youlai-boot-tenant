@@ -5,7 +5,9 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Range;
-
+/**
+ * 部门表单
+ */
 @Schema(description = "部门表单对象")
 @Getter
 @Setter

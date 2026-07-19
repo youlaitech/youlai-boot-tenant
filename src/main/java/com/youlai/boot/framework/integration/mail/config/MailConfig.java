@@ -9,14 +9,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import java.util.Properties;
 
 /**
- * MailConfig 配置类，用于手动配置和注入 JavaMailSender。
- * 通过读取 MailProperties 类中配置的邮件相关属性来初始化 JavaMailSender。
- * <p>
- * 手动注入的原因是为了避免在使用 application-dev.yml 或其他非 application.yml 配置文件时，
- * IDEA 提示无法找到 JavaMailSender 的 bean。
- *
- * @author Ray
- * @since 2024/8/17
+ * 邮件配置
  */
 @Configuration
 @EnableConfigurationProperties(MailProperties.class)

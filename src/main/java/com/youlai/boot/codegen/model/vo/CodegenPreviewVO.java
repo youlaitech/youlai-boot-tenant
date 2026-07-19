@@ -2,7 +2,9 @@ package com.youlai.boot.codegen.model.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-
+/**
+ * 代码生成预览视图对象
+ */
 @Schema(description = "代码生成代码预览Vo")
 @Data
 public class CodegenPreviewVO {

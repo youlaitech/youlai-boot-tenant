@@ -7,7 +7,9 @@ import com.youlai.boot.system.service.UserService;
 import com.youlai.boot.system.service.UserSocialService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
+/**
+ * 用户认证信息适配器（实现 framework 端口）
+ */
 @Component
 @RequiredArgsConstructor
 public class UserAuthenticationAdapter implements UserAuthenticationPort {

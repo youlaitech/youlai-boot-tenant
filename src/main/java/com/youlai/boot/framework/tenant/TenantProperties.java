@@ -30,4 +30,3 @@ public class TenantProperties {
      */
     private List<String> ignoreTables = new ArrayList<>();
 }
-

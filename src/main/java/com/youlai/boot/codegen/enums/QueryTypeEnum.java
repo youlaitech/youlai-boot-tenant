@@ -35,6 +35,9 @@ public enum QueryTypeEnum implements IBaseEnum<Integer> {
     private final String label;
 
     @JsonCreator
+    /**
+     * 按值解析查询类型枚举
+     */
     public static QueryTypeEnum fromValue(Integer value) {
         for (QueryTypeEnum type : QueryTypeEnum.values()) {
             if (type.getValue().equals(value)) {

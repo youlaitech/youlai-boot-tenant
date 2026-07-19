@@ -17,6 +17,9 @@ import java.util.Collections;
  */
 @Configuration
 public class CorsConfig {
+/**
+ * 注册跨域过滤器
+ */
 
     @Bean
     public FilterRegistrationBean filterRegistrationBean() {

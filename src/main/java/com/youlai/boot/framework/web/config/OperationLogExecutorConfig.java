@@ -15,6 +15,9 @@ import java.util.concurrent.ThreadPoolExecutor;
  */
 @Configuration
 public class OperationLogExecutorConfig {
+/**
+ * 构建操作日志异步线程池
+ */
 
     @Bean
     public Executor operationLogExecutor() {

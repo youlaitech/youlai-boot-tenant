@@ -44,6 +44,9 @@ public class CaptchaValidationFilter extends OncePerRequestFilter {
     public CaptchaValidationFilter(CaptchaService captchaService) {
         this.captchaService = captchaService;
     }
+/**
+ * 校验验证码后放行请求
+ */
 
     @Override
     public void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)

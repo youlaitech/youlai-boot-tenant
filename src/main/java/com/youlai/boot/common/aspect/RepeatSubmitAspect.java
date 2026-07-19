@@ -38,10 +38,16 @@ import java.util.concurrent.TimeUnit;
 public class RepeatSubmitAspect {
 
     private final RedissonClient redissonClient;
+/**
+ * 防重复提交切面切点
+ */
 
     @Pointcut("@annotation(repeatSubmit)")
     public void repeatSubmitPointCut(RepeatSubmit repeatSubmit) {
     }
+/**
+ * 拦截重复提交请求
+ */
 
     @Around(value = "repeatSubmitPointCut(repeatSubmit)", argNames = "pjp,repeatSubmit")
     public Object handleRepeatSubmit(ProceedingJoinPoint pjp, RepeatSubmit repeatSubmit) throws Throwable {

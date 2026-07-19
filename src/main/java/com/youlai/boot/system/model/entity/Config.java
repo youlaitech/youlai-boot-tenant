@@ -46,6 +46,7 @@ public class Config  {
     /**
      * 描述、备注
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private String remark;
 
     /**

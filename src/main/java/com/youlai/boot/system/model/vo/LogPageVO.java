@@ -8,7 +8,9 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-
+/**
+ * 操作日志分页视图对象
+ */
 @Data
 @Schema(description = "系统日志分页Vo")
 public class LogPageVO implements Serializable {

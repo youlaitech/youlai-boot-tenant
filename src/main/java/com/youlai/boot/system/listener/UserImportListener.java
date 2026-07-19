@@ -58,8 +58,7 @@ public class UserImportListener extends AnalysisEventListener<UserImportDTO> {
     private Integer currentRow = 1;
 
     /**
-     * 构造方法
-     * <p>在构造方法中给需要查询的内容查询好，尽量避免每条数据查询一次</p>
+     * 构造时预查询依赖数据，避免逐条数据查库
      */
     public UserImportListener() {
         this.userService = SpringUtil.getBean(UserService.class);

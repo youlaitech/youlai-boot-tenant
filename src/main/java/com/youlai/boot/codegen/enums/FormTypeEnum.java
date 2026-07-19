@@ -34,6 +34,9 @@ public enum FormTypeEnum implements IBaseEnum<Integer> {
     private final String label;
 
     @JsonCreator
+    /**
+     * 按值解析表单类型枚举
+     */
     public static FormTypeEnum fromValue(Integer value) {
         for (FormTypeEnum type : FormTypeEnum.values()) {
             if (type.getValue().equals(value)) {

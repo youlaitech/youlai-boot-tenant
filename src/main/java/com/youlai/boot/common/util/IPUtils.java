@@ -33,6 +33,9 @@ public class IPUtils {
 
     private static final String DB_PATH = "/data/ip2region.xdb";
     private static Searcher searcher;
+/**
+ * 初始化 IP 解析器
+ */
 
     @PostConstruct
     public void init() {

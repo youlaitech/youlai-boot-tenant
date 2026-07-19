@@ -16,6 +16,9 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableConfigurationProperties(WxMaProperties.class)
 public class WxMaConfig {
+/**
+ * 构建微信小程序服务实例
+ */
 
     @Bean
     public WxMaService wxMaService(WxMaProperties properties) {

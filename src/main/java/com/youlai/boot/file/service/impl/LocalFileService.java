@@ -28,13 +28,13 @@ import java.time.LocalDateTime;
 @Data
 @Slf4j
 @Component
-@ConditionalOnProperty(value = "oss.type", havingValue = "local")
-@ConfigurationProperties(prefix = "oss.local")
+@ConditionalOnProperty(value = "file-storage.type", havingValue = "local")
+@ConfigurationProperties(prefix = "file-storage.local")
 @RequiredArgsConstructor
 public class LocalFileService implements FileService {
 
-    @Value("${oss.local.storage-path}")
-    private String storagePath;
+    @Value("${file-storage.local.path}")
+    private String path;
 
     /**
      * 上传文件方法
@@ -52,7 +52,7 @@ public class LocalFileService implements FileService {
         String fileName = IdUtil.simpleUUID()+ "." + suffix;;
         // 生成文件名(日期文件夹)
         String folder = DateUtil.format(LocalDateTime.now(), DatePattern.PURE_DATE_PATTERN);
-        String filePrefix = storagePath.endsWith(File.separator) ? storagePath : storagePath + File.separator;
+        String filePrefix = path.endsWith(File.separator) ? path : path + File.separator;
         //  try-with-resource 语法糖自动释放流
         try (InputStream inputStream = file.getInputStream()) {
             // 上传文件
@@ -82,11 +82,11 @@ public class LocalFileService implements FileService {
             return false;
         }
         // 判断filepath是否为文件夹
-        if (FileUtil.isDirectory(storagePath + filePath)) {
+        if (FileUtil.isDirectory(path + filePath)) {
             // 禁止删除文件夹
             return false;
         }
         // 删除文件
-        return FileUtil.del(storagePath + filePath);
+        return FileUtil.del(path + filePath);
     }
 }

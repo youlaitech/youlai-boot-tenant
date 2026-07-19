@@ -40,6 +40,9 @@ public class XxlJobConfig {
 
     @Value("${xxl.job.executor.logretentiondays}")
     private int logRetentionDays;
+/**
+ * 构建 XXL-JOB 执行器
+ */
 
 
     @Bean

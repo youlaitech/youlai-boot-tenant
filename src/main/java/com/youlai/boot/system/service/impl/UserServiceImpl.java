@@ -98,6 +98,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         // 查询数据
         return this.baseMapper.getUserPage(page, queryParams);
     }
+/**
+ * 跨所有租户查询用户名对应的账户
+ */
 
     @Override
     public List<User> listUsersByUsernameAcrossAllTenants(String username) {

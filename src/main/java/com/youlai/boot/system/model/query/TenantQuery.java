@@ -4,7 +4,9 @@ import com.youlai.boot.common.base.BaseQuery;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-
+/**
+ * 租户查询条件
+ */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Schema(description = "租户分页查询对象")

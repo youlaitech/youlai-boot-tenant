@@ -8,7 +8,9 @@ import jakarta.validation.constraints.NotBlank;
 import org.hibernate.validator.constraints.Range;
 
 import java.util.List;
-
+/**
+ * 角色表单
+ */
 @Schema(description = "角色表单对象")
 @Data
 public class RoleForm {

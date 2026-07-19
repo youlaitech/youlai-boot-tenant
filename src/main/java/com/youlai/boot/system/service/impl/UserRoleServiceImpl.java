@@ -92,6 +92,9 @@ public class UserRoleServiceImpl extends ServiceImpl<UserRoleMapper, UserRole> i
         int count = this.baseMapper.countUsersByRoleId(roleId);
         return count > 0;
     }
+/**
+ * 查询角色下的用户 ID
+ */
 
     @Override
     public List<Long> listUserIdsByRoleId(Long roleId) {

@@ -173,4 +173,3 @@ public class TenantController {
         return Result.success(tenant);
     }
 }
-

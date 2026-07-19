@@ -5,6 +5,8 @@ import tools.jackson.core.JacksonException;
 import com.youlai.boot.common.exception.BusinessException;
 import com.youlai.boot.common.result.Result;
 import com.youlai.boot.common.result.ResultCode;
+import com.youlai.boot.framework.security.exception.TokenInvalidException;
+import com.youlai.boot.framework.web.exception.RateLimitException;
 import jakarta.servlet.ServletException;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -40,7 +42,9 @@ import java.util.stream.Collectors;
 @RestControllerAdvice
 @Slf4j
 public class GlobalExceptionHandler {
-
+/**
+ * 处理 BindException 异常
+ */
     @ExceptionHandler(BindException.class)
     @ResponseStatus(HttpStatus.OK)
     public <T> Result<T> processException(BindException e) {
@@ -48,7 +52,9 @@ public class GlobalExceptionHandler {
         String msg = e.getAllErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining("；"));
         return Result.failed(ResultCode.USER_REQUEST_PARAMETER_ERROR, msg);
     }
-
+/**
+ * 处理 ConstraintViolationException 异常
+ */
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.OK)
     public <T> Result<T> processException(ConstraintViolationException e) {
@@ -56,7 +62,9 @@ public class GlobalExceptionHandler {
         String msg = e.getConstraintViolations().stream().map(ConstraintViolation::getMessage).collect(Collectors.joining("；"));
         return Result.failed(ResultCode.INVALID_USER_INPUT, msg);
     }
-
+/**
+ * 处理 MethodArgumentNotValidException 异常
+ */
     @ExceptionHandler(MethodArgumentNotValidException.class)
     @ResponseStatus(HttpStatus.OK)
     public <T> Result<T> processException(MethodArgumentNotValidException e) {
@@ -64,49 +72,63 @@ public class GlobalExceptionHandler {
         String msg = e.getBindingResult().getAllErrors().stream().map(DefaultMessageSourceResolvable::getDefaultMessage).collect(Collectors.joining("；"));
         return Result.failed(ResultCode.INVALID_USER_INPUT, msg);
     }
-
+/**
+ * 处理 NoHandlerFoundException 异常
+ */
     @ExceptionHandler(NoHandlerFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public <T> Result<T> processException(NoHandlerFoundException e) {
         log.error(e.getMessage(), e);
         return Result.failed(ResultCode.INTERFACE_NOT_EXIST);
     }
-
+/**
+ * 处理 MissingServletRequestParameterException 异常
+ */
     @ExceptionHandler(MissingServletRequestParameterException.class)
     @ResponseStatus(HttpStatus.OK)
     public <T> Result<T> processException(MissingServletRequestParameterException e) {
         log.error(e.getMessage(), e);
         return Result.failed(ResultCode.REQUEST_REQUIRED_PARAMETER_IS_EMPTY);
     }
-
+/**
+ * 处理 MethodArgumentTypeMismatchException 异常
+ */
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     @ResponseStatus(HttpStatus.OK)
     public <T> Result<T> processException(MethodArgumentTypeMismatchException e) {
         log.error(e.getMessage(), e);
         return Result.failed(ResultCode.PARAMETER_FORMAT_MISMATCH, "类型错误");
     }
-
+/**
+ * 处理 ServletException 异常
+ */
     @ExceptionHandler(ServletException.class)
     @ResponseStatus(HttpStatus.OK)
     public <T> Result<T> processException(ServletException e) {
         log.error(e.getMessage(), e);
         return Result.failed(e.getMessage());
     }
-
+/**
+ * 处理 IllegalArgumentException 异常
+ */
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.OK)
     public <T> Result<T> handleIllegalArgumentException(IllegalArgumentException e) {
         log.error("非法参数异常，异常原因：{}", e.getMessage(), e);
         return Result.failed(e.getMessage());
     }
-
+/**
+ * 处理 JacksonException 异常
+ */
     @ExceptionHandler(JacksonException.class)
     @ResponseStatus(HttpStatus.OK)
     public <T> Result<T> handleJacksonException(JacksonException e) {
         log.error("Json转换异常，异常原因：{}", e.getMessage(), e);
         return Result.failed(e.getMessage());
     }
-
+/**
+ * 处理 HttpMessageNotReadableException 异常
+ */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     @ResponseStatus(HttpStatus.OK)
     public <T> Result<T> processException(HttpMessageNotReadableException e) {
@@ -118,14 +140,18 @@ public class GlobalExceptionHandler {
         }
         return Result.failed(errorMessage);
     }
-
+/**
+ * 处理 TypeMismatchException 异常
+ */
     @ExceptionHandler(TypeMismatchException.class)
     @ResponseStatus(HttpStatus.OK)
     public <T> Result<T> processException(TypeMismatchException e) {
         log.error(e.getMessage(), e);
         return Result.failed(e.getMessage());
     }
-
+/**
+ * 处理 BadSqlGrammarException 异常
+ */
     @ExceptionHandler(BadSqlGrammarException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public <T> Result<T> handleBadSqlGrammarException(BadSqlGrammarException e) {
@@ -137,21 +163,27 @@ public class GlobalExceptionHandler {
             return Result.failed(e.getMessage());
         }
     }
-
+/**
+ * 处理 SQLSyntaxErrorException 异常
+ */
     @ExceptionHandler(SQLSyntaxErrorException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public <T> Result<T> processSQLSyntaxErrorException(SQLSyntaxErrorException e) {
         log.error(e.getMessage(), e);
         return Result.failed(ResultCode.DATABASE_EXECUTION_SYNTAX_ERROR);
     }
-
+/**
+ * 处理 SQLIntegrityConstraintViolationException 异常
+ */
     @ExceptionHandler(SQLIntegrityConstraintViolationException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public <T> Result<T> handleSQLIntegrityConstraintViolationException(SQLIntegrityConstraintViolationException e) {
         log.error(e.getMessage(), e);
         return Result.failed(ResultCode.INTEGRITY_CONSTRAINT_VIOLATION);
     }
-
+/**
+ * 处理 BusinessException 异常
+ */
     @ExceptionHandler(BusinessException.class)
     @ResponseStatus(HttpStatus.OK)
     public <T> Result<T> handleBizException(BusinessException e) {
@@ -162,6 +194,28 @@ public class GlobalExceptionHandler {
         return Result.failed(e.getMessage());
     }
 
+    // 接口限流异常 → 429
+/**
+ * 处理 RateLimitException 异常
+ */
+    @ExceptionHandler(RateLimitException.class)
+    @ResponseStatus(HttpStatus.TOO_MANY_REQUESTS)
+    public <T> Result<T> handleRateLimitException(RateLimitException e) {
+        return Result.failed(e.getResultCode(), e.getMessage());
+    }
+
+    // 令牌/扫码票据等鉴权异常 → 透传业务码（如 A0250 票据不存在）
+/**
+ * 处理 TokenInvalidException 异常
+ */
+    @ExceptionHandler(TokenInvalidException.class)
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public <T> Result<T> handleTokenInvalidException(TokenInvalidException e) {
+        return Result.failed(e.getResultCode());
+    }
+/**
+ * 处理 Exception 异常
+ */
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public <T> Result<T> handleException(Exception e) throws Exception {

@@ -5,7 +5,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-
+/**
+ * AppPageVO视图对象
+ */
 @Data
 @Schema(description = "应用分页对象")
 public class AppPageVO {

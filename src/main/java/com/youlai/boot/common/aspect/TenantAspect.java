@@ -18,6 +18,9 @@ import org.springframework.stereotype.Component;
 @Component
 @Order(1)
 public class TenantAspect {
+/**
+ * 租户上下文切面，方法前后绑定/清理租户
+ */
 
     @Around("@annotation(ignoreTenant) || @within(ignoreTenant)")
     public Object around(ProceedingJoinPoint joinPoint, IgnoreTenant ignoreTenant) throws Throwable {

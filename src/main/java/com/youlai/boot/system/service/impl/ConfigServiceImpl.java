@@ -133,10 +133,7 @@ public class ConfigServiceImpl extends ServiceImpl<ConfigMapper, Config> impleme
 
     /**
      * 刷新系统配置缓存
-     * <p>
-     * 注意：sys_config 表在 ignore-tables 中，但为了确保在初始化时（@PostConstruct）也能正常工作，
-     * 需要显式设置忽略租户标志，避免多租户拦截器添加租户过滤条件
-     * </p>
+     * <p>显式忽略租户，兼容 @PostConstruct 初始化场景</p>
      *
      * @return 是否刷新成功
      */

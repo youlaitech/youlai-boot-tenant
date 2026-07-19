@@ -5,7 +5,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.youlai.boot.system.model.entity.UserRole;
 
 import java.util.List;
-
+/**
+ * 用户角色业务接口
+ */
 public interface UserRoleService extends IService<UserRole> {
 
     /**

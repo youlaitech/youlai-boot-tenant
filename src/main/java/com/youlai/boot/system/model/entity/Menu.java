@@ -45,6 +45,7 @@ public class Menu implements Serializable {
     /**
      * 路由名称（Vue Router 中定义的路由名称）
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private String routeName;
 
     /**
@@ -55,16 +56,19 @@ public class Menu implements Serializable {
     /**
      * 组件路径(vue页面完整路径，省略.vue后缀)
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private String component;
 
     /**
      * 外链地址
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private String externalUrl;
 
     /**
      * 权限标识
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private String perm;
 
     /**
@@ -85,11 +89,13 @@ public class Menu implements Serializable {
     /**
      * 菜单图标
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private String icon;
 
     /**
      * 跳转路径
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private String redirect;
 
     /**

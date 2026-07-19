@@ -8,7 +8,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 /**
- * 应用实体（平台级，记录各渠道小程序的 AppId/密钥与归属租户）
+ * 应用实体
  */
 @Data
 @TableName("sys_app")

@@ -47,6 +47,9 @@ public class RoleDeptServiceImpl extends ServiceImpl<RoleDeptMapper, RoleDept> i
         }
         return this.baseMapper.getDeptIdsByRoleCodes(tenantId, roleCodes);
     }
+/**
+ * 保存角色与部门关联
+ */
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -68,6 +71,9 @@ public class RoleDeptServiceImpl extends ServiceImpl<RoleDeptMapper, RoleDept> i
                 .toList();
         this.saveBatch(roleDepts);
     }
+/**
+ * 删除角色下的部门关联
+ */
 
     @Override
     public void deleteByRoleId(Long roleId) {

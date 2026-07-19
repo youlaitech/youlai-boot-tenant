@@ -19,6 +19,9 @@ import java.io.IOException;
 @Slf4j
 @Component
 public class JsonAccessDeniedHandler implements AccessDeniedHandler {
+/**
+ * 返回无权限访问的 JSON 响应
+ */
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException {

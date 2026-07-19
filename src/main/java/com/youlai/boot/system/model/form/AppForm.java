@@ -2,7 +2,9 @@ package com.youlai.boot.system.model.form;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-
+/**
+ * 应用表单
+ */
 @Data
 @Schema(description = "应用表单对象")
 public class AppForm {

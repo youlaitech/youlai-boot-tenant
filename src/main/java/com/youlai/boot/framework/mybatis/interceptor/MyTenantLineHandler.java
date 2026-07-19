@@ -53,6 +53,9 @@ public class MyTenantLineHandler implements TenantLineHandler {
     public String getTenantIdColumn() {
         return tenantProperties.getColumn();
     }
+/**
+ * 判断表是否跳过租户过滤
+ */
 
     @Override
     public boolean ignoreTable(String tableName) {

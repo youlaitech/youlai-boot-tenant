@@ -6,7 +6,9 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
-
+/**
+ * 部门视图对象
+ */
 @Schema(description = "部门视图对象")
 @Data
 public class DeptVO {
@@ -40,6 +42,3 @@ public class DeptVO {
     private LocalDateTime updateTime;
 
 }
-
-
-

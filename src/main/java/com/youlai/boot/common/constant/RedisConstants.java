@@ -11,9 +11,9 @@ public interface RedisConstants {
     /**
      * 限流相关键
      */
-    interface RateLimiter {
-        String API = "{}rate_limit:{}:{}"; // 接口限流
-        String IP = "rate_limit:ip:{}";   // IP 全局限流（示例：rate_limit:ip:192.168.1.100）
+    interface RateLimit {
+        String API = "rate_limit:{}:{}:{}"; // 接口限流
+        String IP = "rate_limit:ip:{}";   // IP 全局限流
     }
 
     /**
@@ -40,6 +40,8 @@ public interface RedisConstants {
         String REVOKED_JTI = BLACKLIST_TOKEN;
         // 用户 Token 版本号（用于按用户失效历史 JWT）：token.tokenVersion != redis.tokenVersion => token 无效
         String USER_TOKEN_VERSION = "auth:user:token_version:{}";
+        // 扫码登录票据上下文（ticket -> QrCodeLoginContext）
+        String QR_CODE_LOGIN = "auth:qr_code:{}";
     }
 
     /**

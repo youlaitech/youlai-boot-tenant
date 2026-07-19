@@ -19,6 +19,9 @@ import java.io.IOException;
 @Slf4j
 @Component
 public class JsonAuthenticationEntryPoint implements AuthenticationEntryPoint {
+/**
+ * 返回未认证的 JSON 响应
+ */
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {

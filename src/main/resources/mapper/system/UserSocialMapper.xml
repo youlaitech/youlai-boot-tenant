@@ -10,6 +10,7 @@
         <result property="username" column="username" jdbcType="VARCHAR"/>
         <result property="nickname" column="nickname" jdbcType="VARCHAR"/>
         <result property="deptId" column="dept_id" jdbcType="BIGINT"/>
+        <result property="tenantId" column="tenant_id" jdbcType="BIGINT"/>
         <result property="password" column="password" jdbcType="VARCHAR"/>
         <result property="status" column="status" jdbcType="BOOLEAN"/>
         <collection property="roles" ofType="string" javaType="java.util.Set">
@@ -24,6 +25,7 @@
             u.username,
             u.nickname,
             u.dept_id,
+            u.tenant_id,
             u.password,
             u.status,
             r.code

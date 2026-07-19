@@ -81,4 +81,3 @@ public class Tenant {
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private LocalDateTime updateTime;
 }
-

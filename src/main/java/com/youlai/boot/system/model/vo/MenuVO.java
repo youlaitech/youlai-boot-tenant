@@ -5,7 +5,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.List;
-
+/**
+ * 菜单视图对象
+ */
 @Schema(description ="菜单视图对象")
 @Data
 public class MenuVO {

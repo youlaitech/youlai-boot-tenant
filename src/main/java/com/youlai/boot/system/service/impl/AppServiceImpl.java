@@ -64,6 +64,9 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         }
         return form;
     }
+/**
+ * 新增应用
+ */
 
     @Override
     public boolean saveApp(AppForm form) {
@@ -81,6 +84,9 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         app.setIsDeleted(0);
         return this.save(app);
     }
+/**
+ * 更新应用
+ */
 
     @Override
     public boolean updateApp(Long id, AppForm form) {
@@ -95,6 +101,9 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
         app.setUpdateTime(LocalDateTime.now());
         return this.updateById(app);
     }
+/**
+ * 删除应用
+ */
 
     @Override
     public void deleteApps(String ids) {
@@ -112,6 +121,9 @@ public class AppServiceImpl extends ServiceImpl<AppMapper, App> implements AppSe
                 .set(App::getUpdateTime, LocalDateTime.now())
         );
     }
+/**
+ * 更新应用
+ */
 
     @Override
     public boolean updateStatus(Long id, Integer status) {

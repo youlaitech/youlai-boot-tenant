@@ -2,7 +2,9 @@ package com.youlai.boot.codegen.model.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-
+/**
+ * 字段元数据视图对象
+ */
 @Schema(description = "数据表字段元数据")
 @Data
 public class ColumnMetaVO {

@@ -8,6 +8,7 @@ import com.youlai.boot.common.enums.StatusEnum;
 import com.youlai.boot.common.result.Result;
 import com.youlai.boot.auth.service.AuthService;
 import com.youlai.boot.common.annotation.Log;
+import com.youlai.boot.common.annotation.RateLimit;
 import com.youlai.boot.common.result.ResultCode;
 import com.youlai.boot.framework.security.model.SecurityUserDetails;
 import com.youlai.boot.framework.security.model.AuthenticationToken;
@@ -186,6 +187,7 @@ public class AuthController {
 
     @Operation(summary = "发送登录短信验证码")
     @PostMapping("/sms/code")
+    @RateLimit(limit = 1, window = 60)
     public Result<Void> sendLoginVerifyCode(
             @Parameter(description = "手机号", example = "18888888888") @RequestParam String mobile
     ) {

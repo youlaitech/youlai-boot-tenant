@@ -9,7 +9,9 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
-
+/**
+ * 部门表持久层
+ */
 
 @Mapper
 public interface DeptMapper extends BaseMapper<Dept> {

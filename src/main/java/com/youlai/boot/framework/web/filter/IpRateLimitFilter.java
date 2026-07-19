@@ -22,25 +22,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 /**
- * IP 全局限流过滤器
- * <p>
- * 在所有请求进入 Controller 之前，按 IP 维度做滑动窗口限流。
- * 与 {@code @RateLimit} 注解级限流叠加：先过 IP 全局，再过接口级。
- * </p>
- *
- * <h3>限流维度</h3>
- * <pre>{@code
- *   Key: rate_limit:ip:{clientIp}
- *   默认: 1000 req / 60s（可通过 rate-limit.ip.* 配置）
- * }</pre>
- *
- * <h3>响应头</h3>
- * <table>
- *   <tr><td>X-RateLimit-Limit</td><td>窗口内最大允许请求数</td></tr>
- *   <tr><td>X-RateLimit-Remaining</td><td>窗口内剩余可用请求数</td></tr>
- *   <tr><td>X-RateLimit-Reset</td><td>窗口重置时间（Unix 秒）</td></tr>
- *   <tr><td>Retry-After</td><td>超限时建议重试等待秒数（仅 429）</td></tr>
- * </table>
+ * IP 全局限流过滤器，按 IP 维度滑动窗口限流
  *
  * @author Ray.Hao
  * @since 4.4.0
@@ -67,11 +49,17 @@ public class IpRateLimitFilter extends OncePerRequestFilter {
         }
 
         String ip = IPUtils.getIpAddr(request);
-        String key = StrUtil.format(RedisConstants.RateLimiter.IP, ip);
-        long windowMs = ipConfig.getWindowSeconds() * 1000L;
+        String key = StrUtil.format(RedisConstants.RateLimit.IP, ip);
+        long windowMs = ipConfig.getWindow().toMillis();
 
-        // 执行滑动窗口计数（Lua 原子操作）
-        Long count = SlidingWindowScript.execute(redisTemplate, key, windowMs);
+        // 执行滑动窗口计数（Lua 原子操作）；Redis 异常时 Fail-Open 放行
+        Long count;
+        try {
+            count = SlidingWindowScript.execute(redisTemplate, key, windowMs);
+        } catch (Exception e) {
+            log.warn("IP 限流 Redis 异常，Fail-Open 放行  ip={}", ip, e);
+            count = null;
+        }
 
         int limit = ipConfig.getLimit();
         int current = count != null ? count.intValue() : 0;
@@ -80,7 +68,7 @@ public class IpRateLimitFilter extends OncePerRequestFilter {
 
         if (current > limit) {
             log.warn("IP 限流触发  ip={}  count={}  limit={}", ip, current, limit);
-            response.setHeader("Retry-After", String.valueOf(ipConfig.getWindowSeconds()));
+            response.setHeader("Retry-After", String.valueOf(ipConfig.getWindow().getSeconds()));
             ResponseWriter.writeError(response, ResultCode.REQUEST_CONCURRENCY_LIMIT_EXCEEDED);
             return;
         }

@@ -38,6 +38,9 @@ public class Knife4jOpenApiCustomizer extends com.github.xiaoymin.knife4j.spring
         this.knife4jProperties = knife4jProperties;
         this.properties = properties;
     }
+/**
+ * 定制 Knife4j 的 OpenAPI 信息
+ */
 
     @Override
     public void customise(OpenAPI openApi) {

@@ -6,7 +6,9 @@ import lombok.Data;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-
+/**
+ * 租户分页视图对象
+ */
 @Schema(description = "租户分页对象")
 @Data
 public class TenantPageVO implements Serializable {

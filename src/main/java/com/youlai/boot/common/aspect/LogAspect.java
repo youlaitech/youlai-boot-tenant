@@ -45,10 +45,16 @@ public class LogAspect {
 
     @Qualifier("operationLogExecutor")
     private final Executor operationLogExecutor;
+/**
+ * 操作日志切面切点
+ */
 
     @Pointcut("@annotation(com.youlai.boot.common.annotation.Log)")
     public void logPointcut() {
     }
+/**
+ * 环绕记录操作日志
+ */
 
     @Around("logPointcut() && @annotation(logAnno)")
     public Object doAround(ProceedingJoinPoint joinPoint, Log logAnno) throws Throwable {

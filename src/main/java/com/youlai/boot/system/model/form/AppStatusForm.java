@@ -3,7 +3,9 @@ package com.youlai.boot.system.model.form;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-
+/**
+ * 应用状态表单
+ */
 @Schema(description = "应用状态表单对象")
 @Data
 public class AppStatusForm {

@@ -29,8 +29,8 @@ import java.time.LocalDateTime;
  * @since 2.3.0
  */
 @Component
-@ConditionalOnProperty(value = "oss.type", havingValue = "aliyun")
-@ConfigurationProperties(prefix = "oss.aliyun")
+@ConditionalOnProperty(value = "file-storage.type", havingValue = "aliyun")
+@ConfigurationProperties(prefix = "file-storage.aliyun")
 @RequiredArgsConstructor
 @Data
 public class AliyunFileService implements FileService {
@@ -49,14 +49,20 @@ public class AliyunFileService implements FileService {
     /**
      * 存储桶名称
      */
-    private String bucketName;
+    private String bucket;
 
     private OSS aliyunOssClient;
+/**
+ * 初始化阿里云 OSS 客户端
+ */
 
     @PostConstruct
     public void init() {
         aliyunOssClient = new OSSClientBuilder().build(endpoint, accessKeyId, accessKeySecret);
     }
+/**
+ * 上传文件到阿里云 OSS
+ */
 
     @Override
     @SneakyThrows
@@ -75,26 +81,29 @@ public class AliyunFileService implements FileService {
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(file.getContentType());
             // 创建PutObjectRequest对象，指定Bucket名称、对象名称和输入流
-            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, fileName, inputStream, metadata);
+            PutObjectRequest putObjectRequest = new PutObjectRequest(bucket, fileName, inputStream, metadata);
             // 上传文件
             aliyunOssClient.putObject(putObjectRequest);
         } catch (Exception e) {
             throw new RuntimeException("文件上传失败");
         }
         // 获取文件访问路径
-        String fileUrl = "https://" + bucketName + "." + endpoint + "/" + fileName;
+        String fileUrl = "https://" + bucket + "." + endpoint + "/" + fileName;
         FileInfo fileInfo = new FileInfo();
         fileInfo.setName(originalFilename);
         fileInfo.setUrl(fileUrl);
         return fileInfo;
     }
+/**
+ * 从阿里云 OSS 删除文件
+ */
 
     @Override
     public boolean deleteFile(String filePath) {
         Assert.notBlank(filePath, "删除文件路径不能为空");
-        String fileHost = "https://" + bucketName + "." + endpoint; // 文件主机域名
+        String fileHost = "https://" + bucket + "." + endpoint; // 文件主机域名
         String fileName = filePath.substring(fileHost.length() + 1); // +1 是/占一个字符，截断左闭右开
-        aliyunOssClient.deleteObject(bucketName, fileName);
+        aliyunOssClient.deleteObject(bucket, fileName);
         return true;
     }
 }

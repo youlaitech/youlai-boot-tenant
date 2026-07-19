@@ -38,6 +38,9 @@ public class UserSocialServiceImpl extends ServiceImpl<UserSocialMapper, UserSoc
         return getOne(new LambdaQueryWrapper<UserSocial>()
                 .eq(UserSocial::getUnionid, unionid));
     }
+/**
+ * 绑定或更新第三方账号
+ */
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -72,6 +75,9 @@ public class UserSocialServiceImpl extends ServiceImpl<UserSocialMapper, UserSoc
 
         return userSocial;
     }
+/**
+ * 解绑第三方账号
+ */
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -93,6 +99,14 @@ public class UserSocialServiceImpl extends ServiceImpl<UserSocialMapper, UserSoc
         }
         return baseMapper.getAuthInfoByUserId(userSocial.getUserId());
     }
+
+    @Override
+    public SecurityUser getAuthInfoByUserId(Long userId) {
+        return baseMapper.getAuthInfoByUserId(userId);
+    }
+/**
+ * 更新第三方账号会话密钥
+ */
 
     @Override
     public void updateSessionKey(Long id, String sessionKey) {

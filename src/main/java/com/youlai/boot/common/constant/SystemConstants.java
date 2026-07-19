@@ -16,7 +16,7 @@ public interface SystemConstants {
     Long DEFAULT_TENANT_ID = 0L;
 
     /**
-     * 平台租户ID（与默认租户一致）
+     * 平台租户ID，固定为 0，即默认租户
      */
     Long PLATFORM_TENANT_ID = DEFAULT_TENANT_ID;
 

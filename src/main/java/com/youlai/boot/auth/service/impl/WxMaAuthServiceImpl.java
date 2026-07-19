@@ -66,6 +66,9 @@ public class WxMaAuthServiceImpl implements WxMaAuthService {
     private final Map<String, WxMaConfig> wxMaConfigMap = new ConcurrentHashMap<>();
     private volatile boolean configReady = false;
     private volatile String defaultAppId;
+/**
+ * 初始化各租户微信小程序配置
+ */
 
     @PostConstruct
     public void initWxMaConfigs() {
@@ -156,11 +159,17 @@ public class WxMaAuthServiceImpl implements WxMaAuthService {
         }
         return SystemConstants.DEFAULT_TENANT_ID;
     }
+/**
+ * 微信小程序静默登录
+ */
 
     @Override
     public WxMaLoginVO silentLogin(String code) {
         return silentLogin(code, null);
     }
+/**
+ * 微信小程序静默登录
+ */
 
     @Override
     public WxMaLoginVO silentLogin(String code, String appId) {
@@ -188,12 +197,18 @@ public class WxMaAuthServiceImpl implements WxMaAuthService {
                     .build();
         }
     }
+/**
+ * 微信小程序手机号登录
+ */
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public AuthenticationToken phoneLogin(String loginCode, String phoneCode) {
         return phoneLogin(loginCode, phoneCode, null);
     }
+/**
+ * 微信小程序手机号登录
+ */
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -215,12 +230,18 @@ public class WxMaAuthServiceImpl implements WxMaAuthService {
 
         return generateAuthToken(mobile);
     }
+/**
+ * 绑定微信手机号到账号
+ */
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public AuthenticationToken bindMobile(String openid, String mobile, String smsCode) {
         return bindMobile(openid, mobile, smsCode, null);
     }
+/**
+ * 绑定微信手机号到账号
+ */
 
     @Override
     @Transactional(rollbackFor = Exception.class)

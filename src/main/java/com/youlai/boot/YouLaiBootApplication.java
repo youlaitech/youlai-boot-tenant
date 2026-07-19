@@ -13,6 +13,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @SpringBootApplication
 public class YouLaiBootApplication {
+/**
+ * 应用启动入口
+ */
 
     public static void main(String[] args) {
         SpringApplication.run(YouLaiBootApplication.class, args);

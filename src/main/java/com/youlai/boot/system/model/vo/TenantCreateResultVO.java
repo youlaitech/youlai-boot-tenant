@@ -4,7 +4,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.io.Serializable;
-
+/**
+ * 租户创建结果视图对象
+ */
 @Schema(description = "新增租户初始化结果")
 @Data
 public class TenantCreateResultVO implements Serializable {

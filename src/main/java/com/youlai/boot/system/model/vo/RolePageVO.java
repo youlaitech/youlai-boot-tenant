@@ -5,7 +5,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalDateTime;
-
+/**
+ * 角色分页视图对象
+ */
 @Schema(description ="角色分页对象")
 @Data
 public class RolePageVO {

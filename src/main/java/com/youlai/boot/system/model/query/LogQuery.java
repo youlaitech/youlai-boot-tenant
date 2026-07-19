@@ -5,7 +5,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
 import lombok.Setter;
 import java.util.List;
-
+/**
+ * 操作日志查询条件
+ */
 @Schema(description = "日志分页查询对象")
 @Getter
 @Setter

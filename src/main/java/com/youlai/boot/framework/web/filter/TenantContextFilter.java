@@ -22,10 +22,7 @@ import java.io.IOException;
 
 /**
  * 租户上下文过滤器
- * <p>
- * 从 Token 中解析租户ID，设置到线程上下文
- * 请求结束时自动清除上下文，避免线程池复用导致的数据泄露
- * </p>
+ * <p>从 Token 解析租户ID写入线程上下文，请求结束自动清除</p>
  *
  * @author Ray.Hao
  * @since 3.0.0

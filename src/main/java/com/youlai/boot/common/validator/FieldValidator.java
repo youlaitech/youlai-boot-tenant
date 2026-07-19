@@ -15,6 +15,9 @@ import java.util.Arrays;
 public class FieldValidator implements ConstraintValidator<ValidField, String> {
 
     private String[] allowedValues;
+/**
+ * 初始化字段校验器
+ */
 
     @Override
     public void initialize(ValidField constraintAnnotation) {

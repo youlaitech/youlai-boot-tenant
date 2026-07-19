@@ -31,8 +31,8 @@ import java.time.LocalDateTime;
  * @since 2023/6/2
  */
 @Component
-@ConditionalOnProperty(value = "oss.type", havingValue = "minio")
-@ConfigurationProperties(prefix = "oss.minio")
+@ConditionalOnProperty(value = "file-storage.type", havingValue = "minio")
+@ConfigurationProperties(prefix = "file-storage.minio")
 @RequiredArgsConstructor
 @Data
 @Slf4j
@@ -53,15 +53,18 @@ public class MinioFileService implements FileService {
     /**
      * 存储桶名称
      */
-    private String bucketName;
+    private String bucket;
     /**
      * 自定义域名
      */
-    private String customDomain;
+    private String domain;
 
     private MinioClient minioClient;
 
     // 依赖注入完成之后执行初始化
+/**
+ * 初始化 MinIO 客户端
+ */
     @PostConstruct
     public void init() {
         minioClient = MinioClient.builder()
@@ -69,7 +72,7 @@ public class MinioFileService implements FileService {
                 .credentials(accessKey, secretKey)
                 .build();
         // 创建存储桶(存储桶不存在)
-        // createBucketIfAbsent(bucketName);
+        // createBucketIfAbsent(bucket);
     }
 
 
@@ -83,7 +86,7 @@ public class MinioFileService implements FileService {
     public FileInfo uploadFile(MultipartFile file) {
 
         // 创建存储桶(存储桶不存在)，如果有搭建好的minio服务，建议放在init方法中
-        createBucketIfAbsent(bucketName);
+        createBucketIfAbsent(bucket);
 
         // 文件原生名称
         String originalFilename = file.getOriginalFilename();
@@ -98,7 +101,7 @@ public class MinioFileService implements FileService {
         try (InputStream inputStream = file.getInputStream()) {
             // 文件上传
             PutObjectArgs putObjectArgs = PutObjectArgs.builder()
-                    .bucket(bucketName)
+                    .bucket(bucket)
                     .object(dateFolder + "/"+ fileName)
                     .contentType(file.getContentType())
                     .stream(inputStream, inputStream.available(), -1)
@@ -108,10 +111,10 @@ public class MinioFileService implements FileService {
             // 返回文件路径
             String fileUrl;
             // 未配置自定义域名
-            if (StrUtil.isBlank(customDomain)) {
+            if (StrUtil.isBlank(domain)) {
                 // 获取文件URL
                 GetPresignedObjectUrlArgs getPresignedObjectUrlArgs = GetPresignedObjectUrlArgs.builder()
-                        .bucket(bucketName)
+                        .bucket(bucket)
                         .object(dateFolder + "/"+ fileName)
                         .method(Method.GET)
                         .build();
@@ -120,7 +123,7 @@ public class MinioFileService implements FileService {
                 fileUrl = fileUrl.substring(0, fileUrl.indexOf("?"));
             } else {
                 // 配置自定义文件路径域名
-                fileUrl = customDomain + "/"+ bucketName + "/"+ dateFolder + "/"+ fileName;
+                fileUrl = domain + "/"+ bucket + "/"+ dateFolder + "/"+ fileName;
             }
 
             FileInfo fileInfo = new FileInfo();
@@ -145,15 +148,15 @@ public class MinioFileService implements FileService {
         Assert.notBlank(filePath, "删除文件路径不能为空");
         try {
             String fileName;
-            if (StrUtil.isNotBlank(customDomain)) {
+            if (StrUtil.isNotBlank(domain)) {
                 // https://oss.youlai.tech/default/20221120/test.jpg → 20221120/websocket.jpg
-                fileName = filePath.substring(customDomain.length() + 1 + bucketName.length() + 1); // 两个/占了2个字符长度
+                fileName = filePath.substring(domain.length() + 1 + bucket.length() + 1); // 两个/占了2个字符长度
             } else {
                 // http://localhost:9000/default/20221120/test.jpg → 20221120/websocket.jpg
-                fileName = filePath.substring(endpoint.length() + 1 + bucketName.length() + 1);
+                fileName = filePath.substring(endpoint.length() + 1 + bucket.length() + 1);
             }
             RemoveObjectArgs removeObjectArgs = RemoveObjectArgs.builder()
-                    .bucket(bucketName)
+                    .bucket(bucket)
                     .object(fileName)
                     .build();
 
@@ -170,39 +173,39 @@ public class MinioFileService implements FileService {
      * PUBLIC桶策略
      * 如果不配置，则新建的存储桶默认是PRIVATE，则存储桶文件会拒绝访问 Access Denied
      *
-     * @param bucketName 存储桶名称
+     * @param bucket 存储桶名称
      * @return 存储桶策略
      */
-    private static String publicBucketPolicy(String bucketName) {
+    private static String publicBucketPolicy(String bucket) {
         // AWS的S3存储桶策略 JSON 格式 https://docs.aws.amazon.com/zh_cn/AmazonS3/latest/userguide/example-bucket-policies.html
         return "{\"Version\":\"2012-10-17\","
                 + "\"Statement\":[{\"Effect\":\"Allow\","
                 + "\"Principal\":{\"AWS\":[\"*\"]},"
                 + "\"Action\":[\"s3:ListBucketMultipartUploads\",\"s3:GetBucketLocation\",\"s3:ListBucket\"],"
-                + "\"Resource\":[\"arn:aws:s3:::" + bucketName + "\"]},"
+                + "\"Resource\":[\"arn:aws:s3:::" + bucket + "\"]},"
                 + "{\"Effect\":\"Allow\"," + "\"Principal\":{\"AWS\":[\"*\"]},"
                 + "\"Action\":[\"s3:ListMultipartUploadParts\",\"s3:PutObject\",\"s3:AbortMultipartUpload\",\"s3:DeleteObject\",\"s3:GetObject\"],"
-                + "\"Resource\":[\"arn:aws:s3:::" + bucketName + "/*\"]}]}";
+                + "\"Resource\":[\"arn:aws:s3:::" + bucket + "/*\"]}]}";
     }
 
     /**
      * 创建存储桶(存储桶不存在)
      *
-     * @param bucketName 存储桶名称
+     * @param bucket 存储桶名称
      */
     @SneakyThrows
-    private void createBucketIfAbsent(String bucketName) {
-        BucketExistsArgs bucketExistsArgs = BucketExistsArgs.builder().bucket(bucketName).build();
+    private void createBucketIfAbsent(String bucket) {
+        BucketExistsArgs bucketExistsArgs = BucketExistsArgs.builder().bucket(bucket).build();
         if (!minioClient.bucketExists(bucketExistsArgs)) {
-            MakeBucketArgs makeBucketArgs = MakeBucketArgs.builder().bucket(bucketName).build();
+            MakeBucketArgs makeBucketArgs = MakeBucketArgs.builder().bucket(bucket).build();
 
             minioClient.makeBucket(makeBucketArgs);
 
             // 设置存储桶访问权限为PUBLIC， 如果不配置，则新建的存储桶默认是PRIVATE，则存储桶文件会拒绝访问 Access Denied
             SetBucketPolicyArgs setBucketPolicyArgs = SetBucketPolicyArgs
                     .builder()
-                    .bucket(bucketName)
-                    .config(publicBucketPolicy(bucketName))
+                    .bucket(bucket)
+                    .config(publicBucketPolicy(bucket))
                     .build();
             minioClient.setBucketPolicy(setBucketPolicyArgs);
         }

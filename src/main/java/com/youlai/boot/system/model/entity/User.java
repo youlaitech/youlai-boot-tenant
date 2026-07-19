@@ -49,11 +49,13 @@ public class User extends BaseEntity {
     /**
      * 用户头像
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private String avatar;
 
     /**
      * 联系方式
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private String mobile;
 
     /**
@@ -64,6 +66,7 @@ public class User extends BaseEntity {
     /**
      * 用户邮箱
      */
+    @TableField(updateStrategy = FieldStrategy.ALWAYS)
     private String email;
 
     /**

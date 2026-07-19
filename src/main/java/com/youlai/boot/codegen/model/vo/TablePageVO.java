@@ -2,7 +2,9 @@ package com.youlai.boot.codegen.model.vo;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
-
+/**
+ * 表分页视图对象
+ */
 @Schema(description = "表视图对象")
 @Data
 public class TablePageVO {

@@ -1,8 +1,6 @@
 <div align="center">
 
-# <img alt="youlai-boot" width="28" src="./docs/images/logo/logo.png" align="center"> youlai-boot-tenant
-
-[English](./README.en.md) · [简体中文](./README.md)
+# <img alt="youlai-boot" width="28" valign="middle" src="./docs/images/logo/logo.png"> youlai-boot-tenant
 
 **Spring Boot 4 多租户企业级权限管理系统后端**
 
@@ -18,7 +16,10 @@
 
 <div align="center">
 
-[🖥️ 在线预览](https://vue.youlai.tech) | [📲 移动端预览](https://app.youlai.tech) | [📖 文档](https://www.youlai.tech/docs/server/spring-boot/)
+[![在线预览](https://img.shields.io/badge/在线预览-2D8CF0?style=for-the-badge&logo=google-chrome&logoColor=white)](https://vue.youlai.tech)
+[![移动端预览](https://img.shields.io/badge/移动端预览-19BE6B?style=for-the-badge&logo=android&logoColor=white)](https://app.youlai.tech)
+[![阅读文档](https://img.shields.io/badge/阅读文档-8B5CF6?style=for-the-badge&logo=gitbook&logoColor=white)](https://www.youlai.tech/docs/server/spring-boot/)
+[![English](https://img.shields.io/badge/English-00B4D8?style=for-the-badge&logo=google-translate&logoColor=white)](./README.en.md)
 
 </div>
 
@@ -29,17 +30,11 @@
 ## 核心特性
 
 - 🏢 **多租户架构** — 基于 MyBatis-Plus 单库多租户，通过租户 ID 实现数据隔离
-- � **安全体系** — Spring Security + JWT/Redis Token 双会话模式、令牌续期、多端互斥
+- 🔐 **安全体系** — Spring Security + JWT/Redis Token 双会话模式、令牌续期、多端互斥
 - 🛡️ **细粒度权限** — RBAC 五级：数据 → 菜单 → 按钮 → 接口 → 字段
 - ⚡ **代码生成器** — 一键生成前后端 CRUD 代码
 - 📦 **模块齐全** — 用户、角色、菜单、部门、字典、文件、定时任务、消息中心、操作日志
 - 🔌 **实时通信** — SSE 推送：在线用户数、字典同步、通知广播
-
-## 技术架构
-
-<p align="center">
-  <img alt="youlai-boot 技术架构图" width="900" src="./docs/images/architecture/architecture.png">
-</p>
 
 ## 系统预览
 
@@ -81,8 +76,6 @@
 4. 启动服务，访问 http://localhost:8000/doc.html
 
 默认账号：`admin` / `123456`
-
-**Docker 部署**：`cd docker && docker-compose up -d`
 
 详细指南：[部署文档](https://www.youlai.tech/docs/server/spring-boot/deploy) · [开发规范](https://www.youlai.tech/docs/server/spring-boot/dev-standards)
 
@@ -150,14 +143,23 @@ youlai-boot-tenant/
 
 如需技术支持、商务合作、二次开发、项目定制或私有化部署，可联系作者微信（见下方二维码）。
 
-<p align="center">
-  <img src="./docs/images/qrcode/wechat-official.png" height="180" alt="有来技术公众号">
-  &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="./docs/images/qrcode/wechat-personal.png" height="180" alt="个人微信">
-</p>
-<p align="center">
-  <sub>公众号「有来技术」</sub>
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-  <sub>添加作者微信</sub>
-</p>
+<table align="center">
+  <tr>
+    <td align="center">
+      <img src="./docs/images/qrcode/wechat-official.png" height="180" alt="公众号「有来技术」"><br>
+      <sub>公众号「有来技术」</sub>
+    </td>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    <td align="center">
+      <img src="./docs/images/qrcode/wechat-mp.jpg" height="180" alt="小程序「有来技术」"><br>
+      <sub>小程序「有来技术」</sub>
+    </td>
+    <td>&nbsp;&nbsp;&nbsp;&nbsp;</td>
+    <td align="center">
+      <img src="./docs/images/qrcode/wechat-personal.png" height="180" alt="添加作者微信"><br>
+      <sub>添加作者微信</sub>
+    </td>
+  </tr>
+</table>
+
 <p align="center"><em>技术交流 · 问题反馈 · 商务合作</em></p>

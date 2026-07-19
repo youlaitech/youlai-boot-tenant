@@ -2,11 +2,7 @@
 
 
 
-# <img alt="youlai-boot" width="28" src="./docs/images/logo/logo.png" align="center"> youlai-boot-tenant
-
-
-
-[English](./README.en.md) · [简体中文](./README.md)
+# <img alt="youlai-boot" width="28" valign="middle" src="./docs/images/logo/logo.png"> youlai-boot-tenant
 
 
 
@@ -69,18 +65,6 @@
 - 📦 **Complete modules** — users, roles, menus, departments, dictionaries, files, scheduled tasks, message center, operation logs
 
 - 🔌 **Real-time communication** — SSE push: online user count, dictionary sync, notification broadcast
-
-
-
-## Architecture
-
-
-
-<p align="center">
-
-  <img alt="youlai-boot architecture" width="900" src="./docs/images/architecture/architecture.png">
-
-</p>
 
 
 
@@ -357,6 +341,10 @@ Released under the [Apache License 2.0](LICENSE); free for commercial use.
 
   &nbsp;&nbsp;&nbsp;&nbsp;
 
+  <img src="./docs/images/qrcode/wechat-mp.jpg" height="180" alt="Mini Program">
+
+  &nbsp;&nbsp;&nbsp;&nbsp;
+
   <img src="./docs/images/qrcode/wechat-personal.png" height="180" alt="Add author on WeChat">
 
 </p>
@@ -365,7 +353,11 @@ Released under the [Apache License 2.0](LICENSE); free for commercial use.
 
   <sub>Official WeChat Account</sub>
 
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  &nbsp;&nbsp;&nbsp;&nbsp;
+
+  <sub>Mini Program</sub>
+
+  &nbsp;&nbsp;&nbsp;&nbsp;
 
   <sub>Add author on WeChat</sub>
 

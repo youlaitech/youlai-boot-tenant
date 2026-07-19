@@ -271,6 +271,9 @@ public class CodegenServiceImpl implements CodegenService {
         Template template = templateEngine.getTemplate(path);
         return template.render(bindMap);
     }
+/**
+ * 下载生成代码的压缩包
+ */
 
     @Override
     public byte[] downloadCode(String[] tableNames, String ui, String type) {

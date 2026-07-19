@@ -5,7 +5,9 @@ import com.youlai.boot.system.service.RoleMenuService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import java.util.Set;
-
+/**
+ * 权限查询适配器（实现 framework 端口）
+ */
 @Component
 @RequiredArgsConstructor
 public class PermissionAdapter implements PermissionPort {
