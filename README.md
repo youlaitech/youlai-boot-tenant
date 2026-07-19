@@ -70,20 +70,41 @@
 
 **环境要求**：JDK 17+ · MySQL 8.0+ · Redis 6.0+
 
-1. 克隆项目：`git clone https://gitee.com/youlaiorg/youlai-boot-tenant.git`
-2. 导入数据库：`sql/youlai_admin_tenant.sql`
-3. 修改配置（可选，默认已配置线上只读数据源）：`src/main/resources/application-dev.yml`
-4. 启动服务，访问 http://localhost:8000/doc.html
+1. 克隆项目：
+   ```bash
+   git clone https://gitee.com/youlaiorg/youlai-boot-tenant.git
+   ```
 
-默认账号：`admin` / `123456`
+2. 导入数据库：
+   ```bash
+   sql/youlai_admin_tenant.sql
+   ```
+
+3. 修改配置（可选，默认已配置线上只读数据源）：
+   ```bash
+   src/main/resources/application-dev.yml
+   ```
+
+4. 启动服务：
+   ```bash
+   mvn spring-boot:run
+   ```
+   启动后访问 http://localhost:8000/doc.html，能打开接口文档即说明后端已正常运行。
 
 详细指南：[部署文档](https://www.youlai.tech/docs/server/spring-boot/deploy) · [开发规范](https://www.youlai.tech/docs/server/spring-boot/dev-standards)
 
-## 🧪 多租户测试
+## 前端对接与多租户测试
+
+启动配套前端 [vue3-element-admin](https://gitee.com/youlaiorg/vue3-element-admin)，访问 http://localhost:3000 即可登录：
+
+- 账号：`admin`
+- 密码：`123456`
+
+**多租户测试**
 
 - **预置租户**: 平台默认租户 (`tenant_id=0`) 和演示租户 (`tenant_id=1`)。
 - **预置账号**: 平台租户 (`root`/`admin`) 和演示租户 (`admin`)，默认密码 `123456`。
-- **本地测试**: 修改本地 `hosts` 文件，添加 `127.0.0.1 vue.youlai.tech` 和 `127.0.0.1 demo.youlai.tech`，通过不同域名访问即可自动切换租户。
+- **本地测试**: 修改本地 `hosts` 文件，添加 `127.0.0.1 vue.youlai.tech` 和 `127.0.0.1 demo.youlai.tech，通过不同域名访问即可自动切换租户。
 
 ## 目录结构
 
