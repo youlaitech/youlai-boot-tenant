@@ -10,7 +10,7 @@
 
 
 
-**Multi-tenant enterprise-grade permission management backend based on Spring Boot 4**
+**Multi-tenant enterprise-grade permission management backend based on Spring Boot**
 
 
 
@@ -50,7 +50,7 @@
 
 
 
-**youlai-boot-tenant** is the multi-tenant edition of [youlai-boot](https://gitee.com/youlaiorg/youlai-boot), built on Spring Boot 4. It adopts a single-database multi-tenant approach with MyBatis-Plus, isolating tenant data by tenant ID, and is designed as the backend for SaaS applications. It ships with the frontend [vue3-element-admin](https://gitee.com/youlaiorg/vue3-element-admin) and shares the same API specification.
+**youlai-boot-tenant** is the multi-tenant edition of [youlai-boot](https://gitee.com/youlaiorg/youlai-boot), built on Spring Boot. It adopts a single-database multi-tenant approach with MyBatis-Plus, isolating tenant data by tenant ID, and is designed as the backend for SaaS applications. It ships with the frontend [vue3-element-admin](https://gitee.com/youlaiorg/vue3-element-admin) and shares the same API specification.
 
 
 
@@ -291,15 +291,15 @@ youlai-boot-tenant/
 
 
 | Project | Stack | Description |
-| [youlai-boot](https://gitee.com/youlaiorg/youlai-boot) | Spring Boot 4 + MyBatis-Plus | Java (recommended) |
+| [youlai-boot](https://gitee.com/youlaiorg/youlai-boot) | Spring Boot + MyBatis-Plus | Java (recommended) |
 | [youlai-nest](https://gitee.com/youlaiorg/youlai-nest) | NestJS + TypeORM | Node.js |
 | [youlai-gin](https://gitee.com/youlaiorg/youlai-gin) | Go + Gorm | Go |
 | [youlai-django](https://gitee.com/youlaiorg/youlai-django) | Django + DRF | Python |
 | [youlai-fastapi](https://gitee.com/youlaiorg/youlai-fastapi) | FastAPI + SQLAlchemy | Python |
-| [youlai-think](https://gitee.com/youlaiorg/youlai-think) | ThinkPHP 8 | PHP |
-| [youlai-aspnet](https://gitee.com/youlaiorg/youlai-aspnet) | ASP.NET Core | C# |
+| [youlai-think](https://gitee.com/youlaiorg/youlai-think) | ThinkPHP + ThinkORM | PHP |
+| [youlai-aspnet](https://gitee.com/youlaiorg/youlai-aspnet) | ASP.NET Core + EF Core | C# |
 | [youlai-axum](https://gitee.com/youlaiorg/youlai-axum) | Axum + SeaORM | Rust |
-> **youlai-boot** also provides the following variants and branches: [Multi-Tenant](https://gitee.com/youlaiorg/youlai-boot-tenant) (Spring Boot 4) · [MyBatis-Flex](https://gitee.com/youlaiorg/youlai-boot-flex) (Spring Boot 4) · [Spring Boot 3](https://gitee.com/youlaiorg/youlai-boot/tree/spring-boot-3) · [PostgreSQL](https://gitee.com/youlaiorg/youlai-boot/tree/db-pg) · [Multi-Module](https://gitee.com/youlaiorg/youlai-boot/tree/multi-module)
+> **youlai-boot** also provides the following variants and branches: [Multi-Tenant](https://gitee.com/youlaiorg/youlai-boot-tenant) · [MyBatis-Flex](https://gitee.com/youlaiorg/youlai-boot-flex) · [Spring Boot 3](https://gitee.com/youlaiorg/youlai-boot/tree/spring-boot-3) · [PostgreSQL](https://gitee.com/youlaiorg/youlai-boot/tree/db-pg) · [Multi-Module](https://gitee.com/youlaiorg/youlai-boot/tree/multi-module)
 
 >
 
