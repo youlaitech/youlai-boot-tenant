@@ -36,7 +36,7 @@ public class RedisConfig {
         redisTemplate.setKeySerializer(RedisSerializer.string());
         redisTemplate.setHashKeySerializer(RedisSerializer.string());
 
-        // 局部 JsonMapper，不注册 Long→String 序列化器，不暴露为 Bean（避免干扰 HTTP 层的全局配置）
+        // 局部 JsonMapper，不注册 Long→String 序列化器，不作为 Bean 注册（避免干扰 HTTP 层的全局配置）
         JsonMapper jsonMapper = JsonMapper.builder()
                 .disable(DateTimeFeature.WRITE_DATES_AS_TIMESTAMPS)
                 .build();

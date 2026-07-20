@@ -25,7 +25,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 /**
- * 增强扩展属性支持
+ * 扩展属性支持
  */
 @Primary
 @Configuration

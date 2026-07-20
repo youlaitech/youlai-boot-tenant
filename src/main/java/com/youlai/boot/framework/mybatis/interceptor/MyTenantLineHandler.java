@@ -44,7 +44,7 @@ public class MyTenantLineHandler implements TenantLineHandler {
     public Expression getTenantId() {
         Long tenantId = TenantContextHolder.getTenantId();
         if (tenantId == null) {
-            throw new IllegalStateException("租户ID为空，请确保在访问数据库前已设置租户上下文");
+            throw new IllegalStateException("租户ID为空，访问数据库前需设置租户上下文");
         }
         return new LongValue(tenantId);
     }

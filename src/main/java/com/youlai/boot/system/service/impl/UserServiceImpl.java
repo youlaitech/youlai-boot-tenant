@@ -18,7 +18,9 @@ import com.youlai.boot.framework.integration.sms.service.SmsService;
 import com.youlai.boot.framework.security.model.RoleDataScope;
 import com.youlai.boot.framework.security.model.SecurityUser;
 import com.youlai.boot.framework.security.token.TokenManager;
+import com.youlai.boot.framework.security.port.PermissionPort;
 import com.youlai.boot.framework.security.util.SecurityUtils;
+import com.youlai.boot.framework.tenant.TenantContextHolder;
 import com.youlai.boot.system.converter.UserConverter;
 import com.youlai.boot.system.enums.DictCodeEnum;
 import com.youlai.boot.system.mapper.UserMapper;
@@ -39,6 +41,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.PatternMatchUtils;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -72,6 +75,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private final StringRedisTemplate redisTemplate;
 
     private final TokenManager tokenManager;
+
+    private final PermissionPort permissionPort;
 
     private final DictItemService dictItemService;
 
@@ -109,7 +114,33 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public SecurityUser getAuthInfoByUsernameInTenant(String username, Long tenantId) {
-        return this.baseMapper.getAuthInfoByUsername(username);
+        Long oldTenantId = TenantContextHolder.getTenantId();
+        boolean oldIgnoreTenant = TenantContextHolder.isIgnoreTenant();
+        // 临时忽略租户过滤，按用户名 + 租户ID 精确查询用户
+        TenantContextHolder.setIgnoreTenant(true);
+        try {
+            User user = this.getOne(
+                    new LambdaQueryWrapper<User>()
+                            .eq(User::getUsername, username)
+                            .eq(User::getTenantId, tenantId)
+                            .eq(User::getIsDeleted, 0)
+                            .last("LIMIT 1")
+            );
+            if (user == null) {
+                return null;
+            }
+            // 切回目标租户上下文，使后续角色/权限查询落在对应租户
+            TenantContextHolder.setIgnoreTenant(false);
+            TenantContextHolder.setTenantId(tenantId);
+            return getAuthInfoByUsername(username);
+        } finally {
+            if (oldTenantId != null) {
+                TenantContextHolder.setTenantId(oldTenantId);
+            } else {
+                TenantContextHolder.clear();
+            }
+            TenantContextHolder.setIgnoreTenant(oldIgnoreTenant);
+        }
     }
 
     /**
@@ -229,8 +260,32 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             // 获取数据权限列表（用于并集策略）
             List<RoleDataScope> dataScopes = roleService.getRoleDataScopes(roles);
             userAuthInfo.setDataScopes(dataScopes);
+            // 是否具备租户切换权限：拥有 sys:tenant:switch 权限（或带通配）即可
+            userAuthInfo.setCanSwitchTenant(resolveCanSwitchTenant(roles));
         }
         return userAuthInfo;
+    }
+
+    /**
+     * 是否具备租户切换权限
+     * <p>
+     * 用户拥有的任意权限标识与 {@link SystemConstants#TENANT_SWITCH_PERMISSION} 通配匹配即通过
+     * </p>
+     *
+     * @param roles 角色编码集合
+     * @return true 表示可切换租户
+     */
+    private boolean resolveCanSwitchTenant(Set<String> roles) {
+        if (CollectionUtil.isEmpty(roles)) {
+            return false;
+        }
+        Set<String> perms = permissionPort.getRolePerms(roles);
+        if (CollectionUtil.isEmpty(perms)) {
+            return false;
+        }
+        return perms.stream()
+                .filter(Objects::nonNull)
+                .anyMatch(perm -> PatternMatchUtils.simpleMatch(perm, SystemConstants.TENANT_SWITCH_PERMISSION));
     }
 
     /**

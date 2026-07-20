@@ -10,7 +10,7 @@ import java.util.Collection;
 /**
  * 短信验证码认证 Token
  * <p>
- * 用于短信验证码登录场景，遵循 Spring Security 认证模型：
+ * 短信验证码登录场景，Spring Security 认证模型：
  * <ul>
  *   <li>未认证状态：principal 为手机号，credentials 为验证码</li>
  *   <li>已认证状态：principal 为用户详情，credentials 为 null</li>

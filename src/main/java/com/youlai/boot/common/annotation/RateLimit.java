@@ -4,7 +4,7 @@ import java.lang.annotation.*;
 
 /**
  * 接口限流
- * <p>标注在 Controller 方法上，基于 Redis 滑动窗口实现</p>
+ * <p>标注在 Controller 方法上，Redis 滑动窗口限流</p>
  *
  * @author Ray.Hao
  * @since 4.3.1

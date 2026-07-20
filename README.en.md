@@ -337,7 +337,7 @@ Released under the [Apache License 2.0](LICENSE); free for commercial use.
 
 <p align="center">
 
-  <img src="./docs/images/qrcode/wechat-official.png" height="180" alt="Official WeChat Account">
+  <img src="./docs/images/qrcode/wechat-official.jpg" height="180" alt="Official WeChat Account">
 
   &nbsp;&nbsp;&nbsp;&nbsp;
 

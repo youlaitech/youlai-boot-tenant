@@ -79,7 +79,7 @@ public class AuthServiceImpl implements AuthService {
         // 认证通过后返回已认证的 Authentication（principal 为 SecurityUserDetails，authorities 为角色/权限集合）。
         Authentication authentication = authenticationManager.authenticate(authenticationToken);
 
-        // 3. 认证成功后生成 JWT 令牌，并存入 Security 上下文，供登录日志 AOP 使用（已认证）
+        // 3. 认证成功后生成 JWT 令牌，写入 Security 上下文（登录日志切面读取）
         AuthenticationToken authenticationTokenResponse =
                 tokenManager.generateToken(authentication);
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -127,7 +127,7 @@ public class AuthServiceImpl implements AuthService {
         // 2. 执行认证（认证中）
         Authentication authentication = authenticationManager.authenticate(smsAuthenticationToken);
 
-        // 3. 认证成功后生成 JWT 令牌，并存入 Security 上下文，供登录日志 AOP 使用（已认证）
+        // 3. 认证成功后生成 JWT 令牌，写入 Security 上下文（登录日志切面读取）
         AuthenticationToken authenticationToken = tokenManager.generateToken(authentication);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 

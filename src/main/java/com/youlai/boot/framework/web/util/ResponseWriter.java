@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets;
 /**
  * Web响应写入器
  * <p>
- * 用于在过滤器、Security处理器等无法使用 @RestControllerAdvice 的场景中统一写入HTTP响应。
+ * 在过滤器、Security 处理器等无法通过 @RestControllerAdvice 返回的链路，直接输出 JSON 响应。
  */
 @Slf4j
 public final class ResponseWriter {

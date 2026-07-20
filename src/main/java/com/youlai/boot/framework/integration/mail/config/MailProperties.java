@@ -49,7 +49,7 @@ public class MailProperties {
     private Properties properties = new Properties();
 
     /**
-     * 内部类，用于封装邮件服务器的详细配置。
+     * 内部类，邮件服务器详细配置。
      * 包含 SMTP 相关的配置选项。
      */
     @Data

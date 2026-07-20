@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 public class HealthController {
 
-    @Operation(summary = "健康检查", description = "返回 ok，供限流测试与探针使用")
+    @Operation(summary = "健康检查", description = "返回 ok，限流测试与健康探针")
     @GetMapping
     public Result<String> health() {
         return Result.success("ok");

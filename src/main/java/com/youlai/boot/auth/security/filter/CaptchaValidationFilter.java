@@ -65,7 +65,7 @@ public class CaptchaValidationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // 包装请求，确保下游还能读取 body
+        // 包装请求，保证下游可重复读取 body
         ContentCachingRequestWrapper requestWrapper = new ContentCachingRequestWrapper(request, -1);
 
         byte[] bodyBytes = StreamUtils.copyToByteArray(requestWrapper.getInputStream());
