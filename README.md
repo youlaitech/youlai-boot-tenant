@@ -9,11 +9,10 @@
 [![Multi-tenancy](https://img.shields.io/badge/Multi--tenancy-SaaS-blue)](#)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue?logo=apache)](LICENSE)
 [![Gitee Star](https://gitee.com/youlaiorg/youlai-boot-tenant/badge/star.svg)](https://gitee.com/youlaiorg/youlai-boot-tenant/stargazers)
-<a href="https://atomgit.com/youlai/youlai-boot"><img src="https://atomgit.com/youlai/youlai-boot/star/new_badge.svg" height="20" alt="AtomGit G-Star"></a>
 
 </div>
 
-![](https://foruda.gitee.com/images/1708618984641188532/a7cca095_716974.png "rainbow.png")
+<p align="center"><img src="https://foruda.gitee.com/images/1708618984641188532/a7cca095_716974.png" alt="rainbow"></p>
 
 <div align="center">
 
