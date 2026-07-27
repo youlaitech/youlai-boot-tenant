@@ -65,7 +65,7 @@ CREATE TABLE `sys_dict` (
                             `id` bigint NOT NULL AUTO_INCREMENT COMMENT '主键 ',
                             `dict_code` varchar(50) COMMENT '类型编码',
                             `name` varchar(50) COMMENT '类型名称',
-                            `status` tinyint(1) DEFAULT '0' COMMENT '状态(0:正常;1:禁用)',
+                            `status` tinyint(1) DEFAULT '1' COMMENT '状态(1-正常 0-禁用)',
                             `remark` varchar(255) COMMENT '备注',
                             `create_time` datetime COMMENT '创建时间',
                             `create_by` bigint COMMENT '创建人ID',
@@ -143,6 +143,7 @@ CREATE TABLE `sys_menu`  (
                              `create_time` datetime NULL COMMENT '创建时间',
                              `update_time` datetime NULL COMMENT '更新时间',
                              `params` json NULL COMMENT '路由参数',
+                             `scope` tinyint(1) NOT NULL DEFAULT 2 COMMENT '菜单范围(1=平台菜单 2=业务菜单)',
                              PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COMMENT = '系统菜单表';
 
@@ -285,9 +286,6 @@ INSERT INTO `sys_menu` (`id`, `parent_id`, `tree_path`, `name`, `type`, `route_n
 -- ----------------------------
 -- Menu scope init
 -- ----------------------------
-ALTER TABLE `sys_menu`
-    ADD COLUMN `scope` tinyint(1) NOT NULL DEFAULT 2 COMMENT '菜单范围(1=平台菜单 2=业务菜单)';
-
 UPDATE `sys_menu`
 SET `scope` = 1
 WHERE `id` = 1 OR `tree_path` LIKE '0,1%';
@@ -412,7 +410,7 @@ CREATE TABLE `sys_role_menu`  (
                                   `role_id` bigint NOT NULL COMMENT '角色ID',
                                   `menu_id` bigint NOT NULL COMMENT '菜单ID',
                                   `tenant_id` bigint DEFAULT 0 COMMENT '租户ID',
-                                  UNIQUE INDEX `uk_roleid_menuid`(`role_id` ASC, `menu_id` ASC) USING BTREE COMMENT '角色菜单唯一索引',
+                                  PRIMARY KEY (`tenant_id`, `role_id`, `menu_id`) USING BTREE,
                                   KEY `idx_role_menu_tenant_id` (`tenant_id`),
                                   KEY `idx_tenant_role` (`tenant_id`, `role_id`)
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COMMENT = '角色菜单关联表';
@@ -425,7 +423,7 @@ CREATE TABLE `sys_role_dept`  (
                                   `tenant_id` bigint DEFAULT 0 COMMENT '租户ID',
                                   `role_id` bigint NOT NULL COMMENT '角色ID',
                                   `dept_id` bigint NOT NULL COMMENT '部门ID',
-                                  UNIQUE INDEX `uk_tenant_roleid_deptid`(`tenant_id` ASC, `role_id` ASC, `dept_id` ASC) USING BTREE COMMENT '租户角色部门唯一索引',
+                                  PRIMARY KEY (`tenant_id`, `role_id`, `dept_id`) USING BTREE,
                                   KEY `idx_role_dept_tenant_id` (`tenant_id`),
                                   KEY `idx_tenant_role_dept` (`tenant_id`, `role_id`)
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COMMENT = '角色部门关联表(用于自定义数据权限)';
@@ -558,7 +556,7 @@ CREATE TABLE `sys_user`  (
                              `nickname` varchar(64) COMMENT '昵称',
                              `gender` tinyint(1) DEFAULT 1 COMMENT '性别((1-男 2-女 0-保密)',
                              `password` varchar(100) COMMENT '密码',
-                             `dept_id` int COMMENT '部门ID',
+                             `dept_id` bigint COMMENT '部门ID',
                              `avatar` varchar(255) COMMENT '用户头像',
                              `mobile` varchar(20) COMMENT '联系方式',
                              `status` tinyint(1) DEFAULT 1 COMMENT '状态(1-正常 0-禁用)',
@@ -597,7 +595,7 @@ CREATE TABLE `sys_user_role`  (
                                   `user_id` bigint NOT NULL COMMENT '用户ID',
                                   `role_id` bigint NOT NULL COMMENT '角色ID',
                                   `tenant_id` bigint DEFAULT 0 COMMENT '租户ID',
-                                  PRIMARY KEY (`user_id`, `role_id`) USING BTREE,
+                                  PRIMARY KEY (`tenant_id`, `user_id`, `role_id`) USING BTREE,
                                   KEY `idx_user_role_tenant_id` (`tenant_id`)
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COMMENT = '用户角色关联表';
 
@@ -717,7 +715,7 @@ CREATE TABLE `sys_config` (
                               `update_by` bigint COMMENT '更新人ID',
                               `is_deleted` tinyint(4) DEFAULT '0' NOT NULL COMMENT '逻辑删除标识(0-未删除 1-已删除)',
                               PRIMARY KEY (`id`)
-) ENGINE=InnoDB COMMENT='系统配置表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='系统配置表';
 
 INSERT INTO `sys_config` VALUES (1, '系统限流QPS', 'IP_QPS_THRESHOLD_LIMIT', '10', '单个IP请求的最大每秒查询数（QPS）阈值Key', now(), 1, NULL, NULL, 0);
 
