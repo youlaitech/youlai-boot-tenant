@@ -417,10 +417,10 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
 
         boolean result = this.saveOrUpdate(entity);
         if (result) {
-            // 编辑刷新角色权限缓存
-            if (menuForm.getId() != null) {
+            // 仅编辑按钮(B)菜单时才刷新权限缓存（目录/菜单/外链不影响按钮权限）
+            if (menuForm.getId() != null && MenuTypeEnum.BUTTON.getValue().equals(menuForm.getType())) {
                 roleMenuService.refreshRolePermsCache();
-            } else {
+            } else if (menuForm.getId() == null) {
                 // 新增租户菜单时，自动关联到所有租户
                 if (MenuScopeEnum.TENANT.getValue().equals(entity.getScope())) {
                     tenantMenuService.addMenuToAllTenants(entity.getId());
@@ -517,6 +517,11 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
     @Override
     @CacheEvict(cacheNames = "menu", key = "'routes'")
     public boolean deleteMenu(Long id) {
+        // 删除前判断菜单类型，仅按钮菜单删除后刷新权限缓存
+        Menu menu = this.getById(id);
+        if (menu == null) return false;
+        boolean isButton = MenuTypeEnum.BUTTON.getValue().equals(menu.getType());
+
         boolean result = this.remove(new LambdaQueryWrapper<Menu>()
                 .eq(Menu::getId, id)
                 .or()
@@ -525,8 +530,10 @@ public class MenuServiceImpl extends ServiceImpl<MenuMapper, Menu> implements Me
         if (result) {
             // 清理租户菜单关联
             tenantMenuService.removeByMenuId(id);
-            // 刷新角色权限缓存
-            roleMenuService.refreshRolePermsCache();
+            // 仅按钮菜单删除后刷新权限缓存
+            if (isButton) {
+                roleMenuService.refreshRolePermsCache();
+            }
         }
         return result;
 
